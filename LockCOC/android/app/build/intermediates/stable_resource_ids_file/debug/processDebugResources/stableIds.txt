@@ -1,0 +1,2 @@
+vn.lockcoc.app:style/AppTheme = 0x7f020000
+vn.lockcoc.app:mipmap/ic_launcher = 0x7f010000

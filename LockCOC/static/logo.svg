@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="LockCOC">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1f1a13"/>
+      <stop offset="1" stop-color="#0a0907"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0.15" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#fbe3a0"/>
+      <stop offset="0.55" stop-color="#e2b04a"/>
+      <stop offset="1" stop-color="#b9822a"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#bg)"/>
+  <rect x="3" y="3" width="506" height="506" rx="113" fill="none" stroke="#ffffff" stroke-opacity="0.07" stroke-width="2"/>
+  <!-- khuyên mặt dây -->
+  <rect x="226" y="62" width="60" height="72" rx="30" fill="none" stroke="url(#gold)" stroke-width="14"/>
+  <!-- thân locket -->
+  <circle cx="256" cy="292" r="152" fill="#12100c" stroke="url(#gold)" stroke-width="16"/>
+  <circle cx="256" cy="292" r="124" fill="none" stroke="#e2b04a" stroke-opacity="0.22" stroke-width="2"/>
+  <!-- chữ C hở như khoá mặt dây -->
+  <path d="M319 238 A82 82 0 1 0 319 346" fill="none" stroke="url(#gold)" stroke-width="40" stroke-linecap="round"/>
+  <!-- chấm ống kính -->
+  <circle cx="259" cy="292" r="17" fill="url(#gold)"/>
+</svg>

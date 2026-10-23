@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0b0a09">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="LockCOC">
+  <meta name="referrer" content="no-referrer">
+  <title>LockCOC</title>
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
+  <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <!-- Bộ icon -->
+  <svg class="sprite" width="0" height="0" aria-hidden="true">
+    <defs>
+      <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.2a1 1 0 0 0 .8-.4l.9-1.2a1 1 0 0 1 .8-.4h3.6a1 1 0 0 1 .8.4l.9 1.2a1 1 0 0 0 .8.4h1.2A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.5" r="3.2"/></symbol>
+      <symbol id="i-feed" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></symbol>
+      <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.3"/><path d="M3.5 19c.4-3 2.7-4.7 5.5-4.7s5.1 1.7 5.5 4.7"/><path d="M16 5.4a3.2 3.2 0 0 1 0 6.2M17.5 14.5c2 .5 3.4 2 3.8 4.5"/></symbol>
+      <symbol id="i-chat" viewBox="0 0 24 24"><path d="M5 5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-7l-4.5 3.5V17H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></symbol>
+      <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.7"/><path d="M4.8 20c.5-3.6 3.3-5.7 7.2-5.7s6.7 2.1 7.2 5.7"/></symbol>
+      <symbol id="i-flip" viewBox="0 0 24 24"><path d="M4 11a8 8 0 0 1 13.7-4.7L20 8.5M20 4v4.5h-4.5"/><path d="M20 13a8 8 0 0 1-13.7 4.7L4 15.5M4 20v-4.5h4.5"/></symbol>
+      <symbol id="i-image" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.7"/><path d="m4 17 5-4.5 3.5 3L15 13.5l5 4.5"/></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+      <symbol id="i-send" viewBox="0 0 24 24"><path d="M20.5 3.5 10 14M20.5 3.5 14 20.5l-4-6.5-6.5-4z"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M7 7l.8 12h8.4L17 7M10 11v5M14 11v5"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+      <symbol id="i-logout" viewBox="0 0 24 24"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M10 8l-4 4 4 4M6 12h10"/></symbol>
+      <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></symbol>
+      <symbol id="i-comment" viewBox="0 0 24 24"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7a2.5 2.5 0 0 1-2.5 2.5H10l-4 3.5V16h0A2.5 2.5 0 0 1 4 13.5z"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></symbol>
+      <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14-4.5L4 8.5M4 4v4.5h4.5M4 13a8 8 0 0 0 14 4.5l2-2M20 20v-4.5h-4.5"/></symbol>
+      <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+      <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3.5 14 10l6.5 2-6.5 2-2 6.5-2-6.5-6.5-2 6.5-2z"/></symbol>
+      <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.4 0 2-.9 2-1.8 0-1.4-1.2-1.7-1.2-2.8 0-1 .8-1.6 1.8-1.6h2A3.9 3.9 0 0 0 20.5 11 8.2 8.2 0 0 0 12 3.5z"/><circle cx="7.8" cy="11" r=".9"/><circle cx="10.5" cy="7.3" r=".9"/><circle cx="15" cy="7.8" r=".9"/></symbol>
+      <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3 5 13.5h6L10 21l8-10.5h-6z"/></symbol>
+      <symbol id="i-video" viewBox="0 0 24 24"><rect x="3" y="6.5" width="12.5" height="11" rx="3"/><path d="m15.5 11 5-3v8l-5-3z"/></symbol>
+      <symbol id="i-stop" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2.5"/></symbol>
+      <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 4 8.5 4.5L12 13 3.5 8.5z"/><path d="m3.5 12.5 8.5 4.5 8.5-4.5M3.5 16.5 12 21l8.5-4.5"/></symbol>
+      <symbol id="i-timer" viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7"/><path d="M12 10v4l2.5 1.5M9.5 3.5h5"/></symbol>
+      <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+      <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 17 8.6 4.7 4.7 0 0 1 17.5 18z"/></symbol>
+      <symbol id="i-battery" viewBox="0 0 24 24"><rect x="3" y="8" width="16" height="9" rx="2.5"/><path d="M21 11v3M7 11.5v2M10.5 11.5v2"/></symbol>
+      <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3.8 2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.8 6.9 19.5l1-5.7-4.1-4 5.7-.8z"/></symbol>
+      <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="3"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></symbol>
+      <symbol id="i-snow" viewBox="0 0 24 24"><path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9M9.5 4.5 12 7l2.5-2.5M9.5 19.5 12 17l2.5 2.5"/></symbol>
+      <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6.5h12M8 12h12M8 17.5h12"/><circle cx="4.5" cy="6.5" r=".9"/><circle cx="4.5" cy="12" r=".9"/><circle cx="4.5" cy="17.5" r=".9"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="3"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.5 19 6v5.5c0 4.3-3 7.6-7 9-4-1.4-7-4.7-7-9V6z"/><path d="m9 12 2.2 2.2L15 10"/></symbol>
+      <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9.5 6 6 6-6"/></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></symbol>
+      <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8.5 5.5v13M15.5 5.5v13"/></symbol>
+      <symbol id="i-crown" viewBox="0 0 24 24"><path d="M4 8.5 8 12l4-6.5L16 12l4-3.5-1.5 9.5h-13z"/><path d="M6 20.5h12"/></symbol>
+      <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+    </defs>
+  </svg>
+
+  <div id="app">
+    <div class="ambient" aria-hidden="true"></div>
+
+    <!-- Màn hình chờ -->
+    <div id="splash"><img src="/static/logo.svg" alt="" width="96" height="96"></div>
+
+    <!-- Khoá app -->
+    <section id="view-lock" class="view hidden">
+      <div class="login-wrap">
+        <div class="brand big">
+          <img src="/static/logo.svg" alt="" width="84" height="84">
+          <div class="wordmark"><span>Lock</span><b>COC</b></div>
+          <p class="tagline">App đang được khoá. Nhập mã khoá để tiếp tục.</p>
+        </div>
+        <form id="form-lock" class="panel glass" autocomplete="off">
+          <label class="field"><span>Mã khoá app</span>
+            <input type="password" name="code" autocomplete="off" autocapitalize="none" required>
+          </label>
+          <button class="btn primary block" type="submit"><svg class="i"><use href="#i-lock"/></svg><span class="btn-label">Mở khoá</span></button>
+          <p class="fine">Mã được in ở terminal khi chạy <code>python app.py</code> (hoặc trong <code>data/passcode.txt</code>).</p>
+        </form>
+        <p class="credit">Developed &amp; founded by <b>TRISTAN.faketriss</b></p>
+      </div>
+    </section>
+
+    <!-- Đăng nhập -->
+    <section id="view-login" class="view hidden">
+      <div class="login-wrap">
+        <div class="brand big">
+          <img src="/static/logo.svg" alt="" width="84" height="84">
+          <div class="wordmark"><span>Lock</span><b>COC</b></div>
+          <p class="tagline">Khoảnh khắc của bạn, gọn trong một chiếc locket.</p>
+        </div>
+
+        <div id="saved-accounts" class="saved hidden">
+          <div class="label">Tài khoản đã lưu</div>
+          <div id="saved-list"></div>
+        </div>
+
+        <form id="form-login" class="panel glass" autocomplete="on">
+          <label class="field"><span>Email</span>
+            <input type="email" name="email" autocomplete="username" inputmode="email" required>
+          </label>
+          <label class="field"><span>Mật khẩu</span>
+            <input type="password" name="password" autocomplete="current-password" required>
+          </label>
+          <button class="btn primary block" type="submit"><span class="btn-label">Đăng nhập Locket</span></button>
+          <p class="fine"><svg class="i s"><use href="#i-shield"/></svg> Mật khẩu chỉ dùng để đăng nhập và không được lưu. Đường truyền mã hoá HTTPS.</p>
+        </form>
+<p class="credit">Developed &amp; founded by <b>TRISTAN.faketriss</b></p>
+        <p id="lib-warning" class="warn hidden">Server chưa cài <code>locketlam</code>. Chạy <code>pip install -r requirements.txt</code> rồi khởi động lại.</p>
+      </div>
+    </section>
+
+    <!-- Ứng dụng chính -->
+    <section id="view-main" class="view hidden">
+      <main id="stage">
+        <!-- Camera -->
+        <section class="page" id="page-camera" data-page="camera">
+          <header class="cam-top">
+            <img src="/static/logo.svg" alt="" width="30" height="30">
+            <div class="wordmark sm"><span>Lock</span><b>COC</b></div>
+            <span class="vip-tag" title="Tài khoản VIP"><svg class="i s"><use href="#i-crown"/></svg>VIP</span>
+            <button class="streak-tag" id="streak-tag" aria-label="Chuỗi ngày đăng"><span>🔥</span><b id="streak-n">0</b></button>
+            <button class="chip" id="btn-timer" aria-label="Hẹn giờ chụp"><svg class="i s"><use href="#i-timer"/></svg><span id="timer-label">Tắt</span></button>
+            <div id="rec-badge" class="rec-badge hidden"><i></i><span id="rec-time">0:00</span></div>
+          </header>
+
+          <div class="viewfinder" id="viewfinder">
+            <div class="vf-deco" aria-hidden="true"><i></i><i></i><i></i><i></i><b class="vf-live">● LIVE</b></div>
+            <video id="cam" playsinline muted autoplay></video>
+            <div id="cam-msg" class="cam-msg hidden"></div>
+            <div class="flash" id="flash"></div>
+            <div class="countdown hidden" id="countdown"></div>
+            <div class="zoom-badge hidden" id="zoom-badge">1.0×</div>
+          </div>
+
+          <div class="filter-strip hidden" id="filter-strip"></div>
+
+          <div class="zoom-bar">
+            <button class="chip zoom-chip" data-zoom="1">1×</button>
+            <button class="chip zoom-chip" data-zoom="2">2×</button>
+            <button class="chip zoom-chip" data-zoom="3">3×</button>
+            <input id="zoom-range" type="range" min="1" max="5" step="0.05" value="1" aria-label="Phóng to thu nhỏ">
+          </div>
+
+          <div class="shutter-row glass">
+            <button class="round-btn" id="btn-gallery" aria-label="Chọn từ thư viện"><svg class="i"><use href="#i-image"/></svg></button>
+            <button class="round-btn" id="btn-filters" aria-label="Bộ lọc màu"><svg class="i"><use href="#i-layers"/></svg></button>
+            <button id="shutter" aria-label="Chụp ảnh, giữ để quay video">
+              <svg class="ring" viewBox="0 0 100 100" aria-hidden="true">
+                <circle class="ring-bg" cx="50" cy="50" r="46"/>
+                <circle class="ring-fg" id="ring-fg" cx="50" cy="50" r="46"/>
+              </svg>
+              <span class="core"></span>
+            </button>
+            <button class="round-btn video-btn" id="btn-video" aria-label="Quay video 60 giây"><svg class="i i-video"><use href="#i-video"/></svg><svg class="i i-stop"><use href="#i-stop"/></svg></button>
+            <button class="round-btn" id="btn-flip" aria-label="Đổi camera"><svg class="i"><use href="#i-flip"/></svg></button>
+          </div>
+          <p class="hint" id="cam-hint">Chạm để chụp · Giữ để quay · hoặc bấm nút đỏ (tối đa 60 giây)</p>
+          <input type="file" id="file-pick" accept="image/*,video/*" hidden>
+        </section>
+
+        <!-- Bảng tin -->
+        <section class="page hidden" id="page-feed" data-page="feed">
+          <header class="page-head">
+            <h1>Bảng tin</h1>
+            <div class="head-tools">
+              <button class="chip" id="btn-filter"><span id="filter-label">Mọi người</span><svg class="i s"><use href="#i-chev"/></svg></button>
+              <div class="seg">
+                <button data-view="list" aria-label="Danh sách"><svg class="i"><use href="#i-list"/></svg></button>
+                <button data-view="grid" aria-label="Lưới"><svg class="i"><use href="#i-feed"/></svg></button>
+              </div>
+              <button class="icon-btn" id="btn-sync" aria-label="Đồng bộ toàn bộ"><svg class="i"><use href="#i-refresh"/></svg></button>
+            </div>
+          </header>
+          <div id="sync-note" class="sync-note hidden"></div>
+          <div id="feed-list" class="feed"></div>
+        </section>
+
+        <!-- Bạn bè -->
+        <section class="page hidden" id="page-friends" data-page="friends">
+          <header class="page-head"><h1>Kết nối</h1></header>
+          <form id="form-find" class="searchbar">
+            <svg class="i"><use href="#i-search"/></svg>
+            <input type="text" name="username" placeholder="Tìm theo username" maxlength="40" autocapitalize="none" autocorrect="off" required>
+            <button class="btn small primary" type="submit"><span class="btn-label">Tìm</span></button>
+          </form>
+          <div id="find-result"></div>
+          <details class="accept">
+            <summary>Chấp nhận lời mời bằng UID</summary>
+            <form id="form-accept" class="searchbar">
+              <input type="text" name="user_uid" placeholder="UID người gửi lời mời" required>
+              <button class="btn small" type="submit"><span class="btn-label">Chấp nhận</span></button>
+            </form>
+          </details>
+          <div class="label pad">Danh sách bạn bè</div>
+          <div id="friends-list" class="list"></div>
+        </section>
+
+        <!-- Chat -->
+        <section class="page hidden" id="page-chat" data-page="chat">
+          <header class="page-head"><h1>Tin nhắn</h1></header>
+          <div id="conv-list" class="list"></div>
+        </section>
+
+        <!-- Cá nhân -->
+        <section class="page hidden" id="page-me" data-page="me">
+          <div class="me-head">
+            <div class="avatar xl" id="me-avatar"></div>
+            <h1 id="me-name">…</h1>
+            <p class="muted" id="me-username"></p>
+            <div class="me-actions">
+              <button class="btn small" id="btn-edit-name"><span class="btn-label">Đổi tên</span></button>
+              <button class="btn small" id="btn-edit-avatar"><span class="btn-label">Đổi ảnh đại diện</span></button>
+            </div>
+            <input type="file" id="avatar-pick" accept="image/*" hidden>
+          </div>
+
+          <div class="vip-card">
+            <div class="vip-crown"><svg class="i"><use href="#i-crown"/></svg></div>
+            <div class="vip-meta"><b>Thành viên VIP</b><small>Mở khoá mọi khung widget, bộ lọc, hiệu ứng Studio và hẹn giờ đăng trong LockCOC</small></div>
+          </div>
+
+          <div class="streak-card" id="streak-card">
+            <div class="streak-fire">🔥</div>
+            <div class="vip-meta"><b id="streak-title">Chuỗi 0 ngày</b><small id="streak-sub">Đăng một khoảnh khắc mỗi ngày để giữ chuỗi.</small></div>
+            <button class="btn small primary hidden" id="btn-restore"><svg class="i"><use href="#i-crown"/></svg><span class="btn-label">Khôi phục</span></button>
+          </div>
+
+          <div class="label pad">Đồng bộ &amp; bảo mật</div>
+          <div class="list" id="me-tools"></div>
+
+          <div id="sched-wrap" class="hidden">
+            <div class="label pad">Đã hẹn giờ đăng</div>
+            <div id="sched-list" class="list"></div>
+          </div>
+
+          <div class="label pad">Tài khoản</div>
+          <div id="account-list" class="list"></div>
+
+          <div class="label pad">Bài đã đăng</div>
+          <div id="my-grid" class="grid3"></div>
+          <p class="credit">Developed &amp; founded by <b>TRISTAN.faketriss</b></p>
+        </section>
+      </main>
+
+      <nav id="nav" class="glass" aria-label="Điều hướng">
+        <button data-go="feed" aria-label="Bảng tin"><svg class="i"><use href="#i-feed"/></svg><span>Bảng tin</span></button>
+        <button data-go="friends" aria-label="Kết nối"><svg class="i"><use href="#i-users"/></svg><span>Bạn bè</span></button>
+        <button data-go="camera" class="active cam-tab" aria-label="Camera"><span class="cam-orb"><svg class="i"><use href="#i-camera"/></svg></span></button>
+        <button data-go="chat" aria-label="Tin nhắn"><svg class="i"><use href="#i-chat"/></svg><span>Chat</span><em id="chat-badge" class="badge hidden">0</em></button>
+        <button data-go="me" aria-label="Cá nhân"><svg class="i"><use href="#i-user"/></svg><span>Tôi</span></button>
+      </nav>
+    </section>
+
+    <div id="overlay-root"></div>
+    <div id="toasts" aria-live="polite"></div>
+  </div>
+  <canvas id="work" width="720" height="720" hidden></canvas>
+
+  <script src="/static/js/core.js"></script>
+  <script src="/static/js/camera.js"></script>
+  <script src="/static/js/studio.js"></script>
+  <script src="/static/js/editor.js"></script>
+  <script src="/static/js/social.js"></script>
+  <script src="/static/js/boot.js"></script>
+</body>
+</html>

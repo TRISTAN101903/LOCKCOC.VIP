@@ -1,0 +1,7 @@
+vn.lockcoc.app-pngs-0 /workspaces/LOCKCOC.VIP/LockCOC/android/app/build/generated/res/pngs/debug
+vn.lockcoc.app-resValues-1 /workspaces/LOCKCOC.VIP/LockCOC/android/app/build/generated/res/resValues/debug
+vn.lockcoc.app-packageDebugResources-2 /workspaces/LOCKCOC.VIP/LockCOC/android/app/build/intermediates/incremental/debug/packageDebugResources/merged.dir
+vn.lockcoc.app-packageDebugResources-3 /workspaces/LOCKCOC.VIP/LockCOC/android/app/build/intermediates/incremental/debug/packageDebugResources/stripped.dir
+vn.lockcoc.app-debug-4 /workspaces/LOCKCOC.VIP/LockCOC/android/app/build/intermediates/merged_res/debug/mergeDebugResources
+vn.lockcoc.app-debug-5 /workspaces/LOCKCOC.VIP/LockCOC/android/app/src/debug/res
+vn.lockcoc.app-main-6 /workspaces/LOCKCOC.VIP/LockCOC/android/app/src/main/res

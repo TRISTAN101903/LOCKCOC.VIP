@@ -1,0 +1,17 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'vn.lockcoc.app'
+    compileSdk 34
+    defaultConfig {
+        applicationId 'vn.lockcoc.app'
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName '1.0'
+        // địa chỉ server LockCOC (truyền bằng -PAPP_URL=https://...)
+        buildConfigField 'String', 'APP_URL', "\"${project.findProperty('APP_URL') ?: 'https://example.invalid'}\""
+    }
+    buildFeatures { buildConfig true }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}

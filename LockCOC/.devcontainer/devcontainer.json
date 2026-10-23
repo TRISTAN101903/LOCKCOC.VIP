@@ -1,0 +1,13 @@
+{
+  "name": "LockCOC",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "postCreateCommand": "pip install -r requirements.txt",
+  "forwardPorts": [5000],
+  "portsAttributes": {
+    "5000": { "label": "LockCOC", "onAutoForward": "openBrowser", "visibility": "private" }
+  },
+  "containerEnv": {
+    "LOCKETCAC_SECURE_COOKIES": "1"
+  },
+  "postAttachCommand": "python app.py"
+}
