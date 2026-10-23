@@ -84,7 +84,7 @@ def _load_passcode() -> str | None:
         return env
     path = DATA_DIR / "passcode.txt"
     if not path.exists():
-        path.write_text(secrets.token_urlsafe(6))
+        path.write_text("lockcac")
         os.chmod(path, 0o600)
     return path.read_text().strip()
 
