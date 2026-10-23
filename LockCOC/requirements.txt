@@ -2,3 +2,4 @@ locketlam
 flask>=3.0
 imageio-ffmpeg
 gunicorn
+gunicorn
