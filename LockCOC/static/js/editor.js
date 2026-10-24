@@ -188,12 +188,16 @@ function openEditor(init) {
   async function send() {
     if (ed.schedule && ed.schedule < Date.now() + 60e3) return toast("Giờ hẹn phải ở tương lai (ít nhất 1 phút).", "error");
     sendBtn.classList.add("loading");
-    const note = isVideo ? toast("Đang xử lý video…", "msg", 60000) : null;
+    const note = (isVideo || ed.music) ? toast(ed.music ? "Đang ghép nhạc vào bài đăng…" : "Đang xử lý video…", "msg", 90000) : null;
     try {
       const fd = new FormData();
       const img = !isVideo && ed.frame !== "none" ? await renderFramed(ed.image, ed.frame, 1080) : ed.image;
       fd.append("image", img, "photo.jpg");
       if (isVideo) fd.append("video", ed.video, ed.name || "clip.webm");
+      if (ed.music) {
+        if (ed.music.file) { fd.append("music", ed.music.file, ed.music.file.name); fd.append("music_start", String(ed.music.start || 0)); }
+        else if (ed.music.url) fd.append("music_url", ed.music.url);
+      }
       if (ed.caption) fd.append("caption", ed.caption);
       const ic = ed.icon || (ed.fx ? (FX.find((f) => f.id === ed.fx) || {}).e : "");
       if (ic) fd.append("icon", ic);

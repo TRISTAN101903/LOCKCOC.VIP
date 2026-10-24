@@ -46,6 +46,14 @@ function openStudio(ed, onChange) {
   }
 
   // ---------------- Nhạc
+  let musicStateEl = null;
+  function updMusicState() {
+    if (!musicStateEl) return;
+    musicStateEl.replaceChildren();
+    if (!ed.music) return;
+    musicStateEl.append(icon("music", "i s"), el("span", {}, "Nhạc sẽ ghép vào bài đăng: " + (ed.music.title || "đã chọn")),
+      el("button", { class: "icon-btn", "aria-label": "Bỏ nhạc", onclick: () => { ed.music = null; updMusicState(); } }, icon("close", "i s")));
+  }
   function songRow(t) {
     const art = el("div", { class: "art" }, safeUrl(t.art) ? imgEl(safeUrl(t.art), "") : null);
     const play = t.preview && /^https:\/\//.test(t.preview) ? el("button", { class: "icon-btn", "aria-label": "Nghe thử", onclick: (e) => {
@@ -58,7 +66,10 @@ function openStudio(ed, onChange) {
       audioPrev.onended = stopPreview;
       b.classList.add("on");
     } }, icon("play")) : null;
-    return el("div", { class: "song", onclick: () => { stopPreview(); setCaption(`${t.title}${t.artist ? " — " + t.artist : ""}`, "🎵"); toast("Đã chọn bài hát", "ok", 1800); } },
+    return el("div", { class: "song", onclick: () => { stopPreview(); setCaption(`${t.title}${t.artist ? " — " + t.artist : ""}`, "🎵");
+      if (t.preview) { ed.music = { url: t.preview, title: t.title }; toast("Đã chọn bài hát · nhạc sẽ ghép vào bài đăng", "ok", 2200); }
+      else { ed.music = null; toast("Đã ghi tên bài hát (bài này không có đoạn nhạc để ghép)", "msg", 2600); }
+      updMusicState(); } },
       art, el("div", { class: "meta" }, el("strong", {}, t.title), el("small", {}, t.artist || "Spotify")), play);
   }
   function renderMusic() {
@@ -77,7 +88,22 @@ function openStudio(ed, onChange) {
       const b = e.submitter || $("button", lform);
       await busy(b, async () => { const { item } = await api("/api/music/link?url=" + encodeURIComponent(lIn.value.trim())); list.replaceChildren(songRow(item)); });
     } }, icon("link"), lIn, el("button", { class: "btn small", type: "submit" }, el("span", { class: "btn-label" }, "Lấy")));
-    body.append(form, lform, el("div", { class: "sec" }, icon("music", "i"), "Đang thịnh hành"), list);
+    const fIn = el("input", { type: "file", accept: "audio/*,.mp3,.m4a,.aac,.wav,.ogg", class: "hidden" });
+    const sIn = el("input", { type: "number", min: "0", max: "600", value: "0", inputmode: "numeric", "aria-label": "Bắt đầu từ giây", class: "sec-in" });
+    fIn.addEventListener("change", () => {
+      const f = fIn.files && fIn.files[0];
+      if (!f) return;
+      if (f.size > 30 * 1024 * 1024) { fIn.value = ""; return toast("File nhạc quá lớn (tối đa 30MB).", "error"); }
+      ed.music = { file: f, start: Math.max(0, +sIn.value || 0), title: f.name };
+      setCaption(f.name.replace(/\.[^.]+$/, ""), "🎵");
+      updMusicState(); toast("Đã chọn file nhạc", "ok", 1800);
+    });
+    sIn.addEventListener("input", () => { if (ed.music && ed.music.file) ed.music.start = Math.max(0, +sIn.value || 0); });
+    const upRow = el("div", { class: "searchbar" }, icon("music"), el("small", { class: "grow" }, "Nhạc của bạn · từ giây"), sIn,
+      el("button", { class: "btn small", type: "button", onclick: () => fIn.click() }, el("span", { class: "btn-label" }, "Chọn file")), fIn);
+    musicStateEl = el("div", { class: "music-state" });
+    updMusicState();
+    body.append(musicStateEl, form, lform, upRow, el("div", { class: "sec" }, icon("music", "i"), "Đang thịnh hành"), list);
     api("/api/music/trending").then((d) => { if (!qIn.value) show(d.items); }).catch((e) => list.replaceChildren(el("div", { class: "empty" }, e.message)));
   }
 

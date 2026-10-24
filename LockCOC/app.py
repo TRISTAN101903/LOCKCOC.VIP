@@ -62,6 +62,11 @@ except OSError:
     pass
 FORCE_HTTPS = os.environ.get("LOCKETCAC_FORCE_HTTPS", "1") == "1"
 ALLOWED_FETCH_HOSTS = {"itunes.apple.com", "open.spotify.com", "api.open-meteo.com"}
+AUDIO_EXT = {".mp3", ".m4a", ".aac", ".wav", ".ogg", ".opus", ".flac", ".mp4"}
+try:
+    MUSIC_SECONDS = max(5, min(int(os.environ.get("LOCKETCAC_MUSIC_SECONDS", "30")), MAX_VIDEO_SECONDS))
+except ValueError:
+    MUSIC_SECONDS = 30
 
 
 def _load_secret() -> str:
@@ -742,6 +747,72 @@ def to_mp4(src: str, tmpdir: str) -> str:
     return dst
 
 
+def _audio_host_ok(host: str | None) -> bool:
+    host = (host or "").lower()
+    return host.endswith(".itunes.apple.com") or host.endswith(".mzstatic.com")
+
+
+class _AudioRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        u = urllib.parse.urlparse(newurl)
+        if u.scheme != "https" or not _audio_host_ok(u.hostname):
+            return None
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+_audio_opener = urllib.request.build_opener(_AudioRedirect)
+
+
+def download_preview(url: str, tmpdir: str) -> str:
+    u = urllib.parse.urlparse(url)
+    if u.scheme != "https" or not _audio_host_ok(u.hostname):
+        raise ApiError("Nguon nhac khong duoc phep.", 400)
+    req = urllib.request.Request(url, headers={"User-Agent": "LockCOC/3.0"})
+    try:
+        with _audio_opener.open(req, timeout=12) as r:
+            raw = r.read(8_000_001)
+    except Exception:  # noqa: BLE001
+        raise ApiError("Khong tai duoc doan nhac, thu lai sau.", 502)
+    if len(raw) > 8_000_000 or len(raw) < 1000:
+        raise ApiError("Doan nhac khong hop le.", 400)
+    ext = Path(u.path).suffix.lower()
+    dst = Path(tmpdir) / f"{uuid.uuid4().hex}{ext if ext in AUDIO_EXT else '.m4a'}"
+    dst.write_bytes(raw)
+    return str(dst)
+
+
+def mix_music(image: str, video: str | None, audio: str, start, tmpdir: str) -> str:
+    exe = ffmpeg_exe()
+    if exe is None:
+        raise ApiError("Server thieu ffmpeg de ghep nhac (pip install imageio-ffmpeg).", 500)
+    try:
+        start_s = max(0.0, min(float(start or 0), 3600.0))
+    except (TypeError, ValueError):
+        start_s = 0.0
+    dst = str(Path(tmpdir) / f"{uuid.uuid4().hex}.mp4")
+    if video:
+        cmd = [exe, "-y", "-i", video, "-ss", f"{start_s:.2f}", "-stream_loop", "-1", "-i", audio,
+               "-map", "0:v:0", "-map", "1:a:0", "-t", str(MAX_VIDEO_SECONDS), "-shortest",
+               "-c:v", "libx264", "-preset", "veryfast", "-crf", "26", "-pix_fmt", "yuv420p", "-r", "30",
+               "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", dst]
+    else:
+        dur = MUSIC_SECONDS
+        cmd = [exe, "-y", "-loop", "1", "-framerate", "30", "-i", image,
+               "-ss", f"{start_s:.2f}", "-stream_loop", "-1", "-i", audio,
+               "-map", "0:v:0", "-map", "1:a:0", "-t", str(dur),
+               "-vf", "scale=720:-2,format=yuv420p", "-af", f"afade=t=out:st={max(dur - 1.5, 0):.1f}:d=1.5",
+               "-c:v", "libx264", "-preset", "veryfast", "-tune", "stillimage", "-crf", "26", "-r", "30",
+               "-c:a", "aac", "-b:a", "128k", "-shortest", "-movflags", "+faststart", dst]
+    try:
+        proc = subprocess.run(cmd, capture_output=True, timeout=240)
+    except subprocess.TimeoutExpired:
+        raise ApiError("Ghep nhac qua lau, hay thu clip/nhac ngan hon.", 504)
+    if proc.returncode != 0 or not Path(dst).exists():
+        app.logger.error("ffmpeg ghep nhac loi: %s", proc.stderr[-800:].decode("utf-8", "ignore"))
+        raise ApiError("Khong ghep duoc nhac nay (file nhac/video khong doc duoc).", 400)
+    return dst
+
+
 def parse_post_meta(form) -> dict:
     """Kiểm tra dữ liệu form đăng bài, trả về dict thuần JSON (dùng được cho cả hẹn giờ)."""
     L = lib()
@@ -844,7 +915,13 @@ def post_moment():
         if not image:
             raise ApiError("Cần có ảnh (hoặc khung hình đại diện nếu đăng video)")
         video = save_upload(request.files.get("video"), VIDEO_EXT, tmp, "video")
-        if video:
+        music_file = save_upload(request.files.get("music"), AUDIO_EXT, tmp, "nhac")
+        music_url = request.form.get("music_url", "").strip()
+        if music_file or music_url:
+            if not music_file:
+                music_file = download_preview(music_url, tmp)
+            video = mix_music(image, video, music_file, request.form.get("music_start", "0"), tmp)
+        elif video:
             video = to_mp4(video, tmp)
         if run_at:
             sid = uuid.uuid4().hex
@@ -1229,8 +1306,19 @@ def music_trending():
                 "artist": s((en.get("im:artist") or {}).get("label")),
                 "art": s((imgs[-1] if imgs else {}).get("label")).replace("170x170", "200x200"),
                 "preview": "",
+                "id": s(((en.get("id") or {}).get("attributes") or {}).get("im:id")),
             })
         items = [i for i in items if i["title"]]
+        ids = [i["id"] for i in items if i.get("id")]
+        if ids:
+            try:
+                lk = fetch_json("https://itunes.apple.com/lookup?" + urllib.parse.urlencode(
+                    {"id": ",".join(ids), "country": "VN"}))
+                pv = {str(t.get("trackId")): s(t.get("previewUrl")) for t in (lk.get("results") or []) if isinstance(t, dict)}
+                for i in items:
+                    i["preview"] = pv.get(i.get("id"), "")
+            except ApiError:
+                pass
         if items:
             return jr({"items": items})
     except ApiError:
