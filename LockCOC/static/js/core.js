@@ -192,7 +192,7 @@ function pillText(ed) { return (ed.icon ? ed.icon + " " : "") + (ed.caption || (
 function applyPill(pill, ed) {
   const text = pillText(ed);
   pill.classList.toggle("hidden", !text);
-  pill.textContent = text;
+  pill.replaceChildren(...(ed.icon ? [gl(ed.icon), " "] : []), ed.caption || (ed.note ? noteLabel(ed.note) : ""));
   const g = ed.grad != null ? GRADS[ed.grad] : null;
   pill.style.background = g ? `linear-gradient(135deg, ${g.c[0]}, ${g.c[1]})` : "";
   pill.style.color = g ? g.t : "";
@@ -204,7 +204,7 @@ function applyFx(layer, fxId) {
   const f = FX.find((x) => x.id === fxId);
   if (!f) return;
   for (let i = 0; i < 22; i++) {
-    const p = el("span", { class: "fx-p" }, f.e);
+    const p = el("span", { class: "fx-p" }, gl(f.e));
     p.style.setProperty("--x", rand(0, 96) + "%");
     p.style.setProperty("--sz", rand(11, 24) + "px");
     p.style.setProperty("--d", rand(4.5, 9) + "s");
@@ -254,14 +254,14 @@ function dialog({ title, text, fields = [], ok = "OK", cancel = "Huỷ", danger 
 function burstEmoji(emoji, x, y) {
   const body = document.body;
   const ring = el("div", { class: "burst-ring", style: { left: x + "px", top: y + "px" } });
-  const hero = el("div", { class: "burst-hero", style: { left: x + "px", top: y + "px" } }, emoji);
+  const hero = el("div", { class: "burst-hero", style: { left: x + "px", top: y + "px" } }, gl(emoji));
   body.append(ring, hero);
   setTimeout(() => { ring.remove(); hero.remove(); }, 1200);
   const n = 16;
   for (let i = 0; i < n; i++) {
     const ang = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.5;
     const dist = rand(70, 190);
-    const p = el("div", { class: "burst-p", style: { left: x + "px", top: y + "px", animationDelay: rand(0, 0.14) + "s" } }, emoji);
+    const p = el("div", { class: "burst-p", style: { left: x + "px", top: y + "px", animationDelay: rand(0, 0.14) + "s" } }, gl(emoji));
     p.style.setProperty("--dx", Math.cos(ang) * dist + "px");
     p.style.setProperty("--dy", Math.sin(ang) * dist - 20 + "px");
     p.style.setProperty("--rot", rand(-300, 300) + "deg");
@@ -277,7 +277,7 @@ function burstEmoji(emoji, x, y) {
 function reactPop(anchor, onPick) {
   $$(".react-pop").forEach((n) => n.remove());
   const pop = el("div", { class: "react-pop" }, ...REACTS.map((e, i) => {
-    const b = el("button", { "aria-label": e, onclick: (ev) => { const r = ev.currentTarget.getBoundingClientRect(); close(); onPick(e, r.left + r.width / 2, r.top + r.height / 2); } }, e);
+    const b = el("button", { "aria-label": e, onclick: (ev) => { const r = ev.currentTarget.getBoundingClientRect(); close(); onPick(e, r.left + r.width / 2, r.top + r.height / 2); } }, gl(e));
     b.style.setProperty("--i", i);
     return b;
   }));

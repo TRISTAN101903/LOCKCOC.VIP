@@ -513,3 +513,23 @@ input:focus { outline: none; border-color: rgba(226, 176, 74, .7); box-shadow: 0
 .music-state span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .searchbar .grow { flex: 1; min-width: 0; font-size: 12px; }
 .searchbar input.sec-in { width: 56px; flex: none; text-align: center; }
+/* ---- the nhac + glyph ---- */
+.gl { width: 1.2em; height: 1.2em; vertical-align: -.28em; flex: none; overflow: visible; filter: url(#wobble); }
+.burst-hero .gl { width: 1em; height: 1em; }
+.react-pop button .gl, .react-bar button .gl { width: 1.05em; height: 1.05em; vertical-align: 0; }
+.emoji-b .gl { width: 1.15em; height: 1.15em; vertical-align: 0; }
+.chip .gl { width: 1.25em; height: 1.25em; vertical-align: -.3em; margin-right: 2px; }
+.cap-pill .gl { vertical-align: -.25em; margin-right: 2px; }
+.song-slot { position: absolute; left: 0; right: 0; bottom: 12px; display: flex; justify-content: center; padding: 0 12px; pointer-events: none; z-index: 3; }
+.song-slot:has(+ .cap-pill) { bottom: 64px; }
+.song-card { pointer-events: auto; display: flex; align-items: center; gap: 10px; width: min(100%, 420px); padding: 8px 10px 8px 8px; border-radius: 22px; background: rgba(24, 20, 15, .9); border: 1px solid rgba(255, 255, 255, .15); box-shadow: 0 8px 22px rgba(0, 0, 0, .4); color: #fff; }
+.sc-art { width: 46px; height: 46px; border-radius: 12px; overflow: hidden; flex: none; display: grid; place-items: center; background: linear-gradient(135deg, #34d2a4, #f0a93c); }
+.sc-art img { width: 100%; height: 100%; object-fit: cover; }
+.sc-art .gl { width: 30px; height: 30px; }
+.sc-meta { flex: 1; min-width: 0; display: grid; gap: 1px; text-align: left; }
+.sc-meta strong { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sc-meta small { font-size: 12px; color: rgba(255, 255, 255, .66); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sc-play, .sc-x { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; flex: none; }
+.sc-play { background: #f6e7c4; color: #2b1a12; }
+.sc-play .i { width: 18px; height: 18px; fill: currentColor; stroke: #2b1a12; filter: none; }
+.sc-x { background: rgba(255, 255, 255, .1); color: #fff; width: 30px; height: 30px; }

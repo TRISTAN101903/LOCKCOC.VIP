@@ -781,7 +781,16 @@ def download_preview(url: str, tmpdir: str) -> str:
     return str(dst)
 
 
-def mix_music(image: str, video: str | None, audio: str, start, tmpdir: str) -> str:
+def video_size(exe: str, path: str):
+    try:
+        r = subprocess.run([exe, "-i", path], capture_output=True, timeout=30)
+        m = re.search(r"Video:.*?, (\d{2,5})x(\d{2,5})", r.stderr.decode("utf-8", "ignore"))
+        return (int(m.group(1)), int(m.group(2))) if m else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def mix_music(image: str, video: str | None, audio: str, start, tmpdir: str, card: str | None = None) -> str:
     exe = ffmpeg_exe()
     if exe is None:
         raise ApiError("Server thieu ffmpeg de ghep nhac (pip install imageio-ffmpeg).", 500)
@@ -803,6 +812,14 @@ def mix_music(image: str, video: str | None, audio: str, start, tmpdir: str) -> 
                "-vf", "scale=720:-2,format=yuv420p", "-af", f"afade=t=out:st={max(dur - 1.5, 0):.1f}:d=1.5",
                "-c:v", "libx264", "-preset", "veryfast", "-tune", "stillimage", "-crf", "26", "-r", "30",
                "-c:a", "aac", "-b:a", "128k", "-shortest", "-movflags", "+faststart", dst]
+    if video and card:
+        dims = video_size(exe, video) or (720, 1280)
+        cw = max(2, int(dims[0] * 0.86) // 2 * 2)
+        cmd = [exe, "-y", "-i", video, "-ss", f"{start_s:.2f}", "-stream_loop", "-1", "-i", audio, "-i", card,
+               "-filter_complex", f"[2:v]scale={cw}:-1[c];[0:v][c]overlay=(W-w)/2:H-h-H*0.05,format=yuv420p[v]",
+               "-map", "[v]", "-map", "1:a:0", "-t", str(MAX_VIDEO_SECONDS), "-shortest",
+               "-c:v", "libx264", "-preset", "veryfast", "-crf", "26", "-r", "30",
+               "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", dst]
     try:
         proc = subprocess.run(cmd, capture_output=True, timeout=240)
     except subprocess.TimeoutExpired:
@@ -920,7 +937,8 @@ def post_moment():
         if music_file or music_url:
             if not music_file:
                 music_file = download_preview(music_url, tmp)
-            video = mix_music(image, video, music_file, request.form.get("music_start", "0"), tmp)
+            card = save_upload(request.files.get("music_card"), {".png"}, tmp, "the nhac")
+            video = mix_music(image, video, music_file, request.form.get("music_start", "0"), tmp, card if video else None)
         elif video:
             video = to_mp4(video, tmp)
         if run_at:

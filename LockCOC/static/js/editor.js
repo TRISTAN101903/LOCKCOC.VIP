@@ -118,7 +118,8 @@ function openEditor(init) {
   }
   const imgPrev = el("img", { alt: "Xem trước" });
   if (!isVideo) media.append(imgPrev);
-  media.append(fxLayer, pill);
+  const songBox = el("div", { class: "song-slot" });
+  media.append(fxLayer, pill, songBox);
 
   let frameSeq = 0;
   async function refreshMedia() {
@@ -129,7 +130,7 @@ function openEditor(init) {
       if (my === frameSeq) imgPrev.src = mkUrl(b);
     } catch { /* bỏ qua */ }
   }
-  function refresh() { applyPill(pill, ed); applyFx(fxLayer, ed.fx); capIn.value = ed.caption || ""; }
+  function refresh() { applyPill(pill, ed); applyFx(fxLayer, ed.fx); capIn.value = ed.caption || ""; drawSongSlot(songBox, ed, refresh); }
   const capIn = el("input", { type: "text", class: "cap-input", placeholder: "Thêm caption…", maxlength: 120, oninput: (e) => { ed.caption = e.target.value; applyPill(pill, ed); } });
 
   const studioBtn = el("button", { class: "studio-btn glass", onclick: () => openStudio(ed, refresh) }, icon("sparkle"), "Studio · nhạc, widget, hiệu ứng");
@@ -140,7 +141,7 @@ function openEditor(init) {
     ed.frame = f.id;
     $$("[data-f]", frameRow).forEach((b) => b.classList.toggle("on", b.dataset.f === f.id));
     refreshMedia();
-  } }, f.e + " " + f.n)));
+  } }, gl(f.e), " " + f.n)));
 
   // hẹn giờ
   const schedIn = el("input", { type: "datetime-local", class: "sched-input hidden" });
@@ -191,8 +192,10 @@ function openEditor(init) {
     const note = (isVideo || ed.music) ? toast(ed.music ? "Đang ghép nhạc vào bài đăng…" : "Đang xử lý video…", "msg", 90000) : null;
     try {
       const fd = new FormData();
-      const img = !isVideo && ed.frame !== "none" ? await renderFramed(ed.image, ed.frame, 1080) : ed.image;
+      let img = !isVideo && ed.frame !== "none" ? await renderFramed(ed.image, ed.frame, 1080) : ed.image;
+      if (ed.song && !isVideo) img = await burnSongCard(img, ed.song);
       fd.append("image", img, "photo.jpg");
+      if (ed.song && isVideo && ed.music) fd.append("music_card", await songCardPng(ed.song), "card.png");
       if (isVideo) fd.append("video", ed.video, ed.name || "clip.webm");
       if (ed.music) {
         if (ed.music.file) { fd.append("music", ed.music.file, ed.music.file.name); fd.append("music_start", String(ed.music.start || 0)); }

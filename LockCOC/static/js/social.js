@@ -32,7 +32,7 @@ function sendReaction(m, emoji, x, y, rxRow) {
 }
 function renderRx(row, id, bumped) {
   const st = rxStore.get(id) || {};
-  row.replaceChildren(...Object.entries(st).map(([e, n]) => el("span", { class: "rx-chip glass" + (e === bumped ? " bump" : "") }, e, n > 1 ? "×" + n : "")));
+  row.replaceChildren(...Object.entries(st).map(([e, n]) => el("span", { class: "rx-chip glass" + (e === bumped ? " bump" : "") }, gl(e), n > 1 ? "×" + n : "")));
 }
 
 function postCard(m) {
@@ -62,7 +62,7 @@ function postCard(m) {
 function openViewer(m, opts = {}) {
   const ov = openOverlay("viewer");
   const body = el("div", { class: "viewer-body" }, postCard(m));
-  const bar = el("div", { class: "react-bar glass" }, ...REACTS.map((e) => el("button", { onclick: (ev) => { const r = ev.currentTarget.getBoundingClientRect(); sendReaction(m, e, r.left + r.width / 2, r.top + r.height / 2, $(".rx-row", body)); } }, e)));
+  const bar = el("div", { class: "react-bar glass" }, ...REACTS.map((e) => el("button", { onclick: (ev) => { const r = ev.currentTarget.getBoundingClientRect(); sendReaction(m, e, r.left + r.width / 2, r.top + r.height / 2, $(".rx-row", body)); } }, gl(e))));
   if (!opts.mine) body.append(bar);
   if (opts.mine && m.id) {
     const vw = el("div", { class: "viewers" });

@@ -50,9 +50,10 @@ function openStudio(ed, onChange) {
   function updMusicState() {
     if (!musicStateEl) return;
     musicStateEl.replaceChildren();
-    if (!ed.music) return;
-    musicStateEl.append(icon("music", "i s"), el("span", {}, "Nhạc sẽ ghép vào bài đăng: " + (ed.music.title || "đã chọn")),
-      el("button", { class: "icon-btn", "aria-label": "Bỏ nhạc", onclick: () => { ed.music = null; updMusicState(); } }, icon("close", "i s")));
+    if (!ed.song && !ed.music) return;
+    const t = (ed.song && ed.song.title) || (ed.music && ed.music.title) || "đã chọn";
+    musicStateEl.append(icon("music", "i s"), el("span", {}, (ed.music ? "Nhạc + thẻ nhạc sẽ vào bài đăng: " : "Thẻ nhạc sẽ vào ảnh: ") + t),
+      el("button", { class: "icon-btn", "aria-label": "Bỏ nhạc", onclick: () => { stopPreview(); ed.music = null; ed.song = null; updMusicState(); syncPrev(); } }, icon("close", "i s")));
   }
   function songRow(t) {
     const art = el("div", { class: "art" }, safeUrl(t.art) ? imgEl(safeUrl(t.art), "") : null);
@@ -66,10 +67,10 @@ function openStudio(ed, onChange) {
       audioPrev.onended = stopPreview;
       b.classList.add("on");
     } }, icon("play")) : null;
-    return el("div", { class: "song", onclick: () => { stopPreview(); setCaption(`${t.title}${t.artist ? " — " + t.artist : ""}`, "🎵");
-      if (t.preview) { ed.music = { url: t.preview, title: t.title }; toast("Đã chọn bài hát · nhạc sẽ ghép vào bài đăng", "ok", 2200); }
-      else { ed.music = null; toast("Đã ghi tên bài hát (bài này không có đoạn nhạc để ghép)", "msg", 2600); }
-      updMusicState(); } },
+    return el("div", { class: "song", onclick: () => { stopPreview(); ed.song = { title: t.title, artist: t.artist || "", art: t.art || "" };
+      if (t.preview) { ed.music = { url: t.preview, title: t.title }; toast("Đã chọn bài hát · thẻ nhạc và nhạc sẽ vào bài đăng", "ok", 2200); }
+      else { ed.music = null; toast("Đã chọn bài hát · thẻ nhạc sẽ hiện trên ảnh (bài này không có đoạn nhạc để ghép)", "msg", 2800); }
+      updMusicState(); syncPrev(); } },
       art, el("div", { class: "meta" }, el("strong", {}, t.title), el("small", {}, t.artist || "Spotify")), play);
   }
   function renderMusic() {
@@ -95,7 +96,7 @@ function openStudio(ed, onChange) {
       if (!f) return;
       if (f.size > 30 * 1024 * 1024) { fIn.value = ""; return toast("File nhạc quá lớn (tối đa 30MB).", "error"); }
       ed.music = { file: f, start: Math.max(0, +sIn.value || 0), title: f.name };
-      setCaption(f.name.replace(/\.[^.]+$/, ""), "🎵");
+      ed.song = { title: f.name.replace(/\.[^.]+$/, ""), artist: "", art: "" }; syncPrev();
       updMusicState(); toast("Đã chọn file nhạc", "ok", 1800);
     });
     sIn.addEventListener("input", () => { if (ed.music && ed.music.file) ed.music.start = Math.max(0, +sIn.value || 0); });
@@ -120,7 +121,7 @@ function openStudio(ed, onChange) {
       sw.append(b);
     });
     body.append(sw, el("div", { class: "sec" }, icon("sparkle"), "Biểu tượng"));
-    body.append(el("div", { class: "hrow" }, ...EMOJIS.map((e) => el("button", { class: "emoji-b" + (ed.icon === e || (!ed.icon && !e) ? " on" : ""), onclick: () => { ed.icon = e; render(); } }, e || "∅"))));
+    body.append(el("div", { class: "hrow" }, ...EMOJIS.map((e) => el("button", { class: "emoji-b" + (ed.icon === e || (!ed.icon && !e) ? " on" : ""), onclick: () => { ed.icon = e; render(); } }, e ? gl(e) : "∅"))));
     body.append(el("div", { class: "sec" }, icon("list"), "Nhãn có sẵn của Locket"));
     const notes = el("div", { class: "hrow" });
     body.append(notes);
@@ -186,7 +187,7 @@ function openStudio(ed, onChange) {
     body.append(el("p", { class: "fine" }, "Hiệu ứng chỉ hiển thị khi xem trước trên app này; biểu tượng tương ứng sẽ được gửi kèm làm icon caption."));
     const grid = el("div", { class: "hrow", style: { flexWrap: "wrap" } });
     grid.append(el("button", { class: "chip" + (!ed.fx ? " on" : ""), onclick: () => { ed.fx = null; render(); onChange(); } }, "Tắt"));
-    FX.forEach((f) => grid.append(el("button", { class: "chip" + (ed.fx === f.id ? " on" : ""), onclick: () => { ed.fx = f.id; if (!ed.icon) ed.icon = f.e; render(); onChange(); } }, f.e + " " + f.n)));
+    FX.forEach((f) => grid.append(el("button", { class: "chip" + (ed.fx === f.id ? " on" : ""), onclick: () => { ed.fx = f.id; if (!ed.icon) ed.icon = f.e; render(); onChange(); } }, gl(f.e), " " + f.n)));
     body.append(grid);
   }
 
