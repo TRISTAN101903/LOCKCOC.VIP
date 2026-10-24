@@ -92,6 +92,7 @@ let onAuthLost = () => {};
 let onLocked = () => {};
 async function api(path, opts = {}) {
   const init = { method: opts.method || "GET", headers: { "X-LockCOC": "1" }, credentials: "same-origin" };
+  try { if (S.active) init.headers["X-LockCOC-Acct"] = S.active; } catch { /* chưa khởi tạo */ }
   if (opts.json !== undefined) { init.headers["Content-Type"] = "application/json"; init.body = JSON.stringify(opts.json); }
   if (opts.form) init.body = opts.form;
   let res;

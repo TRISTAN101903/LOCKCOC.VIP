@@ -75,9 +75,18 @@ def _load_secret() -> str:
         return env
     path = DATA_DIR / "secret.key"
     if not path.exists():
-        path.write_text(secrets.token_hex(32))
-        os.chmod(path, 0o600)
-    return path.read_text().strip()
+        try:
+            fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+            with os.fdopen(fd, "w") as f:
+                f.write(secrets.token_hex(32))
+        except FileExistsError:
+            pass
+    for _ in range(40):
+        val = path.read_text().strip()
+        if val:
+            return val
+        time.sleep(0.05)
+    raise RuntimeError("secret.key rong")
 
 
 def _load_passcode() -> str | None:
@@ -106,6 +115,7 @@ app.config.update(
     SESSION_COOKIE_SAMESITE="Strict",
     SESSION_COOKIE_SECURE=os.environ.get("LOCKETCAC_SECURE_COOKIES") == "1",
     PERMANENT_SESSION_LIFETIME=timedelta(days=14),
+    SESSION_REFRESH_EACH_REQUEST=False,
     JSON_AS_ASCII=False,
 )
 
@@ -391,7 +401,7 @@ def save_profile(key: str, prof: dict) -> None:
 def get_entry() -> Entry:
     if lib() is None:
         raise ApiError("Server chưa cài thư viện locketlam (pip install -r requirements.txt).", 503)
-    key = session.get("active")
+    key = request.headers.get("X-LockCOC-Acct") or session.get("active")
     if key not in browser_keys() or not account_row(key) or not session_path(key).exists():
         raise ApiError("Chưa đăng nhập", 401)
     with ENTRIES_LOCK:
@@ -444,7 +454,8 @@ def is_unlocked() -> bool:
     if not last or time.time() - last > LOCK_IDLE or not session.get("unlocked_at"):
         session.pop("unlocked_at", None)
         return False
-    session["touch"] = time.time()
+    if time.time() - last > 60:
+        session["touch"] = time.time()
     return True
 
 
@@ -508,6 +519,14 @@ def record_attempt(ip: str) -> None:
 # Trang + xác thực
 # ----------------------------------------------------------------------------
 @app.get("/")
+def landing():
+    ua = request.headers.get("User-Agent", "")
+    if "; wv)" in ua or request.args.get("app") == "1":  # APK/WebView vao thang ung dung
+        return redirect("/app")
+    return render_template("landing.html")
+
+
+@app.get("/app")
 def index():
     return render_template("index.html")
 
@@ -521,9 +540,13 @@ def status():
     rows = [account_row(k) for k in keys]
     accounts = [acct_json(r) for r in rows if r and session_path(r["key"]).exists()]
     valid = {a["key"] for a in accounts}
-    session["keys"] = [k for k in keys if k in valid]
+    new_keys = [k for k in keys if k in valid]
+    if session.get("keys") != new_keys:
+        session["keys"] = new_keys
     if session.get("active") not in valid:
-        session["active"] = accounts[0]["key"] if accounts else None
+        new_active = accounts[0]["key"] if accounts else None
+        if session.get("active") != new_active:
+            session["active"] = new_active
     return jr({"lib": lib() is not None, "locked": False, "accounts": accounts, "active": session.get("active")})
 
 
@@ -1002,7 +1025,11 @@ def run_due_posts() -> None:
     if L is None:
         return
     for r in q("SELECT * FROM scheduled WHERE status='pending' AND run_at<=?", (time.time(),)):
-        q("UPDATE scheduled SET status='running' WHERE id=? AND status='pending'", (r["id"],), commit=True)
+        with _db_lock:
+            claimed = _db.execute("UPDATE scheduled SET status='running' WHERE id=? AND status='pending'", (r["id"],)).rowcount
+            _db.commit()
+        if not claimed:
+            continue
         status, err = "done", None
         try:
             if not account_row(r["key"]) or not session_path(r["key"]).exists():
@@ -1058,10 +1085,10 @@ def history():
 @app.get("/api/media/<name>")
 @api
 def media(name):
-    e = get_entry()
     if not re.match(r"^[0-9a-f]{32}\.[a-z]{3,4}$", name):
         raise ApiError("Không tìm thấy", 404)
-    if not q("SELECT 1 FROM posts WHERE key=? AND file=?", (e.key, name), one=True):
+    owner = q("SELECT key FROM posts WHERE file=?", (name,), one=True)
+    if not owner or owner["key"] not in browser_keys():
         raise ApiError("Không tìm thấy", 404)
     resp = send_from_directory(MEDIA_DIR, name)
     resp.headers["Cache-Control"] = "private, max-age=86400"
@@ -1449,6 +1476,61 @@ def streak_restore():
 @app.errorhandler(413)
 def too_large(_):
     return jr({"error": "File quá lớn (tối đa 200 MB)."}, 413)
+
+
+@app.get("/api/diag")
+@api
+def diag():
+    """Kiem tra khoa bi mat, database, phien dang nhap. Chi doc, khong sua gi."""
+    issues, info = [], {}
+    env_secret = bool(os.environ.get("LOCKETCAC_SECRET"))
+    info["secret"] = "bien moi truong" if env_secret else "file data/secret.key"
+    if not env_secret:
+        issues.append("Chua dat LOCKETCAC_SECRET: moi lan deploy lai (data bi xoa) khoa doi, moi nguoi bi dang xuat.")
+    info["passcode"] = "tat" if not PASSCODE else ("bien moi truong" if os.environ.get("LOCKETCAC_PASSCODE") else "file data/passcode.txt")
+    if PASSCODE and not os.environ.get("LOCKETCAC_PASSCODE"):
+        issues.append("Ma khoa dang lay tu file, se doi sau khi deploy lai. Dat LOCKETCAC_PASSCODE de co dinh.")
+    info["cookie_secure"] = bool(app.config["SESSION_COOKIE_SECURE"])
+    if request.is_secure and not info["cookie_secure"]:
+        issues.append("Dang chay HTTPS nhung cookie chua o che do Secure: dat LOCKETCAC_SECURE_COOKIES=1.")
+    workers = os.environ.get("WEB_CONCURRENCY", "1")
+    info["workers"] = workers
+    if workers.isdigit() and int(workers) > 1:
+        issues.append("Nhieu worker: hen gio va gioi han dang nhap sai se bi nhan doi. Dung 1 worker + --threads 4.")
+    with _db_lock:
+        info["sqlite"] = _db.execute("PRAGMA integrity_check").fetchone()[0]
+        info["journal"] = _db.execute("PRAGMA journal_mode").fetchone()[0]
+    if info["sqlite"] != "ok":
+        issues.append("SQLite bao loi toan ven: " + str(info["sqlite"]))
+    rows = q("SELECT key, username FROM accounts")
+    db_keys = {r["key"] for r in rows}
+    files = {p.stem for p in SESSIONS_DIR.glob("*.json")}
+    info["accounts"] = len(db_keys)
+    miss = sorted(db_keys - files)
+    orphan = sorted(files - db_keys)
+    if miss:
+        issues.append(f"{len(miss)} tai khoan co trong database nhung mat file phien: {', '.join(k[:6] for k in miss)} (can dang nhap lai).")
+    if orphan:
+        issues.append(f"{len(orphan)} file phien khong co tai khoan trong database (file thua).")
+    mine = browser_keys()
+    stale = [k for k in mine if k not in db_keys]
+    info["trinh_duyet_nay"] = {"so_tai_khoan": len(mine), "active": (session.get("active") or "")[:6]}
+    if stale:
+        issues.append(f"Trinh duyet nay giu {len(stale)} khoa tai khoan da khong con tren server.")
+    posts = q("SELECT file, key FROM posts")
+    media = {p.name for p in MEDIA_DIR.glob("*") if p.is_file()}
+    lost = [r for r in posts if r["file"] and r["file"] not in media]
+    dead = [r for r in posts if r["key"] not in db_keys]
+    info["bai_dang"] = len(posts)
+    if lost:
+        issues.append(f"{len(lost)} bai trong lich su mat file anh/video.")
+    if dead:
+        issues.append(f"{len(dead)} bai thuoc tai khoan da bi xoa.")
+    stuck = q("SELECT COUNT(*) AS n FROM scheduled WHERE status='running'", one=True)["n"]
+    if stuck:
+        issues.append(f"{stuck} bai hen gio dang o trang thai 'running' (co the bi ket).")
+    info["data_dir"] = str(DATA_DIR)
+    return jr({"ok": not issues, "issues": issues, "info": info})
 
 
 @app.errorhandler(404)
