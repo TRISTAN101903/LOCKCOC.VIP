@@ -1478,6 +1478,32 @@ def too_large(_):
     return jr({"error": "File quá lớn (tối đa 200 MB)."}, 413)
 
 
+@app.get("/api/music-probe")
+@api
+def music_probe():
+    """Chan doan: in cau truc overlay nhac that trong feed (da che token) de bat chuoc dung dinh dang goc."""
+    e = get_entry()
+    with e.lock:
+        data = e.client.moments.get_latest()
+    rows = to_list(data)
+    kinds = {}
+    hits = []
+    for m in rows:
+        if not isinstance(m, dict):
+            continue
+        ovs = m.get("overlays")
+        for ov in (ovs if isinstance(ovs, list) else []):
+            if isinstance(ov, dict):
+                k = f"{ov.get('overlay_type')}|{ov.get('overlay_id')}"
+                kinds[k] = kinds.get(k, 0) + 1
+        txt = json.dumps(ovs, ensure_ascii=False, default=str).lower()
+        if any(w in txt for w in ("music", "spotify", "apple", "song", "track")) and len(hits) < 3:
+            hits.append({"overlays": ovs, "keys": sorted(m.keys())})
+    out = json.dumps({"scanned": len(rows), "overlay_kinds": kinds, "music_samples": hits}, ensure_ascii=False, indent=1, default=str)
+    out = re.sub(r"token=[^&\"\s]+", "token=X", out)
+    return Response(out, mimetype="application/json")
+
+
 @app.get("/api/diag")
 @api
 def diag():
