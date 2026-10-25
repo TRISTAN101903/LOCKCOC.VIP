@@ -1486,6 +1486,22 @@ def music_probe():
     with e.lock:
         data = e.client.moments.get_latest()
     rows = to_list(data)
+    # music-probe-friends: quet them bai cua tung nguoi ban
+    try:
+        with e.lock:
+            fr = e.client.friends.get_all_friends()
+        for f in (fr[:60] if isinstance(fr, list) else []):
+            uid = norm_friend(f).get("uid")
+            if not uid:
+                continue
+            try:
+                with e.lock:
+                    got = e.client.moments.get_shared_moments_by_user(user_uid=uid, limit=10)
+                rows += to_list(got)
+            except Exception:  # noqa: BLE001
+                continue
+    except Exception:  # noqa: BLE001
+        pass
     kinds = {}
     hits = []
     for m in rows:
