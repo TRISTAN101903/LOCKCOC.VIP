@@ -533,3 +533,4 @@ input:focus { outline: none; border-color: rgba(226, 176, 74, .7); box-shadow: 0
 .sc-play { background: #f6e7c4; color: #2b1a12; }
 .sc-play .i { width: 18px; height: 18px; fill: currentColor; stroke: #2b1a12; filter: none; }
 .sc-x { background: rgba(255, 255, 255, .1); color: #fff; width: 30px; height: 30px; }
+a.row-item { text-decoration: none; color: inherit; }

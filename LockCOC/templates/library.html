@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0a09">
+  <meta name="referrer" content="no-referrer">
+  <title>Thư viện ảnh – LockCOC</title>
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/library.css">
+</head>
+<body class="lib">
+  <header class="lib-top">
+    <a class="lib-back" href="/app" aria-label="Quay lại ứng dụng">&#8592;</a>
+    <h1>Thư viện ảnh</h1>
+  </header>
+
+  <section class="lib-bar">
+    <div class="lib-row">
+      <button class="btn primary" id="lib-sync" type="button"><span class="btn-label">Đồng bộ ngay</span></button>
+      <p class="muted" id="lib-status">Đang kiểm tra...</p>
+    </div>
+    <div class="lib-prog hidden" id="lib-progwrap"><i id="lib-prog"></i></div>
+    <div class="lib-chips" role="tablist" aria-label="Lọc ảnh">
+      <button class="chip on" role="tab" aria-selected="true" data-who="all" type="button">Tất cả</button>
+      <button class="chip" role="tab" aria-selected="false" data-who="mine" type="button">Của tôi</button>
+      <button class="chip" role="tab" aria-selected="false" data-who="friends" type="button">Bạn bè</button>
+    </div>
+  </section>
+
+  <main class="lib-grid" id="lib-grid"></main>
+  <div class="lib-more"><button class="btn hidden" id="lib-more" type="button"><span class="btn-label">Xem thêm</span></button></div>
+  <p class="credit lib-credit">© 2026 LockCOC · Developed &amp; founded by <b>TRISTAN.faketriss</b></p>
+
+  <div class="lib-view hidden" id="lib-view" role="dialog" aria-modal="true" aria-label="Xem ảnh">
+    <div class="lib-view-box">
+      <div class="lib-view-media" id="lib-media"></div>
+      <div class="lib-view-meta">
+        <b id="lib-who"></b>
+        <small id="lib-when"></small>
+        <p id="lib-cap"></p>
+      </div>
+      <div class="lib-view-actions">
+        <a class="btn primary" id="lib-dl" href="#" download><span class="btn-label">Tải về</span></a>
+        <button class="btn" id="lib-close" type="button"><span class="btn-label">Đóng</span></button>
+      </div>
+    </div>
+  </div>
+  <script src="/static/js/library.js"></script>
+</body>
+</html>

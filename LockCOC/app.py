@@ -1520,6 +1520,215 @@ def music_probe():
     return Response(out, mimetype="application/json")
 
 
+with _db_lock:
+    _db.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS sync_items(
+            key TEXT, mid TEXT, uid TEXT, name TEXT, thumb TEXT, video TEXT,
+            caption TEXT, ts REAL, mine INTEGER, PRIMARY KEY(key, mid));
+        CREATE INDEX IF NOT EXISTS sync_key_ts ON sync_items(key, ts DESC);
+        """
+    )
+    _db.commit()
+
+_sync_jobs: dict = {}
+_sync_lock = threading.Lock()
+SYNC_MAX_PAGES = 400
+SYNC_MAX_ITEMS = 20000
+
+
+def _sync_put(rows: list) -> None:
+    if not rows:
+        return
+    with _db_lock:
+        _db.executemany(
+            "INSERT OR REPLACE INTO sync_items(key,mid,uid,name,thumb,video,caption,ts,mine) VALUES(?,?,?,?,?,?,?,?,?)",
+            rows,
+        )
+        _db.commit()
+
+
+def _sync_worker(e) -> None:
+    job = _sync_jobs[e.key]
+    L = lib()
+    try:
+        job["phase"] = "Đang lấy danh sách bạn bè"
+        names = {}
+        with e.lock:
+            fr = e.client.friends.get_all_friends()
+        for f in (fr if isinstance(fr, list) else []):
+            n = norm_friend(f)
+            if n.get("uid"):
+                full = " ".join(x for x in (n.get("first_name"), n.get("last_name")) if x)
+                names[n["uid"]] = full or n.get("username") or ""
+
+        job["phase"] = "Đang tải ảnh của bạn bè"
+        seen = set()
+        cur = None
+        while job["pages"] < SYNC_MAX_PAGES and job["found"] < SYNC_MAX_ITEMS:
+            payload = {"should_count_missed_moments": True, "include_group_moments": True}
+            if cur:
+                payload["sync_token"] = cur
+            with e.lock:
+                res = e.client.post_api("getLatestMomentV2", payload)
+            data = res.get("data", []) if isinstance(res, dict) else []
+            if not data:
+                break
+            job["pages"] += 1
+            rows = []
+            new = 0
+            for m in data:
+                if not isinstance(m, dict):
+                    continue
+                mid = m.get("canonical_uid")
+                if not mid or mid in seen:
+                    continue
+                seen.add(mid)
+                new += 1
+                cur = mid
+                thumb = s(m.get("thumbnail_url") or m.get("image_url") or "")
+                video = s(m.get("video_url") or "")
+                if not (thumb or video):
+                    continue
+                uid = m.get("user") if isinstance(m.get("user"), str) else ""
+                rows.append((e.key, mid, uid, names.get(uid, ""), thumb, video, caption_of(m),
+                             to_ts(m.get("date")) or 0, 1 if uid and uid == e.uid else 0))
+            _sync_put(rows)
+            job["found"] += len(rows)
+            if new == 0 or (isinstance(res, dict) and res.get("status") == 304):
+                break
+
+        job["phase"] = "Đang tải ảnh của bạn"
+        try:
+            with e.lock:
+                own = e.client.moments.get_all_my_moments()
+            rows = []
+            for m in to_list(own):
+                if not isinstance(m, dict):
+                    continue
+                mid = first(m, ["moment_uid", "id", "canonical_uid", "uid"])
+                thumb = s(m.get("thumbnail_url") or "")
+                video = s(m.get("video_url") or "")
+                if not mid or not (thumb or video):
+                    continue
+                rows.append((e.key, str(mid), e.uid or "", "Tôi", thumb, video, s(m.get("caption") or ""),
+                             to_ts(m.get("created_at")) or 0, 1))
+            _sync_put(rows)
+        except Exception as ex:  # noqa: BLE001
+            if L and isinstance(ex, L.exc.AuthenticationError):
+                raise
+            app.logger.warning("Dong bo anh cua toi loi: %s", ex)
+        job["state"] = "done"
+        job["phase"] = "Hoàn tất"
+    except Exception as ex:  # noqa: BLE001
+        job["state"] = "error"
+        if L and isinstance(ex, L.exc.AuthenticationError):
+            job["error"] = "Phiên Locket đã hết hạn, hãy đăng nhập lại."
+        else:
+            app.logger.error("Dong bo loi:\n%s", traceback.format_exc())
+            job["error"] = "Đồng bộ bị gián đoạn, thử lại sau."
+    finally:
+        job["ended"] = time.time()
+
+
+@app.post("/api/sync-all")
+@api
+def sync_all_start():
+    e = get_entry()
+    with _sync_lock:
+        job = _sync_jobs.get(e.key)
+        if job and job.get("state") == "running" and time.time() - job.get("started", 0) < 1200:
+            return jr(job)
+        job = {"state": "running", "phase": "Bắt đầu", "pages": 0, "found": 0, "started": time.time(), "error": ""}
+        _sync_jobs[e.key] = job
+    threading.Thread(target=_sync_worker, args=(e,), daemon=True).start()
+    return jr(job)
+
+
+@app.get("/api/sync-all/status")
+@api
+def sync_all_status():
+    e = get_entry()
+    n = q("SELECT COUNT(*) AS n FROM sync_items WHERE key=?", (e.key,), one=True)["n"]
+    job = _sync_jobs.get(e.key) or {"state": "idle"}
+    return jr({**job, "total": int(n)})
+
+
+@app.get("/api/sync-all/items")
+@api
+def sync_all_items():
+    e = get_entry()
+    who = request.args.get("who", "all")
+    try:
+        off = max(0, int(request.args.get("offset", "0")))
+        lim = max(1, min(int(request.args.get("limit", "60")), 120))
+    except ValueError:
+        raise ApiError("Tham số không hợp lệ")
+    cond = "key=?"
+    if who == "mine":
+        cond += " AND mine=1"
+    elif who == "friends":
+        cond += " AND mine=0"
+    total = q(f"SELECT COUNT(*) AS n FROM sync_items WHERE {cond}", (e.key,), one=True)["n"]
+    rows = q(f"SELECT mid,uid,name,thumb,video,caption,ts,mine FROM sync_items WHERE {cond} ORDER BY ts DESC LIMIT ? OFFSET ?",
+             (e.key, lim, off))
+    items = [{"id": r["mid"], "uid": r["uid"], "name": r["name"], "image": r["thumb"], "video": r["video"],
+              "caption": r["caption"], "ts": r["ts"], "mine": bool(r["mine"])} for r in rows]
+    return jr({"items": items, "total": int(total)})
+
+
+_DL_HOSTS = ("googleapis.com", "googleusercontent.com", "firebasestorage.app", "appspot.com")
+
+
+@app.get("/api/sync-all/file/<mid>")
+@api
+def sync_all_file(mid):
+    if not re.match(r"^[A-Za-z0-9_.:-]{3,100}$", mid):
+        raise ApiError("Không tìm thấy", 404)
+    e = get_entry()
+    row = q("SELECT thumb, video FROM sync_items WHERE key=? AND mid=?", (e.key, mid), one=True)
+    if not row:
+        raise ApiError("Không tìm thấy", 404)
+    kind = "video" if request.args.get("kind") == "video" else "image"
+    url = (row["video"] if kind == "video" else row["thumb"]) or ""
+    u = urllib.parse.urlparse(url)
+    host = u.hostname or ""
+    if u.scheme != "https" or not any(host == h or host.endswith("." + h) for h in _DL_HOSTS):
+        raise ApiError("Nguồn tải không hợp lệ", 400)
+    try:
+        up = urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}), timeout=25)
+    except Exception:  # noqa: BLE001
+        raise ApiError("Không tải được file từ Locket", 502)
+    ctype = up.headers.get_content_type() or "application/octet-stream"
+    if not (ctype.startswith("image/") or ctype.startswith("video/") or ctype == "application/octet-stream"):
+        up.close()
+        raise ApiError("Loại file không hợp lệ", 400)
+    ext = ".mp4" if kind == "video" else (".webp" if "webp" in ctype else ".png" if "png" in ctype else ".jpg")
+
+    def gen():
+        total = 0
+        try:
+            while True:
+                b = up.read(65536)
+                if not b:
+                    break
+                total += len(b)
+                if total > 80_000_000:
+                    break
+                yield b
+        finally:
+            up.close()
+
+    resp = Response(gen(), mimetype=ctype)
+    resp.headers["Content-Disposition"] = f'attachment; filename="lockcoc-{mid[:12]}{ext}"'
+    return resp
+
+
+@app.get("/library")
+def library_page():
+    return render_template("library.html")
+
+
 @app.get("/api/diag")
 @api
 def diag():
