@@ -3,147 +3,182 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f4ead6">
+  <meta name="theme-color" content="#14110c">
   <meta name="referrer" content="no-referrer">
   <meta name="author" content="TRISTAN.faketriss">
   <meta name="copyright" content="© 2026 LockCOC · TRISTAN.faketriss">
-  <title>LockCOC – sổ lưu niệm cho khoảnh khắc</title>
-  <meta name="description" content="LockCOC: chụp, thêm bài hát, hẹn giờ và gửi khoảnh khắc tới bạn bè ngay từ trình duyệt hoặc APK.">
+  <title>LockCOC – gửi khoảnh khắc, kèm bài hát</title>
+  <meta name="description" content="LockCOC: chụp, gắn bài hát, hẹn giờ và gửi khoảnh khắc tới bạn bè. Dùng trên trình duyệt hoặc cài APK cho Android.">
   <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
   <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
   <link rel="manifest" href="/static/manifest.json">
   <link rel="stylesheet" href="/static/landing.css">
 </head>
 <body>
-  <svg class="defs" width="0" height="0" aria-hidden="true" focusable="false">
-    <defs>
-      <filter id="rough" x="-8%" y="-8%" width="116%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
-      <linearGradient id="gDawn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd9a0"/><stop offset="1" stop-color="#ff8f6b"/></linearGradient>
-      <linearGradient id="gRain" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c4a6b"/><stop offset="1" stop-color="#121c2c"/></linearGradient>
-      <linearGradient id="gCity" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6b26b"/><stop offset="1" stop-color="#c9567a"/></linearGradient>
-      <symbol id="s-dawn" viewBox="0 0 200 200"><rect width="200" height="200" fill="url(#gDawn)"/><circle cx="104" cy="118" r="34" fill="#fff1b8"/><path d="M0 150c30-26 54-26 84-6s60 22 116-14v70H0z" fill="#2f7d6d"/><path d="M0 172c40-20 78-14 110 0s60 8 90-8v36H0z" fill="#1f5a4f"/><path d="M40 52q6-7 12 0q6-7 12 0M130 40q5-6 10 0q5-6 10 0" fill="none" stroke="#6b3a2a" stroke-width="2.2" stroke-linecap="round"/></symbol>
-      <symbol id="s-rain" viewBox="0 0 200 200"><rect width="200" height="200" fill="url(#gRain)"/><rect x="38" y="30" width="124" height="140" rx="6" fill="none" stroke="#0a0f18" stroke-width="7"/><path d="M100 30v140M38 100h124" stroke="#0a0f18" stroke-width="5"/><g stroke="#9fd0ff" stroke-width="2" stroke-linecap="round" opacity=".7"><path d="M52 44l-5 16M74 70l-5 16M120 48l-5 16M142 82l-5 16M60 122l-5 16M112 118l-5 16M146 140l-5 16M84 150l-5 16"/></g><rect x="108" y="108" width="42" height="18" rx="4" fill="#ff5fa2" opacity=".9"/><rect x="108" y="108" width="42" height="18" rx="4" fill="none" stroke="#ffd0e6" stroke-width="2"/></symbol>
-      <symbol id="s-city" viewBox="0 0 200 200"><rect width="200" height="200" fill="url(#gCity)"/><circle cx="152" cy="52" r="20" fill="#fff4d0"/><path d="M0 200V110h34V80h30v52h24V96h36v40h26V70h30v130z" fill="#3a2540"/><g fill="#ffd86b"><rect x="8" y="122" width="8" height="8"/><rect x="20" y="140" width="8" height="8"/><rect x="40" y="94" width="8" height="8"/><rect x="48" y="118" width="8" height="8"/><rect x="98" y="112" width="8" height="8"/><rect x="116" y="130" width="8" height="8"/><rect x="146" y="92" width="8" height="8"/><rect x="170" y="110" width="8" height="8"/><rect x="160" y="150" width="8" height="8"/><rect x="70" y="150" width="8" height="8"/></g></symbol>
-      <symbol id="s-note" viewBox="0 0 24 24"><path d="M9 18V6l10-2v11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="18" r="3" fill="currentColor"/><circle cx="16.5" cy="15" r="3" fill="currentColor"/></symbol>
-      <symbol id="s-flame" viewBox="0 0 24 24"><path d="M12.4 2.2c.3 2.7-.9 4.1-2.4 5.7C8.2 9.8 6 11.9 6.3 15.4c.3 3.5 3 6.2 6.2 6.2 3.5 0 6-2.7 5.8-6.3-.1-2.3-1.1-3.6-1.9-4.9-.4 1.2-1 1.9-1.9 2.3.4-3.6-.3-6.9-1.9-10.5z" fill="#ff8a2a" stroke="#2b1a12" stroke-width="1.3" stroke-linejoin="round"/></symbol>
-      <symbol id="s-heart" viewBox="0 0 24 24"><path d="M12 20.5C4.4 15.2 3.2 10.4 5.6 7.7c2-2.2 4.9-1.6 6.4.7 1.5-2.3 4.4-2.9 6.4-.7 2.4 2.7 1.2 7.5-6.4 12.8z" fill="#ff5468" stroke="#2b1a12" stroke-width="1.3" stroke-linejoin="round"/></symbol>
-      <symbol id="s-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="#fff8e8" stroke="#2b1a12" stroke-width="1.6"/><path d="M12 7v5l3.4 2" fill="none" stroke="#2b1a12" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-      <symbol id="s-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.4" fill="#34d2a4" stroke="#2b1a12" stroke-width="1.5"/><circle cx="16.6" cy="9.6" r="2.8" fill="#f0a93c" stroke="#2b1a12" stroke-width="1.5"/><path d="M3 19c.4-3.2 2.8-5 6-5s5.6 1.8 6 5zM15.4 14.4c2.6-.2 4.9 1.2 5.6 4.6h-4.4" fill="#fff8e8" stroke="#2b1a12" stroke-width="1.5" stroke-linejoin="round"/></symbol>
-      <symbol id="s-frame" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="2" fill="#fff8e8" stroke="#2b1a12" stroke-width="1.6"/><rect x="6.5" y="6.5" width="11" height="8.5" fill="#6bb6e8" stroke="#2b1a12" stroke-width="1.2"/></symbol>
-      <symbol id="s-lock" viewBox="0 0 24 24"><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="#2b1a12" stroke-width="1.8" stroke-linecap="round"/><rect x="5" y="10.5" width="14" height="10" rx="2.6" fill="#f0a93c" stroke="#2b1a12" stroke-width="1.6"/><circle cx="12" cy="15.4" r="1.5" fill="#2b1a12"/></symbol>
-      <symbol id="s-shot" viewBox="0 0 24 24"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.2a1 1 0 0 0 .8-.4l.9-1.2a1 1 0 0 1 .8-.4h3.6a1 1 0 0 1 .8.4l.9 1.2a1 1 0 0 0 .8.4h1.2A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z" fill="#fff8e8" stroke="#2b1a12" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12.5" r="3.4" fill="#34d2a4" stroke="#2b1a12" stroke-width="1.5"/></symbol>
-    </defs>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="i-note" viewBox="0 0 24 24"><path d="M9 18V6l10-2v11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="18" r="2.6" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="16.5" cy="15" r="2.6" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-frame" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 15l4.5-4.5 4 4 2.5-2.5L20 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 19c.5-3.2 2.9-5 6-5s5.5 1.8 6 5M16 5.6a3 3 0 0 1 0 5.8M18 14.4c1.8.6 2.7 2.2 3 4.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12.4 2.5c.3 2.6-.9 4-2.4 5.6C8.3 9.9 6.3 11.9 6.5 15.2c.3 3.4 2.9 5.9 6 5.9 3.4 0 5.8-2.6 5.6-6-.1-2.2-1-3.5-1.8-4.8-.4 1.1-1 1.8-1.8 2.2.4-3.4-.3-6.5-2.1-10z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.5C4.4 15.2 3.2 10.4 5.6 7.7c2-2.2 4.9-1.6 6.4.7 1.5-2.3 4.4-2.9 6.4-.7 2.4 2.7 1.2 7.5-6.4 12.8z" fill="currentColor"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v11M7.5 11l4.5 4.5 4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-ok" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-no" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-android" viewBox="0 0 24 24"><path d="M6.5 10h11v7.5A1.5 1.5 0 0 1 16 19H8a1.5 1.5 0 0 1-1.5-1.5zM6.5 10a5.5 5.5 0 0 1 11 0zM8.6 4.2 7.4 2.4M15.4 4.2l1.2-1.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-apple" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M10 5.5h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
   </svg>
 
   <header class="top">
-    <a class="brand" href="/" aria-label="LockCOC"><img src="/static/logo.svg" alt="" width="34" height="34"><span>LockCOC</span></a>
+    <a class="brand" href="/" aria-label="LockCOC"><img src="/static/logo.svg" alt="" width="32" height="32"><span>LockCOC</span></a>
     <nav aria-label="Điều hướng">
-      <a href="#cach-dung">Cách dùng</a>
       <a href="#tinh-nang">Tính năng</a>
+      <a href="#tai-app">Tải app</a>
+      <a href="#so-sanh">So sánh</a>
       <a href="#hoi-dap">Hỏi đáp</a>
     </nav>
-    <a class="btn btn-ink" href="/app">Mở ứng dụng</a>
+    <a class="btn btn-gold sm" href="#tai-app">Tải APK</a>
   </header>
 
   <main>
     <section class="hero">
       <div class="hero-copy">
-        <p class="kicker"><svg class="ic"><use href="#s-note"/></svg> sổ lưu niệm cho khoảnh khắc</p>
-        <h1>Gửi một <em>khoảnh khắc</em>,<br>không phải một bài đăng.</h1>
-        <p class="lead">Chụp nhanh, gắn bài hát đang nghe, hẹn giờ gửi, rồi thả thẳng vào màn hình bạn bè. Dùng ngay trên trình duyệt hoặc cài thành app Android.</p>
+        <p class="eyebrow">Ứng dụng gửi khoảnh khắc</p>
+        <h1>Gửi một khoảnh khắc,<br>kèm bài hát bạn đang nghe.</h1>
+        <p class="lead">Chụp ảnh hoặc quay video ngắn, gắn nhạc, hẹn giờ rồi gửi tới bạn bè. Dùng ngay trên trình duyệt hoặc cài APK cho Android.</p>
         <div class="cta-row">
-          <a class="btn btn-big" href="/app">Bắt đầu chụp</a>
-          <a class="btn btn-line" href="#cach-dung">Xem cách dùng</a>
+          <a class="btn btn-gold" id="hero-apk" href="#tai-app"><svg class="ic"><use href="#i-down"/></svg><span id="hero-apk-text">Tải APK cho Android</span></a>
+          <a class="btn btn-ghost" href="/app">Dùng trên trình duyệt</a>
         </div>
-        <p class="fine">Miễn phí · đăng nhập bằng tài khoản Locket sẵn có · có mã khóa riêng</p>
+        <p class="meta-line" id="hero-meta">Miễn phí · không cần cửa hàng ứng dụng</p>
+        <div class="statline" id="statline" hidden><span class="live-dot"></span><span id="stat-text"></span></div>
       </div>
 
-      <div class="collage" aria-hidden="true">
-        <figure class="pol p-a rise">
-          <div class="pic" data-photo="/static/promo/1.jpg"><svg viewBox="0 0 200 200"><use href="#s-dawn"/></svg></div>
-          <figcaption>sáng nay · 6:40</figcaption>
-        </figure>
-        <figure class="pol p-b rise d1">
-          <div class="pic" data-photo="/static/promo/2.jpg"><svg viewBox="0 0 200 200"><use href="#s-rain"/></svg>
-            <div class="songchip"><span class="art"><svg><use href="#s-note"/></svg></span><span class="meta"><b>Mưa trên phố</b><i>Playlist của tôi</i></span><span class="play"></span></div>
+      <div class="phone-col">
+        <div class="phone" aria-label="Minh họa một khoảnh khắc đang phát">
+          <div class="phone-in">
+<div class="scene on" data-cap="sáng nay · 6:40" data-title="Buổi sáng nhẹ" data-artist="Acoustic">
+            <svg viewBox="0 0 200 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="pDawn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd9a0"/><stop offset=".7" stop-color="#ff9a6b"/><stop offset="1" stop-color="#e5736c"/></linearGradient></defs><rect width="200" height="360" fill="url(#pDawn)"/><circle class="sun" cx="100" cy="210" r="40" fill="#fff1b8"/><g class="cloud c1"><ellipse cx="40" cy="80" rx="26" ry="9" fill="#fff" opacity=".7"/><ellipse cx="58" cy="74" rx="18" ry="8" fill="#fff" opacity=".7"/></g><g class="cloud c2"><ellipse cx="150" cy="120" rx="22" ry="7" fill="#fff" opacity=".6"/><ellipse cx="164" cy="115" rx="14" ry="6" fill="#fff" opacity=".6"/></g><path d="M0 250c34-30 62-30 96-8s70 24 104-14v146H0z" fill="#2f7d6d"/><path d="M0 290c44-24 86-16 122 0s52 8 78-6v76H0z" fill="#1f5a4f"/><path class="bird b1" d="M60 150q6-8 12 0q6-8 12 0" fill="none" stroke="#6b3a2a" stroke-width="2" stroke-linecap="round"/><path class="bird b2" d="M120 130q5-7 10 0q5-7 10 0" fill="none" stroke="#6b3a2a" stroke-width="2" stroke-linecap="round"/></svg>
           </div>
-          <figcaption>quán quen, trời mưa</figcaption>
-        </figure>
-        <figure class="pol p-c rise d2">
-          <div class="pic" data-photo="/static/promo/3.jpg"><svg viewBox="0 0 200 200"><use href="#s-city"/></svg></div>
-          <figcaption>tan ca rồi</figcaption>
-        </figure>
-        <span class="sticker st-1"><svg><use href="#s-flame"/></svg> 12 ngày</span>
-        <span class="sticker st-2"><svg><use href="#s-heart"/></svg> 38</span>
+          <div class="scene" data-cap="quán quen, trời mưa" data-title="Mưa trên phố" data-artist="Lo-fi">
+            <svg viewBox="0 0 200 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="pRain" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c4a6b"/><stop offset="1" stop-color="#0f1826"/></linearGradient><clipPath id="winClip"><rect x="26" y="40" width="148" height="190" rx="8"/></clipPath></defs><rect width="200" height="360" fill="url(#pRain)"/><g clip-path="url(#winClip)"><rect x="26" y="40" width="148" height="190" fill="#1c2f48"/><g class="rain r1" stroke="#9fd0ff" stroke-width="2" stroke-linecap="round" opacity=".75"><path d="M40 20l-6 18M64 -10l-6 18M92 10l-6 18M118 -20l-6 18M146 0l-6 18M170 -14l-6 18M52 60l-6 18M104 50l-6 18M156 70l-6 18"/></g><g class="rain r2" stroke="#cfe6ff" stroke-width="1.6" stroke-linecap="round" opacity=".55"><path d="M30 60l-5 14M76 30l-5 14M132 40l-5 14M162 20l-5 14M48 110l-5 14M110 100l-5 14M152 120l-5 14"/></g><rect class="neon" x="86" y="120" width="70" height="26" rx="6" fill="#ff5fa2"/><rect x="86" y="120" width="70" height="26" rx="6" fill="none" stroke="#ffd0e6" stroke-width="2.4"/></g><rect x="26" y="40" width="148" height="190" rx="8" fill="none" stroke="#0a0f18" stroke-width="8"/><path d="M100 40v190M26 135h148" stroke="#0a0f18" stroke-width="6"/><rect x="60" y="250" width="80" height="60" rx="14" fill="#f6e7c4"/><path d="M140 266h10a10 10 0 0 1 0 22h-10" fill="none" stroke="#f6e7c4" stroke-width="7"/><path class="steam" d="M82 244c-6-10 6-14 0-24M100 244c-6-10 6-14 0-24M118 244c-6-10 6-14 0-24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".6"/></svg>
+          </div>
+          <div class="scene" data-cap="tan ca rồi" data-title="Tan ca" data-artist="City pop">
+            <svg viewBox="0 0 200 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="pCity" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5d3a7a"/><stop offset=".5" stop-color="#d9648a"/><stop offset="1" stop-color="#f6b26b"/></linearGradient></defs><rect width="200" height="360" fill="url(#pCity)"/><circle class="moon" cx="146" cy="80" r="24" fill="#fff4d0"/><g fill="#fff" opacity=".8"><circle class="st s1" cx="30" cy="50" r="1.5"/><circle class="st s2" cx="70" cy="90" r="1.3"/><circle class="st s3" cx="110" cy="40" r="1.6"/><circle class="st s1" cx="176" cy="30" r="1.2"/></g><path d="M0 360V210h36v-34h32v60h26v-44h40v50h28v-72h38v230z" fill="#2c1b3a"/><path d="M0 360V270h28v-24h26v34h32v-20h30v28h30v-40h54v152z" fill="#3a2540"/><g fill="#ffd86b"><rect class="win w1" x="8" y="226" width="9" height="9"/><rect class="win w2" x="22" y="250" width="9" height="9"/><rect class="win w3" x="44" y="190" width="9" height="9"/><rect class="win w2" x="54" y="224" width="9" height="9"/><rect class="win w1" x="104" y="216" width="9" height="9"/><rect class="win w3" x="126" y="244" width="9" height="9"/><rect class="win w2" x="158" y="190" width="9" height="9"/><rect class="win w1" x="176" y="222" width="9" height="9"/><rect class="win w3" x="164" y="276" width="9" height="9"/><rect class="win w1" x="76" y="286" width="9" height="9"/><rect class="win w2" x="30" y="300" width="9" height="9"/><rect class="win w3" x="112" y="310" width="9" height="9"/></g></svg>
+          </div>
+            <div class="ph-top"><span class="ph-cap" id="ph-cap">sáng nay · 6:40</span></div>
+            <div class="ph-react" aria-hidden="true"><svg class="fl f1"><use href="#i-heart"/></svg><svg class="fl f2"><use href="#i-flame"/></svg><svg class="fl f3"><use href="#i-heart"/></svg></div>
+            <div class="songchip"><span class="art"><svg><use href="#i-note"/></svg></span><span class="meta"><b id="ph-title">Buổi sáng nhẹ</b><i id="ph-artist">Acoustic</i></span><span class="eq" aria-hidden="true"><u></u><u></u><u></u><u></u></span></div>
+            <div class="ph-prog"><i id="ph-prog"></i></div>
+          </div>
+        </div>
+        <div class="chips" role="tablist" aria-label="Chọn cảnh minh họa">
+          <button class="chip on" role="tab" aria-selected="true" data-i="0">Bình minh</button>
+          <button class="chip" role="tab" aria-selected="false" data-i="1">Đêm mưa</button>
+          <button class="chip" role="tab" aria-selected="false" data-i="2">Phố lên đèn</button>
+        </div>
+        <p class="cap-note">Hình minh họa chuyển động, không phải video thật.</p>
       </div>
     </section>
 
-    <div class="ribbon" aria-hidden="true">
-      <div class="track"><span>chụp</span><span>gắn nhạc</span><span>hẹn giờ</span><span>khung ảnh</span><span>nhiều tài khoản</span><span>mã khóa</span><span>chuỗi ngày</span><span>chụp</span><span>gắn nhạc</span><span>hẹn giờ</span><span>khung ảnh</span><span>nhiều tài khoản</span><span>mã khóa</span><span>chuỗi ngày</span></div>
-    </div>
-
-    <section id="cach-dung" class="block">
-      <h2>Một lần chạm, <em>ba nhịp</em></h2>
-      <p class="sub">Từ lúc mở máy tới lúc bạn bè nhận được, chỉ có bấy nhiêu việc.</p>
-      <ol class="stubs">
-        <li><span class="no">1</span><svg class="ic xl"><use href="#s-users"/></svg><h3>Đăng nhập</h3><p>Dùng tài khoản Locket đang có. Thêm được nhiều tài khoản và chuyển qua lại trong một chạm.</p></li>
-        <li><span class="no">2</span><svg class="ic xl"><use href="#s-shot"/></svg><h3>Chụp &amp; trang trí</h3><p>Chụp hoặc chọn ảnh, video. Thêm khung, hiệu ứng, dòng chữ và một bài hát.</p></li>
-        <li><span class="no">3</span><svg class="ic xl"><use href="#s-clock"/></svg><h3>Gửi hoặc hẹn giờ</h3><p>Gửi ngay hoặc đặt giờ. Bạn bè thấy khoảnh khắc trên Locket như bình thường.</p></li>
-      </ol>
+    <section class="facts" aria-label="Điểm nổi bật">
+      <div><b>Nhạc 30 giây</b><span>ghép thẳng vào video đăng</span></div>
+      <div><b>Hẹn giờ</b><span>soạn trước, app tự gửi</span></div>
+      <div><b>Nhiều tài khoản</b><span>đổi nhanh trong một chạm</span></div>
+      <div><b>Mã khóa riêng</b><span>chặn người lạ vào app</span></div>
     </section>
 
-    <section class="block demo-wrap">
-      <div class="demo-copy">
-        <h2>Thử đổi <em>không khí</em></h2>
-        <p class="sub">Mỗi khoảnh khắc có một bài hát đi kèm. Bấm thử ba kiểu bên dưới.</p>
-        <div class="chips" role="tablist" aria-label="Chọn khoảnh khắc mẫu">
-          <button class="chip on" role="tab" aria-selected="true" data-scene="dawn" data-cap="bình minh trên đồi" data-title="Buổi sáng nhẹ" data-artist="Acoustic">Bình minh</button>
-          <button class="chip" role="tab" aria-selected="false" data-scene="rain" data-cap="mưa ngoài cửa sổ" data-title="Mưa trên phố" data-artist="Lo-fi">Đêm mưa</button>
-          <button class="chip" role="tab" aria-selected="false" data-scene="city" data-cap="phố lên đèn" data-title="Tan ca" data-artist="City pop">Phố lên đèn</button>
+    <section class="block stats" id="stats" hidden>
+      <div class="stats-card">
+        <div class="stat"><b id="n-acc">0</b><span>tài khoản trên máy chủ này</span></div>
+        <div class="stat"><b id="n-post">0</b><span>khoảnh khắc đã lưu</span></div>
+        <div class="goal">
+          <div class="goal-top"><span>Mục tiêu cộng đồng</span><b>100.000 tài khoản</b></div>
+          <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100000" id="goal-bar"><i id="goal-fill"></i></div>
+          <p class="fine" id="goal-note"></p>
         </div>
-        <p class="fine">Bài hát lấy đoạn nghe thử 30 giây và được ghép thẳng vào video đăng lên.</p>
       </div>
-      <figure class="pol p-demo">
-        <div class="pic" data-photo="/static/promo/4.jpg">
-          <svg viewBox="0 0 200 200" id="demo-svg" role="img" aria-label="Khoảnh khắc mẫu"><use id="demo-use" href="#s-dawn"/></svg>
-          <div class="songchip"><span class="art"><svg><use href="#s-note"/></svg></span><span class="meta"><b id="demo-title">Buổi sáng nhẹ</b><i id="demo-artist">Acoustic</i></span><span class="play"></span></div>
-        </div>
-        <figcaption id="demo-cap">bình minh trên đồi</figcaption>
-      </figure>
     </section>
 
     <section id="tinh-nang" class="block">
-      <h2>Những thứ <em>có thật</em> trong app</h2>
-      <p class="sub">Không hứa hẹn xa xôi. Đây là những gì bạn dùng được hôm nay.</p>
-      <div class="sheet">
-        <article class="tile t1"><svg class="ic xl"><use href="#s-note"/></svg><h3>Thẻ nhạc trên ảnh</h3><p>Ảnh bìa, tên bài, ca sĩ và nút phát. Với video, nhạc được trộn vào âm thanh.</p></article>
-        <article class="tile t2"><svg class="ic xl"><use href="#s-clock"/></svg><h3>Hẹn giờ đăng</h3><p>Soạn trước, để app tự gửi đúng giờ.</p></article>
-        <article class="tile t3"><svg class="ic xl"><use href="#s-frame"/></svg><h3>Khung &amp; hiệu ứng</h3><p>Polaroid, phim, vòng tròn, và hiệu ứng rơi nhẹ lên ảnh.</p></article>
-        <article class="tile t4"><svg class="ic xl"><use href="#s-users"/></svg><h3>Nhiều tài khoản</h3><p>Đăng nhập nhiều nick, đổi nhanh, mỗi nick có lịch sử riêng.</p></article>
-        <article class="tile t5"><svg class="ic xl"><use href="#s-lock"/></svg><h3>Mã khóa riêng</h3><p>Chưa nhập mã thì không ai vào được app, kể cả khi có link.</p></article>
-        <article class="tile t6"><svg class="ic xl"><use href="#s-flame"/></svg><h3>Chuỗi ngày</h3><p>Theo dõi chuỗi và khôi phục khi lỡ một ngày.</p></article>
+      <h2>Có gì trong app</h2>
+      <p class="sub">Những tính năng dùng được ngay hôm nay.</p>
+      <div class="grid">
+        <article><svg class="ic xl"><use href="#i-note"/></svg><h3>Thẻ nhạc trên ảnh</h3><p>Ảnh bìa, tên bài, ca sĩ và nút phát. Với video, nhạc được trộn vào âm thanh.</p></article>
+        <article><svg class="ic xl"><use href="#i-clock"/></svg><h3>Hẹn giờ đăng</h3><p>Soạn trước, đặt giờ, app gửi giúp bạn đúng lúc.</p></article>
+        <article><svg class="ic xl"><use href="#i-frame"/></svg><h3>Khung và hiệu ứng</h3><p>Polaroid, phim, vòng tròn, cùng hiệu ứng nhẹ phủ lên ảnh.</p></article>
+        <article><svg class="ic xl"><use href="#i-users"/></svg><h3>Nhiều tài khoản</h3><p>Đăng nhập nhiều nick, mỗi nick có lịch sử riêng.</p></article>
+        <article><svg class="ic xl"><use href="#i-lock"/></svg><h3>Mã khóa</h3><p>Chưa nhập mã thì không vào được app, kể cả khi có đường dẫn.</p></article>
+        <article><svg class="ic xl"><use href="#i-flame"/></svg><h3>Chuỗi ngày</h3><p>Theo dõi chuỗi đăng liên tiếp và khôi phục khi lỡ một ngày.</p></article>
       </div>
     </section>
 
+    <section id="tai-app" class="block">
+      <h2>Tải về điện thoại</h2>
+      <p class="sub">Chọn đúng thiết bị của bạn.</p>
+      <div class="dl-grid">
+        <article class="dl-card main">
+          <div class="dl-head"><svg class="ic xl"><use href="#i-android"/></svg><div><h3>Android</h3><span class="tag">File APK</span></div></div>
+          <a class="btn btn-gold big" id="apk-btn" href="#tai-app" aria-disabled="true"><svg class="ic"><use href="#i-down"/></svg><span id="apk-text">Đang kiểm tra bản APK...</span></a>
+          <p class="fine" id="apk-note"></p>
+          <ol class="steps">
+            <li><b>Tải file</b> bằng nút phía trên.</li>
+            <li><b>Mở file</b> vừa tải. Nếu Android hỏi, cho phép trình duyệt cài ứng dụng.</li>
+            <li><b>Mở LockCOC</b>, nhập mã khóa rồi đăng nhập tài khoản Locket.</li>
+          </ol>
+        </article>
+        <article class="dl-card">
+          <div class="dl-head"><svg class="ic xl"><use href="#i-apple"/></svg><div><h3>iPhone, iPad</h3><span class="tag alt">Thêm vào màn hình chính</span></div></div>
+          <ol class="steps">
+            <li>Mở trang này bằng <b>Safari</b>.</li>
+            <li>Bấm <b>Chia sẻ</b> (ô vuông có mũi tên hướng lên).</li>
+            <li>Chọn <b>Thêm vào MH chính</b>, rồi bấm <b>Thêm</b>.</li>
+          </ol>
+          <p class="fine">Chưa có bản IPA vì Apple yêu cầu ký riêng. Cách trên cho trải nghiệm gần như app.</p>
+          <a class="btn btn-ghost" href="/app">Hoặc dùng ngay trên trình duyệt</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="so-sanh" class="block">
+      <h2>So với Locket gốc</h2>
+      <p class="sub">Điểm mạnh và điểm yếu, để bạn chọn đúng nhu cầu.</p>
+      <div class="cmp-wrap">
+        <table class="cmp">
+          <thead><tr><th>Tiêu chí</th><th>Locket gốc</th><th class="us">LockCOC</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Trình duyệt và máy tính</th><td><svg class="ic no"><use href="#i-no"/></svg>Chỉ app điện thoại</td><td class="us"><svg class="ic ok"><use href="#i-ok"/></svg>Có</td></tr>
+            <tr><th scope="row">Widget màn hình chính</th><td><svg class="ic ok"><use href="#i-ok"/></svg>Có</td><td class="us"><svg class="ic no"><use href="#i-no"/></svg>Chưa có</td></tr>
+            <tr><th scope="row">Hẹn giờ đăng</th><td><svg class="ic no"><use href="#i-no"/></svg>Chưa thấy</td><td class="us"><svg class="ic ok"><use href="#i-ok"/></svg>Có</td></tr>
+            <tr><th scope="row">Độ ổn định, hỗ trợ</th><td><svg class="ic ok"><use href="#i-ok"/></svg>Chính thức</td><td class="us"><svg class="ic no"><use href="#i-no"/></svg>Dự án độc lập, có thể gián đoạn</td></tr>
+            <tr><th scope="row">Nơi giữ dữ liệu</th><td>Máy chủ của Locket</td><td class="us">Máy chủ LockCOC, có mã khóa</td></tr>
+            <tr><th scope="row">Chi phí</th><td>Có gói trả phí cho tính năng thêm</td><td class="us">Miễn phí</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="fine">Bảng viết theo hiểu biết đến tháng 10/2026. App gốc có thể đã thay đổi, nên kiểm tra lại trước khi quyết định.</p>
+    </section>
+
     <section id="hoi-dap" class="block faq">
-      <h2>Hỏi nhanh, <em>đáp thẳng</em></h2>
+      <h2>Hỏi nhanh</h2>
       <details><summary>Đây có phải app chính thức của Locket?</summary><p>Không. LockCOC là dự án độc lập, không liên kết với Locket Camera. Nó dùng giao tiếp không chính thức nên Locket có thể thay đổi bất cứ lúc nào và làm một vài tính năng ngừng hoạt động.</p></details>
-      <details><summary>Mật khẩu của tôi được lưu ở đâu?</summary><p>Mật khẩu chỉ dùng lúc đăng nhập và không được ghi vào database. Phiên đăng nhập (token) nằm trên chính máy chủ LockCOC của bạn, và chỉ trình duyệt đã nhập đúng mã khóa mới dùng được.</p></details>
+      <details><summary>Mã khóa lấy ở đâu?</summary><p>Mã do người quản trị máy chủ đặt. Hãy hỏi người đã chia sẻ LockCOC cho bạn. Mã chỉ để chặn người lạ vào app, không phải mật khẩu Locket của bạn.</p></details>
+      <details><summary>Mật khẩu Locket của tôi được lưu ở đâu?</summary><p>Mật khẩu chỉ dùng lúc đăng nhập và không được ghi vào database. Phiên đăng nhập nằm trên máy chủ LockCOC và chỉ trình duyệt đã nhập đúng mã khóa mới dùng được.</p></details>
+      <details><summary>Mở app lần đầu hơi lâu?</summary><p>Máy chủ miễn phí sẽ ngủ khi lâu không ai dùng, lần mở đầu có thể mất khoảng 30 giây để thức dậy. Sau đó app chạy bình thường.</p></details>
+      <details><summary>Số liệu trên trang lấy từ đâu?</summary><p>Từ database của máy chủ: chỉ đếm số tài khoản và số khoảnh khắc, không chứa tên, email hay nội dung của ai. Con số có thể về 0 khi máy chủ được cài lại.</p></details>
       <details><summary>Video đăng được dài bao lâu?</summary><p>Tối đa 60 giây. Bài hát gắn vào lấy đoạn nghe thử 30 giây.</p></details>
-      <details><summary>Có mất phí không?</summary><p>Không. Bạn chỉ cần một máy chủ để chạy, gói miễn phí vẫn dùng được nhưng sẽ ngủ khi lâu không ai truy cập.</p></details>
-      <details><summary>Cài thành app Android thế nào?</summary><p>Mở trang này bằng Chrome, chọn menu ba chấm rồi "Thêm vào màn hình chính". Hoặc cài file APK do bạn tự đóng gói.</p></details>
     </section>
 
     <section class="closer">
-      <h2>Khoảnh khắc tiếp theo<br>đang chờ bạn.</h2>
-      <a class="btn btn-big" href="/app">Mở LockCOC</a>
+      <h2>Thử một khoảnh khắc ngay bây giờ</h2>
+      <a class="btn btn-gold big" href="/app">Mở LockCOC</a>
     </section>
   </main>
 
   <footer>
-    <span>LockCOC · dự án độc lập, không phải sản phẩm của Locket Camera.</span>
-    <span>Mọi tên gọi và nhãn hiệu thuộc về chủ sở hữu tương ứng.</span>
-    <span><b>© 2026 LockCOC · Developed &amp; founded by TRISTAN.faketriss</b></span>
+    <span>© 2026 LockCOC · Developed &amp; founded by <b>TRISTAN.faketriss</b></span>
+    <span>Dự án độc lập, không phải sản phẩm của Locket Camera. Mọi nhãn hiệu thuộc về chủ sở hữu tương ứng.</span>
   </footer>
   <script src="/static/js/landing.js"></script>
 </body>
