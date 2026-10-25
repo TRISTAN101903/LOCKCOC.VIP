@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.webkit.CookieManager;
 import android.webkit.GeolocationPermissions;
 import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
@@ -94,6 +95,17 @@ public class MainActivity extends Activity {
             fileCb.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(res, data));
             fileCb = null;
         }
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        try {
+            CookieManager cm = CookieManager.getInstance();
+            cm.flush();
+            String c = cm.getCookie(BuildConfig.APP_URL);
+            getSharedPreferences("w", MODE_PRIVATE).edit().putString("cookie", c == null ? "" : c).apply();
+            LockWidget.refreshAll(this);
+        } catch (Throwable t) { /* widget chỉ là phần phụ */ }
     }
     @Override
     public void onBackPressed() { if (web.canGoBack()) web.goBack(); else super.onBackPressed(); }
