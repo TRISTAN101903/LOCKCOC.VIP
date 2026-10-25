@@ -825,15 +825,15 @@ def mix_music(image: str, video: str | None, audio: str, start, tmpdir: str, car
     if video:
         cmd = [exe, "-y", "-i", video, "-ss", f"{start_s:.2f}", "-stream_loop", "-1", "-i", audio,
                "-map", "0:v:0", "-map", "1:a:0", "-t", str(MAX_VIDEO_SECONDS), "-shortest",
-               "-c:v", "libx264", "-preset", "veryfast", "-crf", "26", "-pix_fmt", "yuv420p", "-r", "30",
+               "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28", "-pix_fmt", "yuv420p", "-r", "30",
                "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", dst]
     else:
         dur = MUSIC_SECONDS
-        cmd = [exe, "-y", "-loop", "1", "-framerate", "30", "-i", image,
+        cmd = [exe, "-y", "-loop", "1", "-framerate", "10", "-i", image,
                "-ss", f"{start_s:.2f}", "-stream_loop", "-1", "-i", audio,
                "-map", "0:v:0", "-map", "1:a:0", "-t", str(dur),
-               "-vf", "scale=720:-2,format=yuv420p", "-af", f"afade=t=out:st={max(dur - 1.5, 0):.1f}:d=1.5",
-               "-c:v", "libx264", "-preset", "veryfast", "-tune", "stillimage", "-crf", "26", "-r", "30",
+               "-vf", "scale=540:-2,format=yuv420p", "-af", f"afade=t=out:st={max(dur - 1.5, 0):.1f}:d=1.5",
+               "-c:v", "libx264", "-preset", "ultrafast", "-tune", "stillimage", "-crf", "30", "-r", "10",
                "-c:a", "aac", "-b:a", "128k", "-shortest", "-movflags", "+faststart", dst]
     if video and card:
         dims = video_size(exe, video) or (720, 1280)
@@ -841,10 +841,10 @@ def mix_music(image: str, video: str | None, audio: str, start, tmpdir: str, car
         cmd = [exe, "-y", "-i", video, "-ss", f"{start_s:.2f}", "-stream_loop", "-1", "-i", audio, "-i", card,
                "-filter_complex", f"[2:v]scale={cw}:-1[c];[0:v][c]overlay=(W-w)/2:H-h-H*0.05,format=yuv420p[v]",
                "-map", "[v]", "-map", "1:a:0", "-t", str(MAX_VIDEO_SECONDS), "-shortest",
-               "-c:v", "libx264", "-preset", "veryfast", "-crf", "26", "-r", "30",
+               "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28", "-r", "30",
                "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", dst]
     try:
-        proc = subprocess.run(cmd, capture_output=True, timeout=240)
+        proc = subprocess.run(cmd, capture_output=True, timeout=150)
     except subprocess.TimeoutExpired:
         raise ApiError("Ghep nhac qua lau, hay thu clip/nhac ngan hon.", 504)
     if proc.returncode != 0 or not Path(dst).exists():
