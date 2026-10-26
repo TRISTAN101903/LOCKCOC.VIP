@@ -1,0 +1,34 @@
+/* polish.css - mượt hơn, gọn hơn */
+.page { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.feed:not(.grid) > * { content-visibility: auto; contain-intrinsic-size: auto 420px; }
+.page-head h1 { font-size: 28px; font-weight: 750; letter-spacing: -.03em; }
+.page-head .icon-btn, .chip, .seg button, .row-item, .pick-row { transition: transform .18s var(--ease), background .2s; }
+.icon-btn:active, .chip:active, .seg button:active, .row-item:active, .pick-row:active { transform: scale(.94); }
+a.icon-btn { display: inline-grid; place-items: center; color: inherit; text-decoration: none; }
+#nav button { transition: color .2s, transform .2s var(--spring); }
+#nav button.active:not(.cam-tab) { color: var(--gold1); transform: translateY(-2px); }
+.feed img, .my-grid img { background: var(--surface); animation: lcFade .35s var(--ease); }
+@keyframes lcFade { from { opacity: 0; } to { opacity: 1; } }
+.lite .ambient { animation: none; filter: none; }
+.lite .view, .lite .page { animation-duration: .01s; }
+@media (prefers-reduced-motion: reduce) { .ambient { animation: none; } }
+
+.post-pill { position: fixed; z-index: 99; left: 50%; top: calc(var(--safe-t) + 12px); transform: translateX(-50%); width: min(92vw, 420px);
+  padding: 12px 14px 14px; border-radius: 22px; background: rgba(24, 20, 14, .94); border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow); animation: lcDrop .35s var(--spring); }
+.post-pill.out { opacity: 0; transform: translate(-50%, -12px); transition: .3s; }
+.pp-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 14px; }
+.pp-t { color: var(--text); }
+.pp-x { padding: 5px 12px; border-radius: 12px; background: var(--surface2); color: var(--danger); font-size: 13px; }
+.pp-bar { height: 5px; margin-top: 10px; border-radius: 3px; background: var(--surface2); overflow: hidden; }
+.pp-bar i { display: block; height: 100%; width: 0; background: var(--gold); transition: width .25s linear; }
+.post-pill.work .pp-bar i { background: linear-gradient(90deg, var(--gold3), var(--gold1), var(--gold3)); background-size: 200% 100%; animation: lcSlide 1.2s linear infinite; }
+@keyframes lcSlide { to { background-position: -200% 0; } }
+@keyframes lcDrop { from { opacity: 0; transform: translate(-50%, -16px) scale(.96); } to { opacity: 1; transform: translate(-50%, 0) scale(1); } }
+body.posting .toast.msg { display: none; }
+.post-pill { background: #181410; }
+.page-head { padding-left: 14px; padding-right: 12px; gap: 6px; }
+.page-head .head-tools { gap: 6px; min-width: 0; flex: 0 1 auto; }
+.page-head h1 { font-size: 24px; }
+.head-tools .chip { max-width: 112px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-left: 12px; padding-right: 10px; }
+.head-tools .icon-btn { flex: none; }

@@ -93,5 +93,5 @@
     });
   });
 
-  api("/api/status").then(function (st) { active = st.active || ""; }).catch(function () {}).then(function () { return tick(); }).then(function () { return load(true); });
+  api("/api/status").then(function (st) { active = st.active || ""; }).catch(function () {}).then(function () { return tick(); }).then(function (st) { if (st && st.state !== "running" && !st.total) syncBtn.click(); return load(true); });
 })();
