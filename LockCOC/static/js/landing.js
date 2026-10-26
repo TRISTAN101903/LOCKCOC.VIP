@@ -7,41 +7,18 @@
     if (window.matchMedia("(display-mode: standalone)").matches) { location.replace("/app"); return; }
   } catch (e) { /* bỏ qua */ }
 
-  // ---- điện thoại minh họa: tự chạy luân phiên 3 cảnh ----
-  var scenes = Array.prototype.slice.call(document.querySelectorAll(".scene"));
-  var chips = Array.prototype.slice.call(document.querySelectorAll(".chip[data-i]"));
-  var cap = document.getElementById("ph-cap");
-  var ttl = document.getElementById("ph-title");
-  var art = document.getElementById("ph-artist");
-  var prog = document.getElementById("ph-prog");
-  var DUR = 5200, cur = 0, timer = null;
-
-  function show(i) {
-    cur = i;
-    scenes.forEach(function (s, k) { s.classList.toggle("on", k === i); });
-    chips.forEach(function (c, k) { c.classList.toggle("on", k === i); c.setAttribute("aria-selected", k === i ? "true" : "false"); });
-    var d = scenes[i].dataset;
-    cap.textContent = d.cap; ttl.textContent = d.title; art.textContent = d.artist;
-    prog.classList.remove("go"); void prog.offsetWidth; prog.classList.add("go");
-    // chạy lại hoạt ảnh mặt trời / trăng
-    scenes[i].querySelectorAll(".sun, .moon").forEach(function (n) {
-      n.style.animation = "none"; void n.getBoundingClientRect(); n.style.animation = "";
+  // ---- video demo: chỉ chạy khi đang nhìn thấy ----
+  var vid = document.getElementById("demo-vid"), vb = document.getElementById("vid-btn"), userPaused = false;
+  if (vid) {
+    var play = function () { if (!userPaused && !reduce) { var q = vid.play(); if (q && q.catch) q.catch(function () {}); } };
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) play(); else vid.pause(); }); }, { threshold: 0.35 }).observe(vid);
+    } else play();
+    vb.addEventListener("click", function () {
+      userPaused = !vid.paused; if (userPaused) vid.pause(); else play();
+      vb.textContent = userPaused ? "Phát" : "Tạm dừng"; vb.setAttribute("aria-label", vb.textContent);
     });
-  }
-  function start() {
-    stop();
-    if (reduce) return;
-    timer = setInterval(function () { show((cur + 1) % scenes.length); }, DUR);
-  }
-  function stop() { if (timer) { clearInterval(timer); timer = null; } }
-  prog.style.setProperty("--dur", DUR + "ms");
-  prog.parentNode.style.setProperty("--dur", DUR + "ms");
-  chips.forEach(function (c) {
-    c.addEventListener("click", function () { show(Number(c.dataset.i)); start(); });
-  });
-  if (scenes.length) {
-    show(0); start();
-    document.addEventListener("visibilitychange", function () { if (document.hidden) stop(); else start(); });
+    vid.addEventListener("error", function () { vb.hidden = true; }, true);
   }
 
   // ---- số liệu thật từ máy chủ ----
