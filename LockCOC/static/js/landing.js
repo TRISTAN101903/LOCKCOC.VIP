@@ -75,7 +75,7 @@
   });
 
   // ---- hiện dần khi cuộn ----
-  var items = document.querySelectorAll(".block, .closer, .facts");
+  var items = document.querySelectorAll(".fx-old-none");
   if ("IntersectionObserver" in window && !reduce) {
     items.forEach(function (n) { n.classList.add("rv"); });
     var io = new IntersectionObserver(function (es) {
