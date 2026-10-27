@@ -882,6 +882,13 @@ def parse_post_meta(form) -> dict:
         if (members.get(note) if members else getattr(L.NoteType, note, None)) is None:
             raise ApiError("NoteType không hợp lệ")
         meta["note"] = note
+    nt = form.get("nm_title", "").strip()
+    if nt:
+        def _https(u):
+            u = (u or "").strip()
+            return u if re.match(r"^https://\S+$", u) and len(u) <= 700 else ""
+        meta["music"] = {"title": nt[:120], "artist": form.get("nm_artist", "").strip()[:120], "art": _https(form.get("nm_art")),
+                         "preview": _https(form.get("nm_preview")), "link": _https(form.get("nm_link"))}
     rec = form.get("recipients", "").strip()
     if rec:
         ids = [x.strip() for x in rec.split(",") if x.strip()]
@@ -907,9 +914,57 @@ def post_kwargs(meta: dict, image: str, video: str | None) -> dict:
     return kwargs
 
 
+def _music_overlay(mm: dict, minimal: bool = False) -> dict:
+    text = (mm.get("artist", "") + " " + mm.get("title", "")).strip()[:140]
+    payload = {"artist": mm.get("artist", ""), "song_title": mm.get("title", "")}
+    if mm.get("preview") and not minimal:
+        payload["preview_url"] = mm["preview"]
+    if mm.get("link") and not minimal:
+        payload["spotify_url"] = mm["link"]
+    data = {
+        "background": {"colors": [], "material_blur": "ultra_thin"},
+        "max_lines": {"value": "1", "@type": "type.googleapis.com/google.protobuf.Int64Value"},
+        "text": text, "text_color": "#ffffff", "type": "music", "payload": payload,
+    }
+    if mm.get("art"):
+        data["icon"] = {"data": mm["art"], "type": "image"}
+    return {"overlay_type": "caption", "overlay_id": "caption:music", "alt_text": text, "data": data}
+
+
 def perform_post(e: Entry, meta: dict, image: str, video: str | None) -> str:
-    with e.lock:
-        result = e.client.moments.post(**post_kwargs(meta, image, video))
+    L = lib()
+    mm = meta.get("music")
+    result = None
+    if mm:
+        last = None
+        for minimal in (False, True):
+            ov = _music_overlay(mm, minimal)
+            kw = post_kwargs(meta, image, video)
+            kw["caption"] = ov["alt_text"]
+            kw.pop("note_type", None)
+            try:
+                with e.lock:
+                    mom = e.client.moments
+                    mom.build_overlay = lambda *a, _ov=ov, **k: _ov
+                    try:
+                        result = mom.post(**kw)
+                    finally:
+                        try:
+                            del mom.build_overlay
+                        except AttributeError:
+                            pass
+                last = None
+                break
+            except Exception as ex:  # noqa: BLE001
+                if L and isinstance(ex, getattr(getattr(L, "exc", None), "AuthenticationError", ())):
+                    raise
+                last = ex
+                app.logger.warning("The nhac loi (minimal=%s): %s", minimal, ex)
+        if last is not None:
+            raise ApiError("Locket không nhận thẻ nhạc này: %s. Thử tắt “Thẻ nhạc Locket” trong Studio." % str(last)[:160], 502)
+    else:
+        with e.lock:
+            result = e.client.moments.post(**post_kwargs(meta, image, video))
     post_id = uuid.uuid4().hex
     thumb_name = f"{post_id}{Path(image).suffix.lower()}"
     try:

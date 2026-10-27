@@ -76,3 +76,7 @@ body.posting .toast.msg { display: none; }
 .booth-modes > :first-child { margin-left: auto; }
 .booth-modes > :last-child { margin-right: auto; }
 .booth-modes .chip { padding: 7px 11px; font-size: 14px; }
+
+.nm-row { display: grid; gap: 4px; padding: 2px 2px 6px; }
+.nm-row .chip { justify-self: start; }
+.nm-row small { color: var(--muted); font-size: 12px; line-height: 1.35; }
