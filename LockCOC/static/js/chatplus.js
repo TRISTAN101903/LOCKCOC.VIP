@@ -31,7 +31,7 @@
     }
     function render() {
       var stick = nearBottom() || first, out = [], lastDay = "", prev = null;
-      var all = serverItems.map(function (m) { return { text: m.text, mine: !!(m.mine || (me && m.sender === me)), ms: toMs(m.time) }; });
+      var all = serverItems.map(function (m) { return { text: m.text, mine: !!(m.mine || (me && m.sender === me) || (m.sender && String(m.sender) !== String(uid))), ms: toMs(m.time) }; });
       pend.forEach(function (p) { all.push({ text: p.text, mine: true, ms: p.ms, p: p }); });
       all.forEach(function (m, i) {
         var dl = m.ms ? dayLabel(m.ms) : "";

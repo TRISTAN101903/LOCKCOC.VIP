@@ -354,14 +354,14 @@ def norm_conv(c) -> dict:
 
 
 def norm_msg(m, my_uid) -> dict:
-    sender = first(m, ["sender_id", "sender", "from", "uid"])
+    sender = first(m, ["sender_uid", "sender_id", "sender", "from", "uid"])
     if isinstance(sender, dict):
         sender = first(sender, ["uid", "id"])
     text = first(m, ["text", "body", "message"])
     return {
         "id": first(m, ["id", "message_id"]),
         "sender": sender,
-        "mine": bool(my_uid and sender == my_uid),
+        "mine": bool(m.get("is_me")) or bool(my_uid and sender == my_uid),
         "text": text if isinstance(text, str) else "📷 Khoảnh khắc",
         "time": first(m, ["created_at", "timestamp", "time", "date"]),
     }
