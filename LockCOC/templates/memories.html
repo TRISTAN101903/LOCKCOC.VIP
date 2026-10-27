@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0a09">
+  <meta name="referrer" content="no-referrer">
+  <title>Kỷ niệm và sao lưu – LockCOC</title>
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/library.css">
+  <link rel="stylesheet" href="/static/memories.css">
+</head>
+<body class="lib mem">
+  <header class="lib-top">
+    <a class="lib-back" href="/app" aria-label="Quay lại ứng dụng">&#8592;</a>
+    <h1>Kỷ niệm</h1>
+    <a class="mem-lib" href="/library">Thư viện</a>
+  </header>
+
+  <nav class="mem-tabs" role="tablist" aria-label="Chức năng">
+    <button class="chip on" role="tab" data-tab="day" type="button">Ngày này</button>
+    <button class="chip" role="tab" data-tab="wrap" type="button">Wrapped</button>
+    <button class="chip" role="tab" data-tab="film" type="button">Phim</button>
+    <button class="chip" role="tab" data-tab="backup" type="button">Sao lưu</button>
+  </nav>
+  <p class="mem-note muted" id="mem-note"></p>
+
+  <main class="mem-main">
+    <section id="tab-day" class="mem-pane"></section>
+    <section id="tab-wrap" class="mem-pane hidden"></section>
+    <section id="tab-film" class="mem-pane hidden"></section>
+    <section id="tab-backup" class="mem-pane hidden"></section>
+  </main>
+  <p class="credit lib-credit">© 2026 LockCOC · Developed &amp; founded by <b>TRISTAN.faketriss</b></p>
+
+  <div class="lib-view hidden" id="lib-view" role="dialog" aria-modal="true" aria-label="Xem ảnh">
+    <div class="lib-view-box">
+      <div class="lib-view-media" id="lib-media"></div>
+      <div class="lib-view-meta"><b id="lib-who"></b><small id="lib-when"></small><p id="lib-cap"></p></div>
+      <div class="lib-view-actions">
+        <a class="btn primary" id="lib-dl" href="#" download><span class="btn-label">Tải về</span></a>
+        <button class="btn" id="lib-close" type="button"><span class="btn-label">Đóng</span></button>
+      </div>
+    </div>
+  </div>
+  <script src="/static/js/memories.js"></script>
+</body>
+</html>

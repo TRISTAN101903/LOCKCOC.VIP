@@ -168,7 +168,23 @@ function openEditor(init) {
         avatarEl(f.avatar, fullName(f) || f.username), el("div", { class: "meta" }, el("strong", {}, fullName(f) || f.username || "Bạn bè"), el("small", {}, f.username ? "@" + f.username : "")), el("span", { class: "check" }, icon("check")));
       return r;
     });
-    const sh = bottomSheet(el("h3", { style: { margin: "0 0 4px" } }, "Gửi tới ai?"),
+    const uidRows = new Map(); S.friends.filter((f) => f.uid).forEach((f, i) => uidRows.set(f.uid, rows[i]));
+    const grpBar = el("div", { class: "grp-bar" });
+    const refreshGroups = async () => {
+      let gs = []; try { gs = (await api("/api/groups")).items; } catch { /* bỏ qua */ }
+      const nameIn = el("input", { type: "text", placeholder: "Tên nhóm", maxlength: "30", class: "hidden", style: { flex: "1", minWidth: "90px" } });
+      const saveBtn = el("button", { class: "chip", type: "button" }, "+ Lưu nhóm");
+      saveBtn.addEventListener("click", async () => {
+        if (nameIn.classList.contains("hidden")) { if (!chosen.size) return toast("Hãy chọn vài người trước rồi lưu thành nhóm.", "msg"); nameIn.classList.remove("hidden"); nameIn.focus(); saveBtn.textContent = "Lưu"; return; }
+        const nm = nameIn.value.trim(); if (!nm) return;
+        try { await api("/api/groups", { method: "POST", json: { name: nm, uids: [...chosen] } }); refreshGroups(); } catch (er) { toast(er.message, "error"); }
+      });
+      grpBar.replaceChildren(el("small", {}, "Nhóm:"), ...gs.flatMap((g) => [
+        el("button", { class: "chip", type: "button", onclick: () => { chosen.clear(); g.uids.forEach((u) => chosen.add(u)); uidRows.forEach((r, u) => r.classList.toggle("on", chosen.has(u))); } }, g.name),
+        el("button", { class: "chip", type: "button", "aria-label": "Xoá nhóm " + g.name, onclick: async () => { try { await api("/api/groups/delete", { method: "POST", json: { id: g.id } }); refreshGroups(); } catch (er) { toast(er.message, "error"); } } }, "×")]), nameIn, saveBtn);
+    };
+    refreshGroups();
+    const sh = bottomSheet(el("h3", { style: { margin: "0 0 4px" } }, "Gửi tới ai?"), grpBar,
       el("div", { style: { overflowY: "auto" } }, ...rows),
       el("div", { style: { display: "flex", gap: "8px" } },
         el("button", { class: "btn small", onclick: () => { ed.recipients = null; recMeta.textContent = "Tất cả bạn bè"; sh.close(); } }, el("span", { class: "btn-label" }, "Tất cả")),

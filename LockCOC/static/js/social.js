@@ -230,6 +230,7 @@ async function loadMe() {
 function renderTools() {
   $("#me-tools").replaceChildren(
     el("button", { class: "row-item", onclick: () => { goPage("feed"); loadFeed(true); } }, icon("refresh"), el("div", { class: "meta" }, el("strong", {}, "Đồng bộ toàn bộ Locket"), el("small", {}, "Tải khoảnh khắc của từng người bạn")), icon("chev", "i go")),
+    el("a", { class: "row-item", href: "/memories" }, icon("sparkle"), el("div", { class: "meta" }, el("strong", {}, "Kỷ niệm, phim và sao lưu"), el("small", {}, "Ngày này năm xưa, Wrapped, phim tự động, tải ZIP")), icon("chev", "i go")),
     el("a", { class: "row-item", href: "/library" }, icon("image"), el("div", { class: "meta" }, el("strong", {}, "Thư viện ảnh"), el("small", {}, "Đồng bộ và tải toàn bộ ảnh của bạn và bạn bè")), icon("chev", "i go")),
     el("button", { class: "row-item", onclick: async () => { try { await api("/api/lock", { method: "POST", json: {} }); } catch { /* khoá */ } showLock(); } }, icon("lock"), el("div", { class: "meta" }, el("strong", {}, "Khoá app ngay"), el("small", {}, "Cần mã khoá để mở lại (tự khoá sau 24 giờ không dùng)")), icon("chev", "i go")));
 }

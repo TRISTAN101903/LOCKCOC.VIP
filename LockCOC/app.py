@@ -1894,6 +1894,466 @@ def not_found(_):
     return jr({"error": "Không tìm thấy"}, 404)
 
 
+from flask import send_file  # noqa: E402
+# ======================= KY NIEM / SAO LUU / PHIM / NHOM (patch21) =======================
+with _db_lock:
+    _db.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS groups(
+            key TEXT, id TEXT, name TEXT, uids TEXT, created REAL, PRIMARY KEY(key, id));
+        """
+    )
+    _db.commit()
+
+
+def _tzoff() -> int:
+    try:
+        return -max(-840, min(840, int(request.args.get("tz", "0")))) * 60
+    except ValueError:
+        return 0
+
+
+def _mem_cond(e):
+    """Bo loc dung chung: who=all|mine|friends, uid=<ban>, days=<so ngay gan day>."""
+    cond, args = "key=?", [e.key]
+    who = request.args.get("who", "all")
+    if who == "mine":
+        cond += " AND mine=1"
+    elif who == "friends":
+        cond += " AND mine=0"
+    uid = request.args.get("uid", "")
+    if uid:
+        if not ID_RE.match(uid):
+            raise ApiError("Tham số không hợp lệ")
+        cond += " AND uid=?"
+        args.append(uid)
+    days = request.args.get("days", "")
+    if days.isdigit() and int(days) > 0:
+        cond += " AND ts>=?"
+        args.append(time.time() - int(days) * 86400)
+    if request.args.get("year", "").isdigit():
+        y = int(request.args["year"])
+        off = _tzoff()
+        a = datetime.datetime(y, 1, 1).replace(tzinfo=datetime.timezone.utc).timestamp() - off
+        b = datetime.datetime(y + 1, 1, 1).replace(tzinfo=datetime.timezone.utc).timestamp() - off
+        cond += " AND ts>=? AND ts<?"
+        args += [a, b]
+    return cond, args
+
+
+def _local(ts: float, off: int) -> datetime.datetime:
+    return datetime.datetime.fromtimestamp(ts + off, datetime.timezone.utc)
+
+
+def _item(r) -> dict:
+    return {"id": r["mid"], "uid": r["uid"], "name": r["name"], "image": r["thumb"], "video": r["video"],
+            "caption": r["caption"], "ts": r["ts"], "mine": bool(r["mine"])}
+
+
+@app.get("/api/memories/onthisday")
+@api
+def mem_onthisday():
+    e = get_entry()
+    off = _tzoff()
+    now = _local(time.time(), off)
+    rows = q("SELECT mid,uid,name,thumb,video,caption,ts,mine FROM sync_items WHERE key=? AND ts>0 ORDER BY ts DESC", (e.key,))
+    out = []
+    for r in rows:
+        d = _local(r["ts"], off)
+        if d.year != now.year and d.month == now.month and d.day == now.day:
+            out.append(_item(r))
+    return jr({"items": out[:200], "date": now.strftime("%d/%m")})
+
+
+@app.get("/api/memories/people")
+@api
+def mem_people():
+    e = get_entry()
+    rows = q("SELECT uid, MAX(name) AS name, COUNT(*) AS n, MAX(mine) AS mine FROM sync_items WHERE key=? GROUP BY uid ORDER BY n DESC", (e.key,))
+    return jr({"items": [{"uid": r["uid"], "name": ("Tôi" if r["mine"] else (r["name"] or "Bạn bè")), "count": r["n"]} for r in rows]})
+
+
+@app.get("/api/memories/pick")
+@api
+def mem_pick():
+    e = get_entry()
+    cond, args = _mem_cond(e)
+    try:
+        lim = max(1, min(int(request.args.get("limit", "20")), 60))
+    except ValueError:
+        lim = 20
+    rows = q(f"SELECT mid,uid,name,thumb,video,caption,ts,mine FROM sync_items WHERE {cond} AND thumb<>'' ORDER BY ts ASC", tuple(args))
+    total = len(rows)
+    if total > lim:
+        rows = [rows[int(i * (total - 1) / (lim - 1))] for i in range(lim)] if lim > 1 else [rows[0]]
+    return jr({"items": [_item(r) for r in rows], "total": total})
+
+
+@app.get("/api/memories/wrapped")
+@api
+def mem_wrapped():
+    e = get_entry()
+    off = _tzoff()
+    period = request.args.get("period", "year")
+    now = _local(time.time(), off)
+    if period == "month":
+        try:
+            y, m = [int(x) for x in request.args.get("ym", now.strftime("%Y-%m")).split("-")]
+        except ValueError:
+            raise ApiError("Tham số không hợp lệ")
+        a = datetime.datetime(y, m, 1)
+        b = datetime.datetime(y + (m == 12), (m % 12) + 1, 1)
+        label = f"Tháng {m}/{y}"
+    else:
+        try:
+            y = int(request.args.get("y", now.year))
+        except ValueError:
+            raise ApiError("Tham số không hợp lệ")
+        a, b = datetime.datetime(y, 1, 1), datetime.datetime(y + 1, 1, 1)
+        label = f"Năm {y}"
+    ta = a.replace(tzinfo=datetime.timezone.utc).timestamp() - off
+    tb = b.replace(tzinfo=datetime.timezone.utc).timestamp() - off
+    rows = q("SELECT mid,uid,name,thumb,video,caption,ts,mine FROM sync_items WHERE key=? AND ts>=? AND ts<? ORDER BY ts ASC", (e.key, ta, tb))
+    mine = [r for r in rows if r["mine"]]
+    friends: dict = {}
+    for r in rows:
+        if not r["mine"]:
+            k = r["uid"] or "?"
+            c = friends.setdefault(k, {"name": r["name"] or "Bạn bè", "count": 0})
+            c["count"] += 1
+    top = sorted(friends.values(), key=lambda c: -c["count"])[:5]
+    days: dict = {}
+    wd = [0] * 7
+    hours = [0] * 24
+    for r in mine:
+        d = _local(r["ts"], off)
+        k = d.strftime("%Y-%m-%d")
+        days[k] = days.get(k, 0) + 1
+        wd[d.weekday()] += 1
+        hours[d.hour] += 1
+    longest = cur = 0
+    prev = None
+    for k in sorted(days):
+        d = datetime.date.fromisoformat(k)
+        cur = cur + 1 if prev and (d - prev).days == 1 else 1
+        longest = max(longest, cur)
+        prev = d
+    best = max(days.items(), key=lambda kv: kv[1]) if days else None
+    if period == "month":
+        n = (b - a).days
+        series = [{"label": str(i + 1), "count": days.get((a + datetime.timedelta(days=i)).strftime("%Y-%m-%d"), 0)} for i in range(n)]
+    else:
+        series = [{"label": f"T{i + 1}", "count": sum(v for k, v in days.items() if k.startswith(f"{y}-{i + 1:02d}"))} for i in range(12)]
+    pics = [r for r in mine if r["thumb"]]
+    ids = [pics[int(i * (len(pics) - 1) / 3)]["mid"] for i in range(4)] if len(pics) >= 4 else [r["mid"] for r in pics]
+    return jr({"label": label, "period": period, "total": len(rows), "mine": len(mine), "friends_posts": len(rows) - len(mine),
+               "videos": sum(1 for r in mine if r["video"]), "active_days": len(days), "longest_streak": longest,
+               "best_day": ({"date": best[0], "count": best[1]} if best else None), "top_friends": top, "series": series,
+               "weekday": wd, "top_hour": (hours.index(max(hours)) if mine else None), "sample_ids": ids})
+
+
+@app.get("/api/memories/months")
+@api
+def mem_months():
+    e = get_entry()
+    off = _tzoff()
+    c: dict = {}
+    for r in q("SELECT ts FROM sync_items WHERE key=? AND ts>0", (e.key,)):
+        k = _local(r["ts"], off).strftime("%Y-%m")
+        c[k] = c.get(k, 0) + 1
+    return jr({"items": [{"ym": k, "count": v} for k, v in sorted(c.items(), reverse=True)]})
+
+
+# ---------- nhom nguoi nhan ----------
+@app.get("/api/groups")
+@api
+def groups_list():
+    e = get_entry()
+    rows = q("SELECT id,name,uids FROM groups WHERE key=? ORDER BY created", (e.key,))
+    return jr({"items": [{"id": r["id"], "name": r["name"], "uids": json.loads(r["uids"] or "[]")} for r in rows]})
+
+
+@app.post("/api/groups")
+@api
+def groups_save():
+    e = get_entry()
+    d = body()
+    name = str(d.get("name", "")).strip()[:30]
+    uids = d.get("uids")
+    if not name or not isinstance(uids, list) or not 1 <= len(uids) <= 500 or not all(isinstance(u, str) and ID_RE.match(u) for u in uids):
+        raise ApiError("Tên nhóm hoặc danh sách thành viên không hợp lệ")
+    n = q("SELECT COUNT(*) AS n FROM groups WHERE key=?", (e.key,), one=True)["n"]
+    gid = str(d.get("id") or "")
+    if not gid or not ID_RE.match(gid):
+        if n >= 20:
+            raise ApiError("Tối đa 20 nhóm")
+        gid = uuid.uuid4().hex[:12]
+    q("INSERT OR REPLACE INTO groups(key,id,name,uids,created) VALUES(?,?,?,?,?)", (e.key, gid, name, json.dumps(uids), time.time()), commit=True)
+    return jr({"ok": True, "id": gid})
+
+
+@app.post("/api/groups/delete")
+@api
+def groups_delete():
+    e = get_entry()
+    gid = str(body().get("id", ""))
+    q("DELETE FROM groups WHERE key=? AND id=?", (e.key, gid), commit=True)
+    return jr({"ok": True})
+
+
+# ---------- sao luu ZIP ----------
+_FILE_CAP = 80_000_000
+_PART_CAP = 400_000_000
+
+
+def _host_ok(url: str) -> bool:
+    u = urllib.parse.urlparse(url or "")
+    h = u.hostname or ""
+    return u.scheme == "https" and any(h == x or h.endswith("." + x) for x in _DL_HOSTS)
+
+
+def _fetch_to(url: str, dest: str, cap: int = _FILE_CAP) -> bool:
+    if not _host_ok(url):
+        return False
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}), timeout=25) as r, open(dest, "wb") as f:
+            tot = 0
+            while True:
+                b = r.read(65536)
+                if not b:
+                    break
+                tot += len(b)
+                if tot > cap:
+                    return False
+                f.write(b)
+        return True
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def _safe_name(s_: str) -> str:
+    return re.sub(r"[^\w\-]+", "_", s_ or "", flags=re.UNICODE).strip("_")[:24] or "ban"
+
+
+@app.get("/api/backup/plan")
+@api
+def backup_plan():
+    e = get_entry()
+    cond, args = _mem_cond(e)
+    r = q(f"SELECT COUNT(*) AS n, SUM(CASE WHEN video<>'' THEN 1 ELSE 0 END) AS v FROM sync_items WHERE {cond}", tuple(args), one=True)
+    return jr({"total": int(r["n"] or 0), "videos": int(r["v"] or 0), "size": 60})
+
+
+@app.get("/api/backup.zip")
+@api
+def backup_zip():
+    import zipfile
+    from concurrent.futures import ThreadPoolExecutor
+    e = get_entry()
+    cond, args = _mem_cond(e)
+    try:
+        size = max(10, min(int(request.args.get("size", "60")), 100))
+        part = max(0, int(request.args.get("part", "0")))
+    except ValueError:
+        raise ApiError("Tham số không hợp lệ")
+    rows = q(f"SELECT mid,uid,name,thumb,video,caption,ts,mine FROM sync_items WHERE {cond} ORDER BY ts DESC LIMIT ? OFFSET ?", tuple(args) + (size, part * size))
+    if not rows:
+        raise ApiError("Không có gì để sao lưu ở phần này", 404)
+    off = _tzoff()
+    tdir = tempfile.mkdtemp(prefix="bk_", dir=str(DATA_DIR))
+    jobs = []
+    for r in rows:
+        stamp = _local(r["ts"] or 0, off).strftime("%Y-%m-%d_%H%M%S")
+        base = f"{stamp}_{_safe_name('Toi' if r['mine'] else r['name'])}_{r['mid'][:8]}"
+        if r["thumb"]:
+            jobs.append((r, base + ".jpg", r["thumb"]))
+        if r["video"]:
+            jobs.append((r, base + ".mp4", r["video"]))
+
+    def work(j):
+        p = str(Path(tdir) / uuid.uuid4().hex)
+        return (j[1], p if _fetch_to(j[2], p) else None, j[0])
+
+    with ThreadPoolExecutor(4) as ex:
+        got = list(ex.map(work, jobs))
+    zpath = str(Path(tdir) / "out.zip")
+    total = 0
+    with zipfile.ZipFile(zpath, "w", zipfile.ZIP_STORED) as zf:
+        lines = ["file,ngay,nguoi,caption"]
+        for name, p, r in got:
+            if not p:
+                continue
+            total += Path(p).stat().st_size
+            if total > _PART_CAP:
+                break
+            zf.write(p, name)
+            lines.append('"%s","%s","%s","%s"' % (name, _local(r["ts"] or 0, off).strftime("%d/%m/%Y %H:%M"), ("Tôi" if r["mine"] else (r["name"] or "")).replace('"', "'"), (r["caption"] or "").replace('"', "'").replace("\n", " ")))
+        zf.writestr("danh-sach.csv", "﻿" + "\n".join(lines))
+    for _n, p, _r in got:
+        if p:
+            Path(p).unlink(missing_ok=True)
+
+    def gen():
+        try:
+            with open(zpath, "rb") as f:
+                while True:
+                    b = f.read(262144)
+                    if not b:
+                        break
+                    yield b
+        finally:
+            shutil.rmtree(tdir, ignore_errors=True)
+
+    resp = Response(gen(), mimetype="application/zip")
+    resp.headers["Content-Length"] = str(Path(zpath).stat().st_size)
+    resp.headers["Content-Disposition"] = f'attachment; filename="lockcoc-sao-luu-{part + 1}.zip"'
+    return resp
+
+
+# ---------- phim ky niem ----------
+_film_jobs: dict = {}
+_FILM_DIR = DATA_DIR / "film"
+
+
+def _film_worker(e, job: dict, items: list, per: float, audio_url: str) -> None:
+    exe = ffmpeg_exe()
+    tdir = tempfile.mkdtemp(prefix="film_", dir=str(DATA_DIR))
+    try:
+        if exe is None:
+            raise ApiError("Server thiếu ffmpeg để dựng phim.", 500)
+        imgs = []
+        for i, it in enumerate(items):
+            job["phase"] = f"Đang tải ảnh {i + 1}/{len(items)}"
+            p = str(Path(tdir) / f"i{i}.img")
+            if _fetch_to(it["thumb"], p, 30_000_000):
+                imgs.append(p)
+        if len(imgs) < 2:
+            raise ApiError("Cần ít nhất 2 ảnh tải được để dựng phim.", 400)
+        audio = None
+        if audio_url:
+            try:
+                audio = download_preview(audio_url, tdir)
+            except ApiError:
+                audio = None
+        T = 0.5
+        n = len(imgs)
+        W_, H_ = 540, 960
+        cmd = [exe, "-y"]
+        for p in imgs:
+            cmd += ["-loop", "1", "-framerate", "25", "-t", f"{per + T:.2f}", "-i", p]
+        if audio:
+            cmd += ["-i", audio]
+        parts = []
+        for i in range(n):
+            x = f"(iw-{W_})*t/{per + T:.2f}" if i % 2 == 0 else f"(iw-{W_})*(1-t/{per + T:.2f})"
+            parts.append(f"[{i}:v]scale={W_ * 1.18:.0f}:{H_ * 1.18:.0f}:force_original_aspect_ratio=increase,crop={W_}:{H_}:x='{x}':y='(ih-{H_})/2',setsar=1,fps=25,format=yuv420p[v{i}]")
+        last = "v0"
+        for i in range(1, n):
+            parts.append(f"[{last}][v{i}]xfade=transition=fade:duration={T}:offset={i * per:.2f}[x{i}]")
+            last = f"x{i}"
+        total = n * per
+        parts.append(f"[{last}]trim=0:{total:.2f},fade=t=in:st=0:d=0.5,fade=t=out:st={total - 0.7:.2f}:d=0.7[vout]")
+        out = str(_FILM_DIR / f"{job['id']}.mp4")
+        _FILM_DIR.mkdir(parents=True, exist_ok=True)
+        cmd += ["-filter_complex", ";".join(parts), "-map", "[vout]"]
+        if audio:
+            cmd += ["-map", f"{n}:a:0", "-af", f"afade=t=out:st={max(total - 1.5, 0):.1f}:d=1.5", "-c:a", "aac", "-b:a", "128k"]
+        cmd += ["-t", f"{total:.2f}", "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28", "-movflags", "+faststart", out]
+        job["phase"] = "Đang dựng phim"
+        try:
+            proc = subprocess.run(cmd, capture_output=True, timeout=280)
+        except subprocess.TimeoutExpired:
+            raise ApiError("Dựng phim quá lâu, thử ít ảnh hơn.", 504)
+        if proc.returncode != 0 or not Path(out).exists():
+            app.logger.error("ffmpeg film loi: %s", proc.stderr[-900:].decode("utf-8", "ignore"))
+            raise ApiError("Không dựng được phim từ các ảnh này.", 500)
+        thumb = str(_FILM_DIR / f"{job['id']}.jpg")
+        subprocess.run([exe, "-y", "-i", out, "-frames:v", "1", thumb], capture_output=True, timeout=30)
+        job["state"] = "done"
+        job["phase"] = "Hoàn tất"
+        job["seconds"] = round(total)
+    except ApiError as ex:
+        job["state"], job["error"] = "error", ex.message
+    except Exception:  # noqa: BLE001
+        app.logger.error("Film loi:\n%s", traceback.format_exc())
+        job["state"], job["error"] = "error", "Dựng phim bị lỗi, thử lại sau."
+    finally:
+        shutil.rmtree(tdir, ignore_errors=True)
+
+
+@app.post("/api/film/start")
+@api
+def film_start():
+    e = get_entry()
+    d = body()
+    ids = d.get("ids")
+    if not isinstance(ids, list) or not 2 <= len(ids) <= 20 or not all(isinstance(i, str) and ID_RE.match(i) for i in ids):
+        raise ApiError("Chọn từ 2 đến 20 ảnh")
+    items = []
+    for mid in ids:
+        r = q("SELECT thumb FROM sync_items WHERE key=? AND mid=?", (e.key, mid), one=True)
+        if r and r["thumb"]:
+            items.append({"thumb": r["thumb"]})
+    per = max(1.2, min(float(d.get("per", 2.0) or 2.0), 4.0))
+    with _sync_lock:
+        old = _film_jobs.get(e.key)
+        if old and old.get("state") == "running" and time.time() - old.get("started", 0) < 400:
+            return jr(old)
+        job = {"id": uuid.uuid4().hex[:16], "state": "running", "phase": "Bắt đầu", "started": time.time(), "error": ""}
+        _film_jobs[e.key] = job
+    if _FILM_DIR.exists():
+        for f in _FILM_DIR.glob("*"):
+            if time.time() - f.stat().st_mtime > 7200:
+                f.unlink(missing_ok=True)
+    threading.Thread(target=_film_worker, args=(e, job, items, per, str(d.get("music_url") or "")), daemon=True).start()
+    return jr(job)
+
+
+@app.get("/api/film/status")
+@api
+def film_status():
+    e = get_entry()
+    return jr(_film_jobs.get(e.key) or {"state": "idle"})
+
+
+@app.get("/api/film/file/<fid>")
+@api
+def film_file(fid):
+    e = get_entry()
+    job = _film_jobs.get(e.key)
+    if not job or job.get("id") != fid or job.get("state") != "done" or not re.match(r"^[0-9a-f]{16}$", fid):
+        raise ApiError("Không tìm thấy phim", 404)
+    p = _FILM_DIR / f"{fid}.mp4"
+    if not p.exists():
+        raise ApiError("Phim đã bị xoá, hãy dựng lại", 404)
+    resp = send_file(str(p), mimetype="video/mp4", conditional=True)
+    if request.args.get("dl"):
+        resp.headers["Content-Disposition"] = 'attachment; filename="lockcoc-phim-ky-niem.mp4"'
+    return resp
+
+
+@app.post("/api/film/post")
+@api
+def film_post():
+    e = get_entry()
+    d = body()
+    job = _film_jobs.get(e.key)
+    if not job or job.get("id") != str(d.get("id")) or job.get("state") != "done":
+        raise ApiError("Phim chưa sẵn sàng", 400)
+    mp4, jpg = _FILM_DIR / f"{job['id']}.mp4", _FILM_DIR / f"{job['id']}.jpg"
+    if not mp4.exists() or not jpg.exists():
+        raise ApiError("Phim đã bị xoá, hãy dựng lại", 404)
+    cap = str(d.get("caption") or "").strip()[:300]
+    meta = {"caption": cap} if cap else {}
+    pid = perform_post(e, meta, str(jpg), str(mp4))
+    return jr({"ok": True, "id": pid})
+
+
+@app.get("/memories")
+def memories_page():
+    return render_template("memories.html")
+
+
 start_scheduler()
 
 if __name__ == "__main__":
