@@ -1481,44 +1481,40 @@ def too_large(_):
 @app.get("/api/music-probe")
 @api
 def music_probe():
-    """Chan doan: quet toan bo feed (nhu dong bo), tim bai co nhac, in JSON goc da che token. ?q=tu,khoa&p=so_trang"""
+    """Chan doan: quet lich su tung nguoi ban, tim bai co nhac, in JSON goc da che token. ?q=tu,khoa"""
     e = get_entry()
     qs = [w.strip().lower() for w in (request.args.get("q") or "music,spotify,apple,song,track,audio").split(",") if w.strip()]
-    maxp = min(80, max(1, int(request.args.get("p") or 40)))
-    kinds, hits, seen, pages, cur, oldest = {}, [], set(), 0, None, None
-    while pages < maxp:
-        payload = {"should_count_missed_moments": True, "include_group_moments": True}
-        if cur:
-            payload["sync_token"] = cur
-        with e.lock:
-            res = e.client.post_api("getLatestMomentV2", payload)
-        data = res.get("data", []) if isinstance(res, dict) else []
-        if not data:
+    fp = min(60, max(1, int(request.args.get("fp") or 12)))
+    kinds, hits, seen, oldest, nfr = {}, [], set(), None, 0
+    deadline = time.time() + 150
+    with e.lock:
+        fr = e.client.friends.get_all_friends()
+    uids = [norm_friend(f).get("uid") for f in (fr if isinstance(fr, list) else [])]
+    uids = [u for u in uids if u]
+    nfr = len(uids)
+    for fu in uids:
+        if time.time() > deadline:
             break
-        pages += 1
-        new = 0
-        for m in data:
-            if not isinstance(m, dict):
-                continue
-            mid = m.get("canonical_uid")
-            if not mid or mid in seen:
-                continue
-            seen.add(mid)
-            new += 1
-            cur = mid
-            d = to_ts(m.get("date"))
-            if d and (oldest is None or d < oldest):
-                oldest = d
-            for ov in (m.get("overlays") if isinstance(m.get("overlays"), list) else []):
-                if isinstance(ov, dict):
-                    k = f"{ov.get('overlay_type')}|{ov.get('overlay_id')}"
-                    kinds[k] = kinds.get(k, 0) + 1
-            txt = json.dumps(m, ensure_ascii=False, default=str).lower()
-            if any(w in txt for w in qs) and len(hits) < 3:
-                hits.append(m)
-        if new == 0 or (isinstance(res, dict) and res.get("status") == 304):
-            break
-    out = json.dumps({"pages": pages, "scanned": len(seen), "oldest": oldest, "keywords": qs, "overlay_kinds": kinds, "found": len(hits), "samples": hits}, ensure_ascii=False, indent=1, default=str)
+        others = [x for x in uids if x != fu]
+        try:
+            for m in _friend_moments(e, fu, others, fp):
+                mid = m.get("canonical_uid")
+                if mid in seen:
+                    continue
+                seen.add(mid)
+                d = to_ts(m.get("date"))
+                if d and (oldest is None or d < oldest):
+                    oldest = d
+                for ov in (m.get("overlays") if isinstance(m.get("overlays"), list) else []):
+                    if isinstance(ov, dict):
+                        k = f"{ov.get('overlay_type')}|{ov.get('overlay_id')}"
+                        kinds[k] = kinds.get(k, 0) + 1
+                txt = json.dumps(m, ensure_ascii=False, default=str).lower()
+                if any(w in txt for w in qs) and len(hits) < 3:
+                    hits.append(m)
+        except Exception:  # noqa: BLE001
+            continue
+    out = json.dumps({"friends": nfr, "scanned": len(seen), "oldest": oldest, "keywords": qs, "overlay_kinds": kinds, "found": len(hits), "samples": hits}, ensure_ascii=False, indent=1, default=str)
     out = re.sub(r"token=[^&\"\s]+", "token=X", out)
     return Response(out, mimetype="application/json")
 
@@ -1549,6 +1545,35 @@ def _sync_put(rows: list) -> None:
             rows,
         )
         _db.commit()
+
+
+def _friend_moments(e, uid, others, max_pages=80):
+    """Lich su day du cua 1 nguoi ban: loc bang excluded_users roi lat trang theo sync_token."""
+    seen, cur, pages = set(), None, 0
+    while pages < max_pages:
+        payload = {"should_count_missed_moments": True, "include_group_moments": True, "excluded_users": others}
+        if cur:
+            payload["sync_token"] = cur
+        with e.lock:
+            res = e.client.post_api("getLatestMomentV2", payload)
+        data = res.get("data", []) if isinstance(res, dict) else []
+        if not data:
+            break
+        pages += 1
+        new = 0
+        for m in data:
+            if not isinstance(m, dict):
+                continue
+            mid = m.get("canonical_uid")
+            if not mid or mid in seen:
+                continue
+            seen.add(mid)
+            new += 1
+            cur = mid
+            if m.get("user") == uid:
+                yield m
+        if new == 0 or (isinstance(res, dict) and res.get("status") == 304):
+            break
 
 
 def _sync_worker(e) -> None:
@@ -1600,6 +1625,28 @@ def _sync_worker(e) -> None:
             job["found"] += len(rows)
             if new == 0 or (isinstance(res, dict) and res.get("status") == 304):
                 break
+
+        uids = list(names)
+        for i, fu in enumerate(uids, 1):
+            if job["found"] >= SYNC_MAX_ITEMS:
+                break
+            job["phase"] = "Lịch sử bạn %d/%d: %s" % (i, len(uids), names.get(fu) or fu[:6])
+            others = [x for x in uids if x != fu]
+            rows = []
+            try:
+                for m in _friend_moments(e, fu, others):
+                    mid = m.get("canonical_uid")
+                    thumb = s(m.get("thumbnail_url") or m.get("image_url") or "")
+                    video = s(m.get("video_url") or "")
+                    if mid and (thumb or video):
+                        rows.append((e.key, mid, fu, names.get(fu, ""), thumb, video, caption_of(m), to_ts(m.get("date")) or 0, 0))
+            except Exception as ex:  # noqa: BLE001
+                if L and isinstance(ex, L.exc.AuthenticationError):
+                    raise
+                app.logger.warning("Lich su ban %s loi: %s", fu[:6], ex)
+            _sync_put(rows)
+            with _db_lock:
+                job["found"] = _db.execute("SELECT COUNT(*) FROM sync_items WHERE key=?", (e.key,)).fetchone()[0]
 
         job["phase"] = "Đang tải ảnh của bạn"
         try:
