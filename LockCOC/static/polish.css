@@ -91,9 +91,37 @@ body.posting .toast.msg { display: none; }
 .grp-bar small { color: var(--muted, #a99f8c); }
 
 /* camera gọn: ẩn thanh chế độ photobooth và thẻ thử thách (chuyển vào LockCOC Advanced features) */
-#booth-modes, #booth-opts, .daily-card:not(.adv-daily), .otd-chip { display: none !important; }
+
 .adv-prev { width: min(100%, 220px); aspect-ratio: 1; object-fit: cover; border-radius: 16px; justify-self: center; display: block; margin: 0 auto 6px; background: #000; }
 .adv-daily { flex-direction: column; align-items: flex-start; }
 .adv-ch { font-size: 18px; }
 .studio .hrow a.chip { text-decoration: none; color: inherit; white-space: nowrap; }
 .studio-btn svg { color: var(--gold, #e2b04a); }
+
+/* ===== LockCOC Plus + chế độ mượt ===== */
+.plus-btn { display: inline-flex; align-items: center; gap: 5px; padding: 7px 13px; border-radius: 999px; font-weight: 700; font-size: 13px; color: var(--on-gold, #1a1205); background: var(--gold, linear-gradient(135deg, #fbe3a0, #e2b04a)); border: 0; }
+.plus-btn svg { width: 16px; height: 16px; }
+.vip-tag { display: none !important; }
+#page-camera:not(.booth-on) #booth-modes, #page-camera:not(.booth-on) #booth-opts { display: none !important; }
+.daily-card:not(.adv-daily), .otd-chip { display: none !important; }
+.plus-body { padding: 0 16px 24px; display: grid; gap: 4px; }
+.plus-lead { margin: 0 0 4px; }
+.plus-booths { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.plus-booth { display: grid; gap: 4px; justify-items: start; text-align: left; padding: 14px 12px; border-radius: 20px; color: inherit; font: inherit; background: var(--surface, #1c1812); border: 1px solid var(--glass-border, #2b2619); transition: transform .18s var(--spring, ease); }
+.plus-booth:active { transform: scale(.96); }
+.plus-booth .pb-n { width: 34px; height: 34px; border-radius: 12px; display: grid; place-items: center; font-weight: 800; color: var(--on-gold, #1a1205); background: var(--gold, linear-gradient(135deg, #fbe3a0, #e2b04a)); }
+.plus-booth small { color: var(--muted, #a99f8c); font-size: 11px; line-height: 1.3; }
+.plus-list { display: grid; gap: 2px; }
+.plus-row { color: inherit; text-decoration: none; }
+.plus-daily { margin: 0 !important; }
+.upd-pill { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 90; padding: 10px 16px; border-radius: 999px; background: var(--gold, linear-gradient(135deg, #fbe3a0, #e2b04a)); color: var(--on-gold, #1a1205); font-weight: 700; font-size: 13px; border: 0; box-shadow: 0 8px 24px rgba(0, 0, 0, .5); }
+/* chế độ mượt: tắt hiệu ứng tốn GPU */
+html.lite .viewfinder, html.lite #shutter::before, html.lite .ambient::after, html.lite .brand.big img, html.lite .vip-crown, html.lite .streak-tag span, html.lite .streak-fire, html.lite .skeleton { animation: none !important; }
+html.lite #shutter::before { filter: none; }
+html.lite .viewfinder { box-shadow: 0 0 0 1px rgba(255, 255, 255, .12), 0 0 18px rgba(226, 176, 74, .22); }
+html.lite .glass, html.lite #nav, html.lite .cap-pill, html.lite .vidtag, html.lite .zoom-badge, html.lite .countdown, html.lite .success-burst, html.lite .vf-live, html.lite .rec-badge, html.lite .tile .vid { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+html.lite #nav { background: rgba(22, 18, 12, .94); }
+html.lite .overlay { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(11, 10, 9, .97); animation-duration: .22s; }
+html.lite .studio { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(18, 15, 11, .98); animation-duration: .22s; }
+html.lite .page { animation-duration: .16s; }
+.page { overscroll-behavior: contain; }

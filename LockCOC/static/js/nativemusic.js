@@ -38,5 +38,5 @@
         if (ms && ms.parentNode && !ms.parentNode.querySelector(".nm-row")) ms.parentNode.insertBefore(chip(), ms.nextSibling);
       });
     });
-  }).observe(document.body, { childList: true, subtree: true });
+  }).observe(document.getElementById("overlay-root") || document.body, { childList: true, subtree: true });
 })();

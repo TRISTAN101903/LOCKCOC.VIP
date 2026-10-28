@@ -64,7 +64,7 @@
   function emptyHint(pane, msg) { pane.replaceChildren(); var d = el("div", "mem-empty", msg); d.appendChild(document.createElement("br")); var a = el("a", "", "Mở Thư viện để đồng bộ"); a.href = "/library"; d.appendChild(a); pane.appendChild(d); }
 
   // ---------- Ngày này ----------
-  var panes = { day: document.getElementById("tab-day"), wrap: document.getElementById("tab-wrap"), film: document.getElementById("tab-film"), backup: document.getElementById("tab-backup") };
+  var panes = { day: document.getElementById("tab-day"), wrap: document.getElementById("tab-wrap"), film: document.getElementById("tab-film"), backup: document.getElementById("tab-backup"), collage: document.getElementById("tab-collage") };
   var built = {};
   function buildDay() {
     var p = panes.day; p.replaceChildren(el("div", "mem-empty", "Đang tìm kỷ niệm…"));
@@ -239,6 +239,61 @@
     film.timer = setInterval(function () { api("/api/film/status").then(function (s) { if (show(s)) { clearInterval(film.timer); film.timer = null; } }).catch(function (e) { setNote(e.message); clearInterval(film.timer); film.timer = null; var g = document.getElementById("film-go"); if (g) g.disabled = false; }); }, 3000);
   }
 
+  // ---------- Lưới ảnh ----------
+  var col = { n: 3, days: "30", who: "all", blob: null, url: null };
+  function buildCollage() {
+    var p = panes.collage; p.replaceChildren();
+    var c = el("div", "mem-card"); c.appendChild(el("h2", "", "Lưới ảnh kỷ niệm"));
+    c.appendChild(el("small", "muted", "Ghép ảnh rải đều theo thời gian thành một tấm vuông để đăng hoặc khoe."));
+    c.appendChild(chips([["2", "2×2"], ["3", "3×3"], ["4", "4×4"]], String(col.n), function (v) { col.n = Number(v); }));
+    c.appendChild(chips([["7", "7 ngày"], ["30", "30 ngày"], ["365", "1 năm"], ["", "Tất cả"]], col.days, function (v) { col.days = v; }));
+    c.appendChild(chips([["all", "Tất cả"], ["mine", "Của tôi"], ["friends", "Bạn bè"]], col.who, function (v) { col.who = v; }));
+    var go = btn("Tạo lưới ảnh", "primary", function () { go.disabled = true; makeCollage().then(function () { go.disabled = false; }, function (e) { go.disabled = false; setNote(e.message); }); });
+    c.appendChild(go); p.appendChild(c);
+    var out = el("div", "mem-card hidden"); out.id = "col-out"; p.appendChild(out);
+  }
+  function makeCollage() {
+    var n = col.n, total = n * n; setNote("Đang chọn ảnh…");
+    return api("/api/memories/pick?" + qs({ who: col.who, days: col.days, limit: total })).then(function (d) {
+      var items = d.items.filter(function (m) { return m.image; });
+      if (items.length < 2) throw new Error("Cần ít nhất 2 ảnh. Hãy đồng bộ Thư viện hoặc chọn khoảng dài hơn.");
+      setNote("Đang tải " + items.length + " ảnh…");
+      var out = new Array(items.length), idx = 0;
+      function worker() { if (idx >= items.length) return Promise.resolve(); var i = idx++; return loadBitmap(items[i].id).then(function (b) { out[i] = b; return worker(); }); }
+      return Promise.all([worker(), worker(), worker(), worker()]).then(function () { return { items: items, bms: out }; });
+    }).then(function (r) {
+      var W = 1080, pad = 36, gap = 10, foot = 100, c = document.createElement("canvas"); c.width = W; c.height = W; var x = c.getContext("2d");
+      x.fillStyle = "#0b0a09"; x.fillRect(0, 0, W, W);
+      var area = W - 2 * pad, cell = (area - gap * (n - 1)) / n, rows = Math.ceil(r.items.length / n), cellH = Math.min(cell, (W - pad - foot - gap * (rows - 1)) / rows);
+      r.bms.forEach(function (b, i) {
+        var cx = pad + (i % n) * (cell + gap), cy = pad + Math.floor(i / n) * (cellH + gap);
+        x.save(); x.beginPath(); x.roundRect(cx, cy, cell, cellH, 14); x.clip();
+        if (b) { var s = Math.max(cell / b.width, cellH / b.height); x.drawImage(b, cx + (cell - b.width * s) / 2, cy + (cellH - b.height * s) / 2, b.width * s, b.height * s); } else { x.fillStyle = "#1c1812"; x.fillRect(cx, cy, cell, cellH); }
+        x.restore();
+      });
+      var ts = r.items.map(function (m) { return m.ts; }).filter(Boolean), a = new Date(Math.min.apply(null, ts) * 1000), z = new Date(Math.max.apply(null, ts) * 1000);
+      function f(d) { return d.toLocaleDateString("vi-VN"); }
+      x.textAlign = "center"; x.fillStyle = "#e2b04a"; x.font = "800 34px Inter, system-ui, sans-serif"; x.fillText("LOCKCOC", W / 2, W - 52);
+      x.fillStyle = "#a99f8c"; x.font = "500 24px Inter, system-ui, sans-serif"; x.fillText(f(a) + " – " + f(z), W / 2, W - 20);
+      return new Promise(function (res) { c.toBlob(res, "image/jpeg", 0.92); });
+    }).then(function (blob) {
+      col.blob = blob; if (col.url) URL.revokeObjectURL(col.url); col.url = URL.createObjectURL(blob);
+      var o = document.getElementById("col-out"); o.classList.remove("hidden"); o.replaceChildren();
+      var im = new Image(); im.alt = "Lưới ảnh"; im.src = col.url; im.style.width = "100%"; im.style.borderRadius = "16px"; o.appendChild(im);
+      var row = el("div", "mem-row");
+      var dl = el("a", "btn", ""); dl.href = col.url; dl.download = "lockcoc-luoi-anh.jpg"; dl.style.textDecoration = "none"; dl.appendChild(el("span", "btn-label", "Tải về")); row.appendChild(dl);
+      if (navigator.canShare) row.appendChild(btn("Chia sẻ", "", function () { var file = new File([blob], "lockcoc-luoi-anh.jpg", { type: "image/jpeg" }); if (navigator.canShare({ files: [file] })) navigator.share({ files: [file] }).catch(function () {}); }));
+      var post = btn("Đăng lên Locket", "primary", function () {
+        post.disabled = true; setNote("Đang đăng…");
+        var fd = new FormData(); fd.append("image", blob, "photo.jpg"); fd.append("caption", "Lưới ảnh kỷ niệm");
+        var h = { "X-LockCOC": "1" }; if (active) h["X-LockCOC-Acct"] = active;
+        fetch("/api/post", { method: "POST", headers: h, body: fd, credentials: "same-origin" }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok) throw new Error(d.error || ("Lỗi " + r.status)); setNote("Đã đăng lưới ảnh lên Locket."); }); })
+          .catch(function (e) { setNote(e.message); }).then(function () { post.disabled = false; });
+      });
+      row.appendChild(post); o.appendChild(row); setNote("");
+    });
+  }
+
   // ---------- Sao lưu ----------
   var bk = { who: "all", uid: "", days: "" };
   function buildBackup() {
@@ -271,7 +326,7 @@
   }
 
   // ---------- tab ----------
-  var builders = { day: buildDay, wrap: buildWrap, film: buildFilm, backup: buildBackup };
+  var builders = { day: buildDay, wrap: buildWrap, film: buildFilm, collage: buildCollage, backup: buildBackup };
   function go(tab) {
     if (!builders[tab]) tab = "day";
     Array.prototype.forEach.call(document.querySelectorAll(".mem-tabs .chip"), function (c) { c.classList.toggle("on", c.dataset.tab === tab); c.setAttribute("aria-selected", c.dataset.tab === tab ? "true" : "false"); });

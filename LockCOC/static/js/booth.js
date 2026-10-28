@@ -53,7 +53,7 @@
     { id: "cool", n: "Mát", css: "saturate(.9) hue-rotate(18deg) contrast(1.05)" },
     { id: "sun", n: "Hoàng hôn", css: "sepia(.4) saturate(1.5) brightness(1.05)" }
   ];
-  var MODES = [["single", "Ảnh"], ["polaroid", "Polaroid"], ["cuts", "4-Cuts"], ["duo", "Duo"]];
+  var MODES = [["single", "Thoát"], ["polaroid", "Polaroid"], ["cuts", "4-Cuts"], ["duo", "Duo"]];
   var B = { mode: "single", frame: "cream", film: "none", led: true, grain: true, busy: false, open: false };
   try { var sv = JSON.parse(localStorage.getItem("lc_booth") || "{}"); ["frame", "film", "led", "grain"].forEach(function (k) { if (sv[k] !== undefined) B[k] = sv[k]; }); } catch (e) { /* bỏ qua */ }
   function saveB() { try { localStorage.setItem("lc_booth", JSON.stringify({ frame: B.frame, film: B.film, led: B.led, grain: B.grain })); } catch (e) { /* bỏ qua */ } }
@@ -176,7 +176,9 @@
     B: B, FRAMES: FRAMES, FILMS: FILMS, pick: pick, save: saveB, sndOn: sndOn,
     sndSet: function (v) { try { localStorage.setItem("lc_snd", v ? "1" : "0"); } catch (e) { /* bỏ qua */ } },
     render: function (mode, blobs) { var old = B.mode; B.mode = mode; return compose(blobs).then(function (r) { B.mode = old; return r; }, function (e) { B.mode = old; throw e; }); },
-    run: function (mode, pre) { B.mode = mode; B._tmp = true; renderModes(); renderOpts(); return booth(pre); }
+    run: function (mode, pre) { B.mode = mode; B._tmp = true; renderModes(); renderOpts(); return booth(pre); },
+    start: function (mode) { B.mode = mode; B._tmp = false; B.open = false; renderModes(); renderOpts(); },
+    stop: function () { if (B.busy) return; B.mode = "single"; B.open = false; renderModes(); renderOpts(); }
   };
   var sr = document.querySelector(".shutter-row");
   if (sr) sr.addEventListener("click", function (e) {

@@ -130,7 +130,7 @@
           <header class="cam-top">
             <img src="/static/logo.svg" alt="" width="30" height="30">
             <div class="wordmark sm"><span>Lock</span><b>COC</b></div>
-            <span class="vip-tag" title="Tài khoản VIP"><svg class="i s"><use href="#i-crown"/></svg>VIP</span>
+            <button class="plus-btn" id="btn-plus" type="button" aria-label="LockCOC Plus"><svg class="i s"><use href="#i-star"/></svg>Plus</button>
             <button class="streak-tag" id="streak-tag" aria-label="Chuỗi ngày đăng"><span><svg class="flame"><use href="#i-flame"/></svg></span><b id="streak-n">0</b></button>
             <button class="chip" id="btn-timer" aria-label="Hẹn giờ chụp"><svg class="i s"><use href="#i-timer"/></svg><span id="timer-label">Tắt</span></button>
             <div id="rec-badge" class="rec-badge hidden"><i></i><span id="rec-time">0:00</span></div>
@@ -170,6 +170,9 @@
           <p class="hint" id="cam-hint">Chạm để chụp · Giữ để quay · hoặc bấm nút đỏ (tối đa 60 giây)</p>
           <input type="file" id="file-pick" accept="image/*,video/*" hidden>
         </section>
+
+        <!-- LockCOC Plus -->
+        <section class="page hidden" id="page-plus" data-page="plus"></section>
 
         <!-- Bảng tin -->
         <section class="page hidden" id="page-feed" data-page="feed">
@@ -277,12 +280,14 @@
   <script src="/static/js/editor.js"></script>
   <script src="/static/js/social.js"></script>
   <script src="/static/js/polish.js"></script>
+  <script src="/static/js/perf.js"></script>
   <script src="/static/js/booth.js"></script>
   <script src="/static/js/chatplus.js"></script>
   <script src="/static/js/nativemusic.js"></script>
   <script src="/static/js/daily.js"></script>
   <script src="/static/js/advanced.js"></script>
   <script src="/static/js/boot.js"></script>
+  <script src="/static/js/plus.js"></script>
 <div class="lc-credit">© 2026 LockCOC · Developed &amp; founded by TRISTAN.faketriss</div>
 </body>
 </html>

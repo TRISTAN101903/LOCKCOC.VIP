@@ -1829,6 +1829,14 @@ def sync_all_file(mid):
     return resp
 
 
+@app.get("/sw.js")
+def service_worker():
+    resp = send_from_directory(app.static_folder, "sw.js", mimetype="application/javascript")
+    resp.headers["Cache-Control"] = "no-cache"
+    resp.headers["Service-Worker-Allowed"] = "/"
+    return resp
+
+
 @app.get("/library")
 def library_page():
     return render_template("library.html")
