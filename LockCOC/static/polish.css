@@ -89,3 +89,11 @@ body.posting .toast.msg { display: none; }
 .otd-chip { display: block; margin: 0 14px 4px; padding: 8px 12px; border-radius: 14px; background: #15110b; border: 1px solid var(--glass-border, #2b2619); color: var(--gold, #e2b04a); font-size: 13px; text-decoration: none; text-align: center; }
 .grp-bar { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; padding: 2px 0 6px; }
 .grp-bar small { color: var(--muted, #a99f8c); }
+
+/* camera gọn: ẩn thanh chế độ photobooth và thẻ thử thách (chuyển vào LockCOC Advanced features) */
+#booth-modes, #booth-opts, .daily-card:not(.adv-daily), .otd-chip { display: none !important; }
+.adv-prev { width: min(100%, 220px); aspect-ratio: 1; object-fit: cover; border-radius: 16px; justify-self: center; display: block; margin: 0 auto 6px; background: #000; }
+.adv-daily { flex-direction: column; align-items: flex-start; }
+.adv-ch { font-size: 18px; }
+.studio .hrow a.chip { text-decoration: none; color: inherit; white-space: nowrap; }
+.studio-btn svg { color: var(--gold, #e2b04a); }

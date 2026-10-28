@@ -1,0 +1,51 @@
+import os, base64, zlib
+R="LockCOC" if os.path.isdir("LockCOC") else "."
+def P(p): return os.path.join(R,p)
+def rd(p): return open(P(p),encoding="utf-8").read()
+def w(p,s,m="w"): open(P(p),m,encoding="utf-8").write(s)
+F={'advanced.js': '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', 'daily.js': 'eNp1Vl+L20YQf79PMRE0SDlbd6FpKHbTo02gtCS5g8tD4Qhhb736c5ZWrnblOye5p1D61iSUUkopvRRCSJsjSRMItR4K1TXfQ9+gH6EzK8mWneuD19bu7MxvfvObka1MCVA6Dbm2+itr52DAwmji7inowo2gzI9BB8UjHoD0i6MJ2LKcvoxBp4n04WrCh5c3L8MngzGTXAzAE0xnqVAOnFtbsb1Mch0mEmwH7qwAjFkKW3AJdqzL6PjxCOIy/1Gj/zJ/CnFxlMEBk4HVAevTMn/O4OSehKB4HYNkE+Bl/oTBbjl9JMnis+IVh93iSEJUHMUwDsv8G15dnT7JEF+Z/xzi2ZSDRNx0cvKgeB2CH1Iaxg+cPGSYRYwLnd8wOIy76pi/fWG8NBjI6OoEJG3/xBd8ZGX+sPJSp7ZbvMLtJdDXWvnqtPhDVqu5lpArExDvNa5D+Cpj5ia6w+cy/w74P09BBuX0sW5gFq/m8KstGRTPJAWaPp6ALvPfCckxA1Xm35Pttoi8UMAQM8NolTVnsUjZMkxTFgp8f8b6KEDMPkyK3ySm+UwGNZxlEBUz0g+EqQvVSrNF6g3ZfvHMMFD8aqpcJY1eT6UNQ+X34aA4zpbD1cmQ2T1cw3L6V0YK+yEEVTxaKA4+BtUmpTb9c9QQ2q70yQNiuyosJZtRIxzzYBkR0g8cfz2fA8KM0DHuD8r8azR7++JtDeAasRAY0rC6qFmqUoL4w3m67+iwrmPFNdE+h8DL6ZsRxUJlV/IYl9Nj3crVVN+nuhk3o+UjVCDW8WAu4HZudfwyf2nwWDf7dRsPsI2l2IcrTAvb6eDQmODONaYD14uSJLXtgesLfSOM8RgnyezpdiLFpucpoXH/HFwUFxxYgw8vXhAfoJuhIDdWxG/xgEW3LFglzx3Q4kDjwdYOxXkPttxISF8HBs5symAEe9gBD4cNZjXBlZCO8V6UcBZt6yRlviAgn2sR20OnD6nAcSXJBtPJogg2wIMejPtwiP2gcerZgtzVdh7tH7ZjqirmeB5zIZZqYpHJslOctbskZlQ7jstlz5ipsuduawRfbG9ed0csVcKmdGdMDZBWKt7OTctx/gf9zs134CfSbhkYAgXSba1bDlKClThv9ZdgYaD2nQqmG8qBONj0bHx04ONLsL50DV8wgg3NRSoKw6JUNzug8Pd6B3iW0mblfsMIqmfWLpzvw34QRgJsNguE5lUgcqlWV/vkoNulDGtkaglCogf1e6iSMMdwDYd4NhcbCcHpG7vQA5vDmVodTuN6K03iUAkX33RJNBb29SzeFanNnfpaIxeBNbCtNTYK12IRJ2ko1FoicTYpDLShb18yMU9rjQ5mFQg2EKnq4U/ry279rrV6VBQ4RMJSMRBShyxCE0vh9O5iBD+UeOoYGACuDoRsvYfTVuVSNxki0Sm+6o0MeiZHJM1ZvrVHt4iKM3szCrDA6jTytvGfhPTtPTdE3au6T515qy0emGhGqot/FlpRDg2nVMl9rH2y70b8Cv1DwerdMXOhZ9YOarmHn46RUM+snVp2vfq7Qxro0YITJfH9CO0Ww6qmAwwjG9QIYAg3PXXYTL9bWFGMjyvtVA9zRyOcguhhpFVbbh6NTDqqGsuIYpQobcHZs8a4+Xa9JI07gH/L6IaH5RVzMaIXMiN0+H2mbhf8qScjkXgYhdRUhWgQWQ2Mue7rKlXWtsXZqDa8excsCwWQhrFdi7nuglnnWf/+8u1zNKWuMN2HXlTbSwcqGyBRmMm9Sl2EbMLfb8wmJ1JxULkqCrmwsfvfX18nkdRJ6zQTVfdCvdZ6IOLb/J6m7xZocvfuyOmbM7Y4sz6iXJg7ylRgNubybs9XM36VIS/0JuijSqB7geA7DeQZ3LRisJZwf+XQIVL/A1d3H34=', 'adv.css': 'eNpNkbFu3DAMhvc8BYugwF0QXZxDURT2VGQt0GegJZ2lxBYFifbdtejUuUPHbu3YoS9wHjokL+I3Ke0e0i4CKH4/+ZO8uQKNnU0IzTR+CSVMp58B2GFwoN10+g1PX6fxG0RHTDUROxgevwswncb5HX/J+/hDO1hp1x+n8XOYAYJ3pB/u3t/BWzNg0NbAziL3yeY1XN1cXC6lVEfG5ms4RxRZgo1B3x6VxmTKQLzaoBnU8reWJLFR2vkIH8H4HFs8lhAoWHjhu0iJMXAFny4WUUx2EG7vDbsSOh9Wt0Xx8hq22yIe1hVgjlazSsieSritgOr7+WPnuQRNg00V1JSMTcIY32eBXsdDBfd9Zr87qmzbnZA28Iw++6lbmb2CDlPjZaMFYM8Ei7JG/dAk6oMp4bIoimevy4BidtfagzI+iQ9PYbbR9l0Qr61vgvJsO3GxQJkx/ZtVDiBiCqyy/2DF6Ju5nSQz98YTbFyiPeDmvDu2B1bGalqGD393WM3dKJXgg7PJS/G9k44qR9R2RvYJ439FVc0B8tBIvbNwwLRSqqHWyFHtti5e4XoW/AHHudtH'}
+def D(k): return zlib.decompress(base64.b64decode(F[k])).decode("utf-8")
+def sub(s,old,new,what):
+    if old not in s: raise SystemExit("[loi] khong thay doan can sua: "+what+" (da chay patch13/patch21 chua?)")
+    return s.replace(old,new,1)
+if "lcBooth" in rd("static/js/booth.js"): raise SystemExit("[loi] da ap dung patch22 roi")
+b=rd("static/js/booth.js")
+b=sub(b,"async function booth() {","async function booth(pre) {","booth()")
+b=sub(b,"shots = [];","shots = (pre || []).slice();","shots")
+b=sub(b,"for (var i = 0; i < n; i++) {\n        prog.textContent","for (var i = shots.length; i < n; i++) {\n        prog.textContent","vong chup")
+b=sub(b,'openEditor({ kind: "photo", image: out });','openEditor({ kind: "photo", image: out, shots: shots.slice(), mode: B.mode });',"openEditor")
+b=sub(b,'finally { B.busy = false; prog.classList.add("hidden"); }','finally { B.busy = false; prog.classList.add("hidden"); if (B._tmp) { B._tmp = false; B.mode = "single"; B.open = false; renderModes(); renderOpts(); } }',"finally")
+b=sub(b,'  var sr = document.querySelector(".shutter-row");','''  window.lcBooth = {
+    B: B, FRAMES: FRAMES, FILMS: FILMS, pick: pick, save: saveB, sndOn: sndOn,
+    sndSet: function (v) { try { localStorage.setItem("lc_snd", v ? "1" : "0"); } catch (e) { /* bỏ qua */ } },
+    render: function (mode, blobs) { var old = B.mode; B.mode = mode; return compose(blobs).then(function (r) { B.mode = old; return r; }, function (e) { B.mode = old; throw e; }); },
+    run: function (mode, pre) { B.mode = mode; B._tmp = true; renderModes(); renderOpts(); return booth(pre); }
+  };
+  var sr = document.querySelector(".shutter-row");''',"xuat lcBooth")
+w("static/js/booth.js",b)
+e=rd("static/js/editor.js")
+e=sub(e,"schedule: null, recipients: null };","schedule: null, recipients: null, shots: init.shots || null, bmode: init.mode || \"single\" };","ed")
+e=sub(e,"  function refresh() { applyPill","  ed._rm = refreshMedia;\n  function refresh() { applyPill","refresh")
+e=sub(e,'icon("sparkle"), "Studio · nhạc, widget, hiệu ứng")','icon("star"), "LockCOC Advanced features")',"nut studio")
+w("static/js/editor.js",e)
+s=rd("static/js/studio.js")
+s=sub(s,'el("div", { class: "logo" }, icon("sparkle")),','el("div", { class: "logo" }, icon("star")),',"logo")
+s=sub(s,'el("h2", {}, "Studio"), el("p", {}, "Nhạc · chữ · widget · hiệu ứng")','el("h2", {}, "LockCOC Advanced features"), el("p", {}, "Photobooth · nhạc · chữ · widget · thử thách")',"tieu de")
+s=sub(s,'let tab = "music";','let tab = ed.kind === "video" ? "music" : "booth";',"tab mac dinh")
+s=sub(s,'const TABS = [["music", "Nhạc", "music"],','const TABS = [["booth", "Photobooth", "image"], ["music", "Nhạc", "music"],',"TABS")
+s=sub(s,'["fx", "Hiệu ứng", "snow"]];','["fx", "Hiệu ứng", "snow"], ["daily", "Thử thách", "flame"]];',"TABS cuoi")
+s=sub(s,"({ music: renderMusic, text: renderText, widget: renderWidget, fx: renderFx })[tab]();","({ music: renderMusic, text: renderText, widget: renderWidget, fx: renderFx, booth: () => window.lcAdv.booth(ed, body, onChange, render, done), daily: () => window.lcAdv.daily(body) })[tab]();","render map")
+w("static/js/studio.js",s)
+w("static/js/daily.js",D("daily.js")); w("static/js/advanced.js",D("advanced.js"))
+c=rd("static/polish.css")
+if "booth-modes, #booth-opts" not in c: w("static/polish.css","\n"+D("adv.css"),"a")
+t=rd("templates/index.html")
+if "advanced.js" not in t:
+    if "daily.js" not in t:
+        a="  <script src=\"/static/js/nativemusic.js\"></script>"
+        if a not in t: a="  <script src=\"/static/js/chatplus.js\"></script>"
+        if a not in t: raise SystemExit("[loi] khong thay the script trong index.html")
+        t=t.replace(a,a+"\n  <script src=\"/static/js/daily.js\"></script>",1)
+    a="  <script src=\"/static/js/daily.js\"></script>"
+    w("templates/index.html",t.replace(a,a+"\n  <script src=\"/static/js/advanced.js\"></script>",1))
+print("xong patch22")

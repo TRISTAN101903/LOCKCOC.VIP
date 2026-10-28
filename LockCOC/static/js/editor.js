@@ -98,7 +98,7 @@ async function renderFramed(blob, frame, size = 1080) {
 // ---- Màn hình soạn bài ----
 function openEditor(init) {
   camStop();
-  const ed = { kind: init.kind, image: init.image, video: init.video || null, name: init.name, caption: "", icon: "", grad: null, note: null, fx: null, frame: "none", schedule: null, recipients: null };
+  const ed = { kind: init.kind, image: init.image, video: init.video || null, name: init.name, caption: "", icon: "", grad: null, note: null, fx: null, frame: "none", schedule: null, recipients: null, shots: init.shots || null, bmode: init.mode || "single" };
   const isVideo = ed.kind === "video";
   const ov = openOverlay("editor");
   let urls = [];
@@ -130,10 +130,11 @@ function openEditor(init) {
       if (my === frameSeq) imgPrev.src = mkUrl(b);
     } catch { /* bỏ qua */ }
   }
+  ed._rm = refreshMedia;
   function refresh() { applyPill(pill, ed); applyFx(fxLayer, ed.fx); capIn.value = ed.caption || ""; drawSongSlot(songBox, ed, refresh); }
   const capIn = el("input", { type: "text", class: "cap-input", placeholder: "Thêm caption…", maxlength: 120, oninput: (e) => { ed.caption = e.target.value; applyPill(pill, ed); } });
 
-  const studioBtn = el("button", { class: "studio-btn glass", onclick: () => openStudio(ed, refresh) }, icon("sparkle"), "Studio · nhạc, widget, hiệu ứng");
+  const studioBtn = el("button", { class: "studio-btn glass", onclick: () => openStudio(ed, refresh) }, icon("star"), "LockCOC Advanced features");
 
   // khung widget
   const frameRow = el("div", { class: "hrow" }, ...FRAMES.map((f) => el("button", { class: "chip" + (f.id === "none" ? " on" : ""), dataset: { f: f.id }, onclick: () => {

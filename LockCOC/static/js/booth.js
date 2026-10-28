@@ -150,13 +150,13 @@
     return new Promise(function (res) { c.toBlob(function (b) { res(b); }, "image/jpeg", 0.92); });
   }
 
-  async function booth() {
+  async function booth(pre) {
     if (B.busy) return;
     if (!cam.stream) { toast("Camera chưa bật.", "error"); return camStart(); }
     B.busy = true;
-    var n = { polaroid: 1, cuts: 4, duo: 2 }[B.mode], shots = [];
+    var n = { polaroid: 1, cuts: 4, duo: 2 }[B.mode], shots = (pre || []).slice();
     try {
-      for (var i = 0; i < n; i++) {
+      for (var i = shots.length; i < n; i++) {
         prog.textContent = n > 1 ? "Tấm " + (i + 1) + "/" + n : "Chuẩn bị…"; prog.classList.remove("hidden");
         if (!(await runCountdown(i === 0 ? 3 : 2))) return;
         if (!(await waitVideoReady())) return toast("Camera chưa sẵn sàng, thử lại nhé.", "error");
@@ -168,10 +168,16 @@
       prog.textContent = "Đang ghép ảnh…";
       var out = await compose(shots);
       if (!out) return toast("Không ghép được ảnh.", "error");
-      openEditor({ kind: "photo", image: out });
+      openEditor({ kind: "photo", image: out, shots: shots.slice(), mode: B.mode });
     } catch (e) { toast("Lỗi photobooth: " + (e && e.message ? e.message : "không rõ"), "error"); }
-    finally { B.busy = false; prog.classList.add("hidden"); }
+    finally { B.busy = false; prog.classList.add("hidden"); if (B._tmp) { B._tmp = false; B.mode = "single"; B.open = false; renderModes(); renderOpts(); } }
   }
+  window.lcBooth = {
+    B: B, FRAMES: FRAMES, FILMS: FILMS, pick: pick, save: saveB, sndOn: sndOn,
+    sndSet: function (v) { try { localStorage.setItem("lc_snd", v ? "1" : "0"); } catch (e) { /* bỏ qua */ } },
+    render: function (mode, blobs) { var old = B.mode; B.mode = mode; return compose(blobs).then(function (r) { B.mode = old; return r; }, function (e) { B.mode = old; throw e; }); },
+    run: function (mode, pre) { B.mode = mode; B._tmp = true; renderModes(); renderOpts(); return booth(pre); }
+  };
   var sr = document.querySelector(".shutter-row");
   if (sr) sr.addEventListener("click", function (e) {
     if (!e.target.closest || !e.target.closest("#shutter")) return;

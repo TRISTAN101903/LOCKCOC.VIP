@@ -13,7 +13,7 @@ function openStudio(ed, onChange) {
   const body = el("div", { class: "studio-body" });
   const prevText = el("span", { class: "p" });
   const tabsBar = el("div", { class: "tabs" });
-  let tab = "music";
+  let tab = ed.kind === "video" ? "music" : "booth";
 
   const syncPrev = () => {
     const t = pillText(ed);
@@ -26,22 +26,22 @@ function openStudio(ed, onChange) {
   const scrim = el("div", { class: "scrim", onclick: done });
   const box = el("div", { class: "studio glass", role: "dialog" },
     el("div", { class: "studio-head" },
-      el("div", { class: "logo" }, icon("sparkle")),
-      el("div", { style: { flex: "1" } }, el("h2", {}, "Studio"), el("p", {}, "Nhạc · chữ · widget · hiệu ứng")),
+      el("div", { class: "logo" }, icon("star")),
+      el("div", { style: { flex: "1" } }, el("h2", {}, "LockCOC Advanced features"), el("p", {}, "Photobooth · nhạc · chữ · widget · thử thách")),
       el("button", { class: "icon-btn", "aria-label": "Đóng", onclick: done }, icon("close"))),
     el("div", { class: "studio-prev" }, "Xem trước:", prevText),
     tabsBar, body,
     el("div", { class: "studio-foot" }, el("button", { class: "btn primary block", onclick: done }, icon("check"), el("span", { class: "btn-label" }, "Xong"))));
   root.append(scrim, box);
 
-  const TABS = [["music", "Nhạc", "music"], ["text", "Chữ", "palette"], ["widget", "Widget", "clock"], ["fx", "Hiệu ứng", "snow"]];
+  const TABS = [["booth", "Photobooth", "image"], ["music", "Nhạc", "music"], ["text", "Chữ", "palette"], ["widget", "Widget", "clock"], ["fx", "Hiệu ứng", "snow"], ["daily", "Thử thách", "flame"]];
   TABS.forEach(([id, label, ic]) => tabsBar.append(el("button", { class: "chip" + (id === tab ? " on" : ""), dataset: { t: id }, onclick: () => { tab = id; render(); } }, icon(ic, "i s"), label)));
 
   function render() {
     stopPreview();
     $$(".chip", tabsBar).forEach((c) => c.classList.toggle("on", c.dataset.t === tab));
     body.replaceChildren();
-    ({ music: renderMusic, text: renderText, widget: renderWidget, fx: renderFx })[tab]();
+    ({ music: renderMusic, text: renderText, widget: renderWidget, fx: renderFx, booth: () => window.lcAdv.booth(ed, body, onChange, render, done), daily: () => window.lcAdv.daily(body) })[tab]();
     syncPrev();
   }
 
