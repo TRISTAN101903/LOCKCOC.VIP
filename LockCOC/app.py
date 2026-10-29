@@ -2096,6 +2096,31 @@ def moments_delete_many():
 
 
 
+# ---------- patch29: cai len iPhone bang cau hinh (Web Clip) ----------
+@app.get("/ios.mobileconfig")
+def ios_profile():
+    import plistlib
+    host = request.host_url.rstrip("/")
+    url = host + "/app"
+    icon = (Path(app.static_folder) / "icons" / "apple-touch-icon.png").read_bytes()
+    sid = str(uuid.uuid5(uuid.NAMESPACE_URL, host))
+    clip = {
+        "PayloadType": "com.apple.webClip.managed", "PayloadVersion": 1,
+        "PayloadIdentifier": "vip.lockcoc.webclip", "PayloadUUID": str(uuid.uuid5(uuid.NAMESPACE_URL, host + "#clip")).upper(),
+        "PayloadDisplayName": "LockCOC", "Label": "LockCOC", "URL": url, "IsRemovable": True,
+        "FullScreen": True, "Precomposed": True, "Icon": icon,
+    }
+    prof = {
+        "PayloadType": "Configuration", "PayloadVersion": 1, "PayloadIdentifier": "vip.lockcoc.profile",
+        "PayloadUUID": sid.upper(), "PayloadDisplayName": "LockCOC", "PayloadOrganization": "LockCOC",
+        "PayloadDescription": "Thêm LockCOC vào màn hình chính như một ứng dụng.", "PayloadContent": [clip],
+    }
+    r = Response(plistlib.dumps(prof), mimetype="application/x-apple-aspen-config")
+    r.headers["Content-Disposition"] = 'attachment; filename="LockCOC.mobileconfig"'
+    r.headers["Cache-Control"] = "no-store"
+    return r
+
+
 @app.get("/library")
 def library_page():
     return render_template("library.html")
