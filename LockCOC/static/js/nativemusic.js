@@ -13,7 +13,7 @@
   api = function (path, opts) {
     if (path === "/api/post" && opts && opts.form && ok()) {
       var fd = opts.form, s = ed.song, pv = ed.music && ed.music.url;
-      ["music", "music_start", "music_url", "music_card"].forEach(function (k) { fd.delete(k); });
+      ["music_card"].forEach(function (k) { fd.delete(k); });
       fd.set("nm_title", s.title); fd.set("nm_artist", s.artist || "");
       if (s.art) fd.set("nm_art", String(s.art).replace("200x200", "600x600"));
       if (pv && /^https:\/\//.test(pv)) fd.set("nm_preview", pv);

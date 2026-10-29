@@ -931,6 +931,9 @@ def _music_overlay(mm: dict, minimal: bool = False) -> dict:
     return {"overlay_type": "caption", "overlay_id": "caption:music", "alt_text": text, "data": data}
 
 
+_last_music: dict = {}
+
+
 def perform_post(e: Entry, meta: dict, image: str, video: str | None) -> str:
     L = lib()
     mm = meta.get("music")
@@ -954,6 +957,8 @@ def perform_post(e: Entry, meta: dict, image: str, video: str | None) -> str:
                         except AttributeError:
                             pass
                 last = None
+                _last_music[e.key] = {"t": time.time(), "minimal": minimal, "sent": ov,
+                                      "has_video": bool(video), "result": str(result)[:300]}
                 break
             except Exception as ex:  # noqa: BLE001
                 if L and isinstance(ex, getattr(getattr(L, "exc", None), "AuthenticationError", ())):
@@ -2029,6 +2034,34 @@ def chat_delete():
     for k in [k for k in _chat_cache if k[0] == e.key]:
         _chat_cache.pop(k, None)
     return jr({"ok": True})
+
+
+@app.get("/api/overlay-probe")
+@api
+def overlay_probe():
+    """Xem Locket luu thanh nhac cua bai gan nhat nhu the nao (so voi cai da gui)."""
+    e = get_entry()
+    out = {"last_sent": _last_music.get(e.key), "mine": [], "my_moments": []}
+    try:
+        with e.lock:
+            res = e.client.post_api("getLatestMomentV2", {"should_count_missed_moments": True, "include_group_moments": True})
+        for m in (res.get("data", []) if isinstance(res, dict) else []):
+            if isinstance(m, dict) and m.get("user") == e.uid:
+                out["mine"].append({"caption": m.get("caption"), "has_video": bool(m.get("video_url")),
+                                    "overlays": m.get("overlays"), "keys": sorted(m.keys())})
+                if len(out["mine"]) >= 3:
+                    break
+    except Exception as ex:  # noqa: BLE001
+        out["err_latest"] = str(ex)[:200]
+    try:
+        with e.lock:
+            own = e.client.moments.get_all_my_moments()
+        for m in to_list(own)[:3]:
+            if isinstance(m, dict):
+                out["my_moments"].append({"caption": m.get("caption"), "overlays": m.get("overlays"), "keys": sorted(m.keys())})
+    except Exception as ex:  # noqa: BLE001
+        out["err_mine"] = str(ex)[:200]
+    return jr(out)
 
 
 @app.get("/library")
