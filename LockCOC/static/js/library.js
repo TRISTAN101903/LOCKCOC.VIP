@@ -25,16 +25,74 @@
   function fmt(ts) { return ts ? new Date(ts * 1000).toLocaleString("vi-VN") : ""; }
   function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text) n.textContent = text; return n; }
 
+/* (đoạn chèn vào library.js) chọn nhiều + xoá khoảnh khắc */
+  var SEL = { on: false, ids: {} }, cur = null;
+  var bar = el("div", "lib-selbar hidden");
+  var selCount = el("b", "", "0 đã chọn");
+  var selAll = el("button", "btn", "Chọn tất cả"); selAll.type = "button";
+  var selDel = el("button", "btn danger", "Xoá"); selDel.type = "button";
+  var selCancel = el("button", "btn", "Xong"); selCancel.type = "button";
+  bar.append(selCount, selAll, selDel, selCancel); document.body.appendChild(bar);
+  var selBtn = el("button", "btn", "Chọn để xoá"); selBtn.type = "button";
+  var chips = document.querySelector(".lib-chips"); if (chips && chips.parentNode) chips.parentNode.insertBefore(selBtn, chips.nextSibling);
+  function selN() { return Object.keys(SEL.ids).length; }
+  function selRefresh() { selCount.textContent = selN() + " đã chọn"; selDel.disabled = !selN(); }
+  function setSel(on) {
+    SEL.on = on; if (!on) SEL.ids = {};
+    grid.classList.toggle("selecting", on); bar.classList.toggle("hidden", !on);
+    Array.prototype.forEach.call(grid.querySelectorAll(".lib-tile.picked"), function (t) { t.classList.remove("picked"); });
+    selRefresh();
+  }
+  function pick(b, m) {
+    if (!m.mine) { status.textContent = "Chỉ xoá được bài của bạn."; return; }
+    if (SEL.ids[m.id]) { delete SEL.ids[m.id]; b.classList.remove("picked"); } else { SEL.ids[m.id] = 1; b.classList.add("picked"); }
+    selRefresh();
+  }
+  selBtn.addEventListener("click", function () { setSel(!SEL.on); });
+  selCancel.addEventListener("click", function () { setSel(false); });
+  selAll.addEventListener("click", function () {
+    Array.prototype.forEach.call(grid.querySelectorAll(".lib-tile[data-mine='1']"), function (t) { SEL.ids[t.dataset.id] = 1; t.classList.add("picked"); });
+    selRefresh();
+  });
+  function delIds(ids) {
+    var left = ids.slice(), okAll = [], failN = 0;
+    function step() {
+      if (!left.length) return Promise.resolve();
+      var part = left.splice(0, 10);
+      return fetch("/api/moments/delete-many", { method: "POST", credentials: "same-origin", headers: { "X-LockCOC": "1", "Content-Type": "application/json", "X-LockCOC-Acct": active || "" }, body: JSON.stringify({ ids: part }) })
+        .then(function (r) { return r.json(); }).then(function (d) { okAll = okAll.concat(d.ok || []); failN += (d.fail || []).length; status.textContent = "Đã xoá " + okAll.length + "/" + ids.length + "…"; return step(); });
+    }
+    return step().then(function () {
+      okAll.forEach(function (id) { var t = grid.querySelector(".lib-tile[data-id='" + id + "']"); if (t) t.remove(); delete SEL.ids[id]; });
+      total = Math.max(0, total - okAll.length);
+      status.textContent = "Đã xoá " + okAll.length + " bài" + (failN ? ", " + failN + " bài lỗi" : "") + ".";
+      selRefresh();
+    }).catch(function (e) { status.textContent = e.message; });
+  }
+  selDel.addEventListener("click", function () {
+    var ids = Object.keys(SEL.ids);
+    if (!ids.length || !confirm("Xoá " + ids.length + " khoảnh khắc khỏi Locket? Không thể hoàn tác.")) return;
+    selDel.disabled = true; delIds(ids).then(function () { selRefresh(); });
+  });
+  var viewDel = el("button", "btn danger hidden", "Xoá bài này"); viewDel.type = "button";
+  var vact = document.querySelector(".lib-view-actions"); if (vact) vact.appendChild(viewDel);
+  viewDel.addEventListener("click", function () {
+    if (!cur || !confirm("Xoá khoảnh khắc này khỏi Locket? Không thể hoàn tác.")) return;
+    var id = cur.id; delIds([id]).then(function () { close(); });
+  });
+
   function tile(m) {
     var b = el("button", "lib-tile"); b.type = "button";
     var src = safe(m.image);
     if (src) { var im = new Image(); im.loading = "lazy"; im.alt = ""; im.referrerPolicy = "no-referrer"; im.src = src; b.appendChild(im); }
     if (m.video) b.appendChild(el("span", "vid", "VID"));
     b.appendChild(el("span", "who", m.mine ? "Tôi" : (m.name || "Bạn bè")));
-    b.addEventListener("click", function () { open(m); });
+    b.dataset.id = m.id; b.dataset.mine = m.mine ? "1" : "0";
+    b.addEventListener("click", function () { if (SEL.on) pick(b, m); else open(m); });
     return b;
   }
   function open(m) {
+    cur = m; viewDel.classList.toggle("hidden", !m.mine);
     var box = document.getElementById("lib-media"); box.replaceChildren();
     var v = safe(m.video), i = safe(m.image);
     if (v) { var vd = document.createElement("video"); vd.controls = true; vd.playsInline = true; vd.src = v; if (i) vd.poster = i; box.appendChild(vd); }

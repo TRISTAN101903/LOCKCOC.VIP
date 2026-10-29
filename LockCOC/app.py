@@ -1260,6 +1260,7 @@ def moment_delete():
         if r["file"]:
             (MEDIA_DIR / r["file"]).unlink(missing_ok=True)
     q("DELETE FROM posts WHERE key=? AND moment_uid=?", (e.key, mid), commit=True)
+    q("DELETE FROM sync_items WHERE key=? AND mid=?", (e.key, mid), commit=True)
     return jr({"ok": True})
 
 
@@ -2062,6 +2063,37 @@ def overlay_probe():
     except Exception as ex:  # noqa: BLE001
         out["err_mine"] = str(ex)[:200]
     return jr(out)
+
+
+# ---------- patch27: xoa nhieu khoanh khac ----------
+@app.post("/api/moments/delete-many")
+@api
+def moments_delete_many():
+    e = get_entry()
+    ids = body().get("ids")
+    if not isinstance(ids, list) or not 1 <= len(ids) <= 40 or not all(isinstance(x, str) and ID_RE.match(x) for x in ids):
+        raise ApiError("Danh sách bài cần xoá không hợp lệ")
+    ok, fail = [], []
+    for mid in ids:
+        own = q("SELECT 1 FROM sync_items WHERE key=? AND mid=? AND mine=1", (e.key, mid), one=True) or \
+            q("SELECT 1 FROM posts WHERE key=? AND moment_uid=?", (e.key, mid), one=True)
+        if not own:
+            fail.append({"id": mid, "error": "Không phải bài của bạn"})
+            continue
+        try:
+            with e.lock:
+                e.client.moments.delete(moment_uid=mid)
+        except Exception as ex:  # noqa: BLE001
+            fail.append({"id": mid, "error": str(ex)[:120]})
+            continue
+        for r in q("SELECT file FROM posts WHERE key=? AND moment_uid=?", (e.key, mid)):
+            if r["file"]:
+                (MEDIA_DIR / r["file"]).unlink(missing_ok=True)
+        q("DELETE FROM posts WHERE key=? AND moment_uid=?", (e.key, mid), commit=True)
+        q("DELETE FROM sync_items WHERE key=? AND mid=?", (e.key, mid), commit=True)
+        ok.append(mid)
+    return jr({"ok": ok, "fail": fail})
+
 
 
 @app.get("/library")
