@@ -125,3 +125,44 @@ html.lite .overlay { backdrop-filter: none; -webkit-backdrop-filter: none; backg
 html.lite .studio { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(18, 15, 11, .98); animation-duration: .22s; }
 html.lite .page { animation-duration: .16s; }
 .page { overscroll-behavior: contain; }
+
+/* ===== chat v2 ===== */
+.thread-ov { background: #08080b; }
+.thread-ov .chat-head { gap: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, .06); justify-content: flex-start; }
+.chat-head .avatar.ring { width: 52px; height: 52px; border: 2px solid #c9962b; box-shadow: 0 0 0 2px rgba(201, 150, 43, .25); border-radius: 18px; }
+.chat-head .avatar.ring img { border-radius: 16px; }
+.ch-meta strong { font-size: 19px; font-weight: 800; }
+.chat-head .eye { background: #16161a; width: 52px; border-radius: 18px; color: var(--muted, #a99f8c); }
+.chat-head .eye.on { color: var(--gold1, #e2b04a); }
+.thread-ov .msgs { padding: 14px 16px; gap: 6px; background: #08080b; }
+.day-sep { display: flex; align-items: center; gap: 12px; margin: 22px 0 14px; text-align: center; }
+.day-sep::before, .day-sep::after { content: ""; flex: 1; height: 1px; background: rgba(255, 255, 255, .1); }
+.day-sep span { font-size: 13px; font-weight: 700; color: #b9b4a8; background: #17171b; padding: 7px 16px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, .08); }
+.m-wrap { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; max-width: 78%; align-self: flex-start; }
+.m-wrap.me { align-items: flex-end; align-self: flex-end; }
+.m-wrap .bubble { max-width: 100%; align-self: auto; padding: 14px 22px; font-size: 17px; font-weight: 600; border-radius: 26px; background: #1b1b21; color: #f2efe8; border: 0; box-shadow: none; }
+.m-wrap .bubble.me { background: linear-gradient(135deg, #ffc400, #ff9a00); color: #1b1203; }
+.m-wrap .bubble.big { background: none; font-size: 40px; padding: 2px 4px; }
+.m-react { font-size: 15px; margin-top: -10px; padding: 2px 8px; border-radius: 12px; background: #1b1b21; border: 1px solid rgba(255, 255, 255, .1); align-self: flex-start; }
+.m-react.me { align-self: flex-end; }
+.msg-time { font-size: 13px; color: #8b877d; margin: 0 6px 12px; display: flex; gap: 6px; align-items: center; }
+.msg-time.me { align-self: flex-end; }
+.msg-time .tick { color: #8b877d; font-weight: 800; letter-spacing: -2px; }
+.msg-time .tick.seen { color: #ffb400; }
+.m-card { position: relative; width: min(64vw, 260px); aspect-ratio: 1; border-radius: 28px; overflow: hidden; padding: 0; background: #000; border: 0; display: grid; place-items: center; color: #8b877d; font-size: 15px; font-weight: 700; }
+.m-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.m-card.empty { border: 1px dashed rgba(255, 255, 255, .18); background: #111115; }
+.m-card .m-play { position: absolute; right: 10px; bottom: 10px; width: 34px; height: 34px; border-radius: 50%; background: rgba(0, 0, 0, .55); display: grid; place-items: center; color: #fff; }
+.composer.c2 { padding: 10px 14px calc(14px + var(--safe-b, 0px)); gap: 10px; align-items: center; border-top: 1px solid rgba(255, 255, 255, .06); background: #08080b; }
+.composer.c2 input { flex: 1; height: 56px; border-radius: 28px; background: #121216; border: 1px solid rgba(255, 255, 255, .08); padding: 0 22px; font-size: 17px; }
+.composer.c2 .c-send { width: 56px; height: 56px; border-radius: 20px; background: linear-gradient(135deg, #8a5a00, #5a3b00); color: #ffb400; }
+.composer.c2 .c-send:active { transform: scale(.94); }
+.composer.c2 input:not(:placeholder-shown) ~ .c-send { background: linear-gradient(135deg, #ffc400, #ff9a00); color: #1b1203; }
+.composer.c2 .c-attach { width: 48px; height: 48px; border-radius: 50%; padding: 0; flex: none; }
+.mp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; overflow-y: auto; max-height: 52vh; }
+.mp-it { aspect-ratio: 1; border-radius: 14px; overflow: hidden; padding: 0; background: #111; border: 0; }
+.mp-it img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.lb-back { position: fixed; inset: 0; z-index: 120; background: rgba(0, 0, 0, .92); display: grid; place-items: center; padding: 14px; }
+.lb-back img, .lb-back video { max-width: 100%; max-height: 86vh; border-radius: 22px; }
+.lb-back .lb-x { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 14px); right: 14px; }
+.m-wrap { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }

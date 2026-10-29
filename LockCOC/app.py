@@ -1304,42 +1304,6 @@ def chat_conversations():
     return jr({"items": items, "unread": sum(c["unread"] for c in items)})
 
 
-@app.get("/api/chat/messages/<other_uid>")
-@api
-def chat_messages(other_uid):
-    if not ID_RE.match(other_uid):
-        raise ApiError("UID không hợp lệ")
-    e = get_entry()
-    with e.lock:
-        data = e.client.chat.get_messages(other_user_id=other_uid)
-    msgs = [norm_msg(m, e.uid) for m in to_list(data) if isinstance(m, dict)]
-    try:
-        if msgs and all(m["time"] is not None for m in msgs):
-            msgs.sort(key=lambda m: float(m["time"]) if isinstance(m["time"], (int, float)) else str(m["time"]))
-    except (TypeError, ValueError):
-        pass
-    return jr({"items": msgs, "me": e.uid})
-
-
-@app.post("/api/chat/send")
-@api
-def chat_send():
-    e = get_entry()
-    data = body()
-    with e.lock:
-        e.client.chat.send_message(receiver_uid=need_id(data, "receiver_uid"), text=need(data, "text", 2000))
-    return jr({"ok": True})
-
-
-@app.post("/api/chat/read")
-@api
-def chat_read():
-    e = get_entry()
-    with e.lock:
-        e.client.chat.mark_as_read(other_user_id=need_id(body(), "other_uid"), send_read_receipt=False)
-    return jr({"ok": True})
-
-
 # ----------------------------------------------------------------------------
 # Nhạc & thời tiết (gọi dịch vụ ngoài qua server, chỉ cho phép vài tên miền cố định)
 # ----------------------------------------------------------------------------
@@ -1835,6 +1799,236 @@ def service_worker():
     resp.headers["Cache-Control"] = "no-cache"
     resp.headers["Service-Worker-Allowed"] = "/"
     return resp
+
+
+# ======================= CHAT MOI (patch24): the khoanh khac, da xem, thu hoi =======================
+_FS = "https://firestore.googleapis.com/v1/projects/locket-4252a/databases/(default)/documents"
+_chat_cache: dict = {}
+
+
+def _fsv(v):
+    if not isinstance(v, dict):
+        return None
+    for k in ("stringValue", "integerValue", "doubleValue", "booleanValue", "timestampValue", "referenceValue"):
+        if k in v:
+            x = v[k]
+            if k == "integerValue" and str(x).lstrip("-").isdigit():
+                return int(x)
+            return x
+    if "mapValue" in v:
+        return {k: _fsv(x) for k, x in (v["mapValue"].get("fields") or {}).items()}
+    if "arrayValue" in v:
+        return [_fsv(x) for x in (v["arrayValue"].get("values") or [])]
+    return None
+
+
+def _fs_get(url: str, token: str) -> dict:
+    req = urllib.request.Request(url, headers={"Authorization": "Bearer " + token})
+    with urllib.request.urlopen(req, timeout=15) as r:
+        return json.loads(r.read().decode("utf-8"))
+
+
+def _chat_token(e):
+    ses = e.client.session
+    fn = getattr(ses, "get_valid_token", None)
+    tok = None
+    if callable(fn):
+        try:
+            tok = fn()
+        except Exception:  # noqa: BLE001
+            tok = None
+    return tok or getattr(ses, "id_token", None) or ""
+
+
+def _chat_conv(e, other: str) -> dict:
+    ck = (e.key, other)
+    c = _chat_cache.get(ck)
+    if c and time.time() - c["t"] < 8:
+        return c
+    hit = None
+    for x in to_list(e.client.chat.get_conversations()):
+        if isinstance(x, dict) and x.get("peer_uid") == other:
+            hit = x
+            break
+    c = {"t": time.time(), "cid": (hit or {}).get("conversation_id"), "read": (hit or {}).get("other_last_read_at")}
+    _chat_cache[ck] = c
+    return c
+
+
+def _chat_docs(e, cid: str) -> list:
+    token = _chat_token(e)
+    base = f"{_FS}/conversations/{urllib.parse.quote(cid)}/messages"
+    docs, page = [], ""
+    for _ in range(3):
+        u = base + "?pageSize=300&orderBy=created_at%20desc" + ("&pageToken=" + urllib.parse.quote(page) if page else "")
+        d = _fs_get(u, token)
+        docs += d.get("documents", [])
+        page = d.get("nextPageToken", "")
+        if not page:
+            break
+    return docs
+
+
+_ATT_SKIP = {"body", "sender", "created_at", "reactions", "client_token"}
+
+
+def _attach(e, f: dict):
+    urls, mid = [], None
+
+    def walk(k, v):
+        nonlocal mid
+        if isinstance(v, dict):
+            for kk, vv in v.items():
+                walk(str(kk).lower(), vv)
+        elif isinstance(v, list):
+            for x in v:
+                walk(k, x)
+        elif isinstance(v, str):
+            if v.startswith("https://") and not any(s_ in k for s_ in ("avatar", "profile")):
+                urls.append((k, v))
+            elif "moment" in k and ID_RE.match(v) and not mid:
+                mid = v
+
+    for k, v in f.items():
+        if k not in _ATT_SKIP:
+            walk(str(k).lower(), v)
+    vid = next((u for k, u in urls if "video" in k or re.search(r"\.(mp4|mov)(\?|$)", u, re.I)), "")
+    img = next((u for k, u in urls if u != vid and not re.search(r"\.(mp4|mov)(\?|$)", u, re.I)), "")
+    if mid and not (img or vid):
+        r = q("SELECT thumb, video FROM sync_items WHERE key=? AND mid=?", (e.key, mid), one=True)
+        if r:
+            img, vid = r["thumb"] or "", r["video"] or ""
+    if img or vid:
+        return {"image": img, "video": vid, "moment": mid or ""}
+    if mid:
+        return {"image": "", "video": "", "moment": mid, "missing": True}
+    return None
+
+
+def _norm_fs(e, d: dict, cid: str) -> dict:
+    f = {k: _fsv(v) for k, v in (d.get("fields") or {}).items()}
+    sender = f.get("sender") if isinstance(f.get("sender"), str) else ""
+    raw = f.get("body") if isinstance(f.get("body"), str) else ""
+    text = raw.replace("​", "").strip()
+    att = _attach(e, f)
+    if not text and not att and not raw.strip("​").strip():
+        att = {"image": "", "video": "", "moment": "", "missing": True}
+    reacts = [{"emoji": r.get("emoji"), "sender": r.get("sender")} for r in (f.get("reactions") or []) if isinstance(r, dict) and r.get("emoji")]
+    return {"id": d["name"].split("/")[-1], "sender": sender, "mine": bool(e.uid and sender == e.uid), "text": text,
+            "time": f.get("created_at"), "reactions": reacts, "attach": att, "cid": cid}
+
+
+def _norm_lib(m: dict, my_uid) -> dict:
+    sender = first(m, ["sender_uid", "sender_id", "sender", "from", "uid"])
+    if isinstance(sender, dict):
+        sender = first(sender, ["uid", "id"])
+    text = first(m, ["text", "body", "message"])
+    text = text.replace("​", "").strip() if isinstance(text, str) else ""
+    reacts = [{"emoji": r.get("emoji"), "sender": r.get("sender")} for r in (m.get("reactions") or []) if isinstance(r, dict) and r.get("emoji")]
+    return {"id": first(m, ["message_id", "id"]), "sender": sender, "mine": bool(m.get("is_me")) or bool(my_uid and sender == my_uid),
+            "text": text, "time": first(m, ["timestamp", "created_at", "time", "date"]), "reactions": reacts,
+            "attach": ({"image": "", "video": "", "moment": "", "missing": True} if not text else None), "cid": m.get("conversation_id")}
+
+
+@app.get("/api/chat/messages/<other_uid>")
+@api
+def chat_messages(other_uid):
+    if not ID_RE.match(other_uid):
+        raise ApiError("UID không hợp lệ")
+    e = get_entry()
+    out, cid, read = None, None, None
+    with e.lock:
+        try:
+            c = _chat_conv(e, other_uid)
+            cid, read = c["cid"], c["read"]
+            if cid:
+                out = [_norm_fs(e, d, cid) for d in reversed(_chat_docs(e, cid))]
+        except Exception as ex:  # noqa: BLE001
+            app.logger.warning("Chat Firestore loi, dung ham thu vien: %s", ex)
+            out = None
+        if out is None:
+            data = e.client.chat.get_messages(other_user_id=other_uid)
+            out = [_norm_lib(m, e.uid) for m in to_list(data) if isinstance(m, dict)]
+            cid = cid or next((m.get("cid") for m in out if m.get("cid")), None)
+    return jr({"items": out, "me": e.uid, "cid": cid, "other_read": read})
+
+
+@app.get("/api/chat/probe/<other_uid>")
+@api
+def chat_probe(other_uid):
+    """Chi tra ve TEN truong va kieu du lieu (khong co noi dung tin nhan) de debug the khoanh khac."""
+    if not ID_RE.match(other_uid):
+        raise ApiError("UID không hợp lệ")
+    e = get_entry()
+    with e.lock:
+        c = _chat_conv(e, other_uid)
+        docs = _chat_docs(e, c["cid"]) if c["cid"] else []
+
+    def shape(v, depth=0):
+        if isinstance(v, dict):
+            return {k: shape(x, depth + 1) for k, x in v.items()} if depth < 3 else "map"
+        if isinstance(v, list):
+            return [shape(v[0], depth + 1)] if v else []
+        if isinstance(v, str):
+            if v.startswith("https://"):
+                return "url:" + (urllib.parse.urlparse(v).hostname or "")
+            return f"str({len(v)})"
+        return type(v).__name__
+    rows = []
+    for d in docs[:25]:
+        f = {k: _fsv(v) for k, v in (d.get("fields") or {}).items()}
+        f.pop("body", None)
+        rows.append(shape(f))
+    kinds: dict = {}
+    for r in rows:
+        key = ",".join(sorted(r.keys()))
+        kinds[key] = kinds.get(key, 0) + 1
+    return jr({"conversation": bool(c["cid"]), "messages": len(docs), "field_sets": kinds, "sample": rows[:6]})
+
+
+@app.post("/api/chat/send")
+@api
+def chat_send():
+    e = get_entry()
+    data = body()
+    rid = need_id(data, "receiver_uid")
+    mu = str(data.get("moment_uid") or "").strip()
+    if mu and not ID_RE.match(mu):
+        raise ApiError("Mã khoảnh khắc không hợp lệ")
+    text = str(data.get("text") or "").strip()[:2000]
+    if not text and not mu:
+        raise ApiError("Tin nhắn trống")
+    with e.lock:
+        if mu:
+            e.client.chat.send_message(receiver_uid=rid, text=text or None, moment_uid=mu)
+        else:
+            e.client.chat.send_message(receiver_uid=rid, text=text)
+    _chat_cache.pop((e.key, rid), None)
+    return jr({"ok": True})
+
+
+@app.post("/api/chat/read")
+@api
+def chat_read():
+    e = get_entry()
+    d = body()
+    ghost = d.get("ghost", True) is not False
+    with e.lock:
+        e.client.chat.mark_as_read(other_user_id=need_id(d, "other_uid"), send_read_receipt=not ghost)
+    return jr({"ok": True})
+
+
+@app.post("/api/chat/delete")
+@api
+def chat_delete():
+    e = get_entry()
+    d = body()
+    cid, mid = need_id(d, "cid"), need_id(d, "id")
+    with e.lock:
+        e.client.chat.delete_message(conversation_uid=cid, message_uid=mid, validate_ownership=False)
+    for k in [k for k in _chat_cache if k[0] == e.key]:
+        _chat_cache.pop(k, None)
+    return jr({"ok": True})
 
 
 @app.get("/library")

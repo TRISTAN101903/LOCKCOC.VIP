@@ -8,7 +8,7 @@
   <meta name="author" content="TRISTAN.faketriss">
   <meta name="copyright" content="© 2026 LockCOC · TRISTAN.faketriss">
   <title>LockCOC – gửi khoảnh khắc, kèm bài hát</title>
-  <meta name="description" content="LockCOC: chụp, gắn bài hát, hẹn giờ và gửi khoảnh khắc tới bạn bè. Dùng trên trình duyệt hoặc cài APK cho Android.">
+  <meta name="description" content="LockCOC: chat kiểu mới, Photobooth, thẻ nhạc, Wrapped, phim kỷ niệm, sao lưu ZIP. Dùng trên trình duyệt hoặc cài APK cho Android.">
   <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
   <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
   <link rel="manifest" href="/static/manifest.json">
@@ -28,6 +28,7 @@
     <symbol id="i-no" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
     <symbol id="i-android" viewBox="0 0 24 24"><path d="M6.5 10h11v7.5A1.5 1.5 0 0 1 16 19H8a1.5 1.5 0 0 1-1.5-1.5zM6.5 10a5.5 5.5 0 0 1 11 0zM8.6 4.2 7.4 2.4M15.4 4.2l1.2-1.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-apple" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M10 5.5h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.6l1.2-2h5.4l1.2 2h1.6A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12.5" r="3.4" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol><symbol id="i-chat" viewBox="0 0 24 24"><path d="M5 5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-7l-4.5 3.5V17H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 10.5h8M8 13.5h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol><symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3.6 2.6 5.3 5.8.9-4.2 4.1 1 5.8L12 16.9l-5.2 2.8 1-5.8-4.2-4.1 5.8-.9z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol><symbol id="i-film" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 5v14M16 5v14M4 9.5h4M4 14.5h4M16 9.5h4M16 14.5h4" stroke="currentColor" stroke-width="1.6"/></symbol><symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="13" y="4" width="7" height="7" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="4" y="13" width="7" height="7" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="13" y="13" width="7" height="7" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol><symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol><symbol id="i-box" viewBox="0 0 24 24"><path d="M4 8l8-4 8 4v8l-8 4-8-4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M4 8l8 4 8-4M12 12v8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
   </svg>
 
   <header class="top">
@@ -46,7 +47,7 @@
       <div class="hero-copy">
         <p class="eyebrow">Ứng dụng gửi khoảnh khắc</p>
         <h1>Gửi một khoảnh khắc,<br>kèm bài hát bạn đang nghe.</h1>
-        <p class="lead">Chụp ảnh hoặc quay video ngắn, gắn nhạc, hẹn giờ rồi gửi tới bạn bè. Dùng ngay trên trình duyệt hoặc cài APK cho Android.</p>
+        <p class="lead">Chụp ảnh, quay video, nhắn tin, gắn nhạc, dựng phim kỷ niệm và sao lưu tất cả trong một app. Dùng ngay trên trình duyệt hoặc cài APK cho Android.</p>
         <div class="cta-row">
           <a class="btn btn-gold" id="hero-apk" href="#tai-app"><svg class="ic"><use href="#i-down"/></svg><span id="hero-apk-text">Tải APK cho Android</span></a>
           <a class="btn btn-ghost" href="/app">Dùng trên trình duyệt</a>
@@ -69,10 +70,10 @@
     </section>
 
     <section class="facts" aria-label="Điểm nổi bật">
-      <div><b>Nhạc 30 giây</b><span>ghép thẳng vào video đăng</span></div>
-      <div><b>Hẹn giờ</b><span>soạn trước, app tự gửi</span></div>
-      <div><b>Nhiều tài khoản</b><span>đổi nhanh trong một chạm</span></div>
-      <div><b>Mã khóa riêng</b><span>chặn người lạ vào app</span></div>
+      <div><b>Chat kiểu mới</b><span>thẻ ảnh, ✓✓ đã xem, đọc ẩn danh</span></div>
+      <div><b>Photobooth</b><span>Polaroid, 4-Cuts, Duo</span></div>
+      <div><b>Kỷ niệm</b><span>Wrapped, phim, sao lưu ZIP</span></div>
+      <div><b>Thẻ nhạc</b><span>gắn bài hát vào bài đăng</span></div>
     </section>
 
     <section class="block stats" id="stats" hidden>
@@ -89,18 +90,24 @@
 
     <section id="tinh-nang" class="block">
       <h2>Có gì trong app</h2>
-      <p class="sub">Những tính năng dùng được ngay hôm nay.</p>
+      <p class="sub">Những tính năng dùng được ngay hôm nay. Mục có nhãn “Mới” vừa được thêm.</p>
       <div class="grid">
-        <article><svg class="ic xl"><use href="#i-note"/></svg><h3>Thẻ nhạc trên ảnh</h3><p>Ảnh bìa, tên bài, ca sĩ và nút phát. Với video, nhạc được trộn vào âm thanh.</p></article>
+        <article class="feat-new"><svg class="ic xl"><use href="#i-chat"/></svg><h3>Chat kiểu mới <em class="nw">Mới</em></h3><p>Tách theo ngày, bong bóng vàng, thẻ ảnh khoảnh khắc, dấu ✓✓ khi người kia đã xem. Chạm giữ để thu hồi tin của bạn.</p></article>
+        <article class="feat-new"><svg class="ic xl"><use href="#i-eye"/></svg><h3>Đọc ẩn danh <em class="nw">Mới</em></h3><p>Nút mắt trong chat: đọc tin mà không báo “đã xem”. Bật hoặc tắt từng lúc.</p></article>
+        <article class="feat-new"><svg class="ic xl"><use href="#i-camera"/></svg><h3>Photobooth <em class="nw">Mới</em></h3><p>Polaroid, dải 4-Cuts, Duo 35mm với khung màu, màu phim Kodak/Fuji, ngày LED, hạt phim và tiếng màn trập.</p></article>
+        <article class="feat-new"><svg class="ic xl"><use href="#i-note"/></svg><h3>Thẻ nhạc Locket (thử nghiệm) <em class="nw">Mới</em></h3><p>Gắn bài hát thành thẻ nhạc gốc để bạn bè trên Locket thường thấy. Phụ thuộc việc Locket chấp nhận.</p></article>
+        <article class="feat-new"><svg class="ic xl"><use href="#i-clock"/></svg><h3>Ngày này năm xưa <em class="nw">Mới</em></h3><p>Nhắc lại ảnh và video đăng cùng ngày ở các năm trước, lấy từ thư viện đã đồng bộ.</p></article>
+        <article class="feat-new"><svg class="ic xl"><use href="#i-star"/></svg><h3>Wrapped <em class="nw">Mới</em></h3><p>Tổng kết tháng hoặc năm: số bài, chuỗi dài nhất, bạn bè nổi bật. Xuất ảnh dọc để khoe.</p></article>
+        <article class="feat-new"><svg class="ic xl"><use href="#i-film"/></svg><h3>Phim kỷ niệm <em class="nw">Mới</em></h3><p>Tự chọn ảnh theo thời gian, ghép thành clip dọc có chuyển cảnh và nhạc nền. Tải về hoặc đăng lại.</p></article>
+        <article class="feat-new"><svg class="ic xl"><use href="#i-grid"/></svg><h3>Lưới ảnh <em class="nw">Mới</em></h3><p>Ghép 2×2, 3×3 hoặc 4×4 ảnh thành một tấm vuông có ghi khoảng ngày.</p></article>
+        <article class="feat-new"><svg class="ic xl"><use href="#i-box"/></svg><h3>Sao lưu ZIP <em class="nw">Mới</em></h3><p>Tải ảnh và video của bạn, hoặc của một người bạn, về máy kèm danh sách. Chia thành phần nhỏ cho dễ tải.</p></article>
+        <article class="feat-new"><svg class="ic xl"><use href="#i-flame"/></svg><h3>Thử thách ngày <em class="nw">Mới</em></h3><p>Mỗi ngày một đề chụp, tham gia để gắn vào bài và giữ chuỗi liên tiếp.</p></article>
+        <article class="feat-new"><svg class="ic xl"><use href="#i-users"/></svg><h3>Nhóm người nhận <em class="nw">Mới</em></h3><p>Lưu nhóm như Gia đình, Hội bạn thân để chọn người nhận trong một chạm.</p></article>
         <article><svg class="ic xl"><use href="#i-clock"/></svg><h3>Hẹn giờ đăng</h3><p>Soạn trước, đặt giờ, app gửi giúp bạn đúng lúc.</p></article>
-        <article><svg class="ic xl"><use href="#i-frame"/></svg><h3>Khung và hiệu ứng</h3><p>Polaroid, phim, vòng tròn, cùng hiệu ứng nhẹ phủ lên ảnh.</p></article>
+        <article><svg class="ic xl"><use href="#i-frame"/></svg><h3>Khung và hiệu ứng</h3><p>Khung widget, hiệu ứng nhẹ, widget thời tiết, pin, đồng hồ trong caption.</p></article>
         <article><svg class="ic xl"><use href="#i-users"/></svg><h3>Nhiều tài khoản</h3><p>Đăng nhập nhiều nick, mỗi nick có lịch sử riêng.</p></article>
         <article><svg class="ic xl"><use href="#i-lock"/></svg><h3>Mã khóa</h3><p>Chưa nhập mã thì không vào được app, kể cả khi có đường dẫn.</p></article>
-        <article><svg class="ic xl"><use href="#i-flame"/></svg><h3>Chuỗi ngày</h3><p>Theo dõi chuỗi đăng liên tiếp và khôi phục khi lỡ một ngày.</p></article>
-        <article><svg class="ic xl"><use href="#i-frame"/></svg><h3>Photobooth</h3><p>Polaroid, 4-Cuts, Duo 35mm: tự đếm 3-2-1, chụp liên tiếp, ghép khung và màu phim.</p></article>
-        <article><svg class="ic xl"><use href="#i-heart"/></svg><h3>Tiếng chụp, tiếng đếm</h3><p>Có âm thanh và rung nhẹ khi chụp, khi đếm ngược và khi có tin mới. Tắt được bất cứ lúc nào.</p></article>
-        <article><svg class="ic xl"><use href="#i-users"/></svg><h3>Tin nhắn gọn hơn</h3><p>Chia theo ngày, có giờ, gửi tức thì, thả cảm xúc nhanh và tìm cuộc trò chuyện.</p></article>
-        <article><svg class="ic xl"><use href="#i-down"/></svg><h3>Thư viện ảnh</h3><p>Đồng bộ ảnh và video của bạn cùng bạn bè, xem trong app và tải về máy.</p></article>
+        <article class="feat-new"><svg class="ic xl"><use href="#i-star"/></svg><h3>Chế độ mượt <em class="nw">Mới</em></h3><p>Tắt bớt hiệu ứng nặng, lưu giao diện trong máy để mở app nhanh hơn trên máy yếu và mạng chậm.</p></article>
       </div>
     </section>
 
@@ -140,6 +147,10 @@
           <tbody>
             <tr><th scope="row">Trình duyệt và máy tính</th><td><svg class="ic no"><use href="#i-no"/></svg>Chỉ app điện thoại</td><td class="us"><svg class="ic ok"><use href="#i-ok"/></svg>Có</td></tr>
             <tr><th scope="row">Widget màn hình chính</th><td><svg class="ic ok"><use href="#i-ok"/></svg>Có</td><td class="us"><svg class="ic ok"><use href="#i-ok"/></svg>Có, trên bản APK Android</td></tr>
+            <tr><th scope="row">Photobooth (Polaroid, 4-Cuts, Duo)</th><td><svg class="ic no"><use href="#i-no"/></svg>Chưa thấy</td><td class="us"><svg class="ic ok"><use href="#i-ok"/></svg>Có</td></tr>
+            <tr><th scope="row">Đọc tin ẩn danh, thu hồi tin</th><td><svg class="ic no"><use href="#i-no"/></svg>Chưa thấy</td><td class="us"><svg class="ic ok"><use href="#i-ok"/></svg>Có</td></tr>
+            <tr><th scope="row">Tổng kết Wrapped, ngày này năm xưa</th><td><svg class="ic no"><use href="#i-no"/></svg>Chưa thấy</td><td class="us"><svg class="ic ok"><use href="#i-ok"/></svg>Có</td></tr>
+            <tr><th scope="row">Sao lưu ảnh ra file ZIP</th><td><svg class="ic no"><use href="#i-no"/></svg>Chưa thấy</td><td class="us"><svg class="ic ok"><use href="#i-ok"/></svg>Có</td></tr>
             <tr><th scope="row">Hẹn giờ đăng</th><td><svg class="ic no"><use href="#i-no"/></svg>Chưa thấy</td><td class="us"><svg class="ic ok"><use href="#i-ok"/></svg>Có</td></tr>
             <tr><th scope="row">Độ ổn định, hỗ trợ</th><td><svg class="ic ok"><use href="#i-ok"/></svg>Chính thức</td><td class="us"><svg class="ic no"><use href="#i-no"/></svg>Dự án độc lập, có thể gián đoạn</td></tr>
             <tr><th scope="row">Nơi giữ dữ liệu</th><td>Máy chủ của Locket</td><td class="us">Máy chủ LockCOC, có mã khóa</td></tr>
@@ -157,6 +168,9 @@
       <details><summary>Mật khẩu Locket của tôi được lưu ở đâu?</summary><p>Mật khẩu chỉ dùng lúc đăng nhập và không được ghi vào database. Phiên đăng nhập nằm trên máy chủ LockCOC và chỉ trình duyệt đã nhập đúng mã khóa mới dùng được.</p></details>
       <details><summary>Mở app lần đầu hơi lâu?</summary><p>Máy chủ miễn phí sẽ ngủ khi lâu không ai dùng, lần mở đầu có thể mất khoảng 30 giây để thức dậy. Sau đó app chạy bình thường.</p></details>
       <details><summary>Số liệu trên trang lấy từ đâu?</summary><p>Từ database của máy chủ: chỉ đếm số tài khoản và số khoảnh khắc, không chứa tên, email hay nội dung của ai. Con số có thể về 0 khi máy chủ được cài lại.</p></details>
+      <details><summary>Đọc ẩn danh là gì?</summary><p>Trong chat có nút hình mắt. Khi bật, app đánh dấu đã đọc ở phía bạn nhưng không gửi thông báo “đã xem” cho người kia. Tắt nút thì họ sẽ thấy.</p></details>
+      <details><summary>Sao lưu ảnh hoạt động thế nào?</summary><p>Đồng bộ Thư viện ảnh trước, sau đó vào LockCOC Plus → Sao lưu để tải từng phần ZIP kèm danh sách. Máy chủ miễn phí nên mỗi phần giới hạn 60 ảnh hoặc video.</p></details>
+      <details><summary>Dựng phim kỷ niệm có chậm không?</summary><p>Việc dựng chạy trên máy chủ nên mất khoảng 1 đến 3 phút với máy chủ miễn phí. Bạn có thể xem, tải về hoặc đăng lại ngay khi xong.</p></details>
       <details><summary>Video đăng được dài bao lâu?</summary><p>Tối đa 60 giây. Bài hát gắn vào lấy đoạn nghe thử 30 giây.</p></details>
     </section>
 

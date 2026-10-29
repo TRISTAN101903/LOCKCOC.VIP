@@ -239,3 +239,6 @@ h2::after { content: ""; display: block; height: 3px; width: 54px; margin-top: 1
   mask-image: linear-gradient(to right, transparent 0, #000 16%, #000 84%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 11%, #000 87%, transparent 100%);
   mask-composite: intersect; }
 .phone-col::before { inset: 0 -22% 0; opacity: .9; }
+
+.nw { font-style: normal; font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; margin-left: 6px; padding: 2px 7px; border-radius: 999px; background: var(--gold); color: #1a1205; vertical-align: middle; }
+.grid article.feat-new { background: linear-gradient(180deg, rgba(226,176,74,.07), transparent 60%), var(--bg2); }
