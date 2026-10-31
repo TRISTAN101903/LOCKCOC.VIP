@@ -208,3 +208,6 @@ html.lite .page { animation-duration: .16s; }
 .cam-more .mode-pill.hidden { display: none; }
 .cam-modes { padding-bottom: 4px; }
 .cam-modes .more-btn { margin-left: auto; }
+
+.plus-list:not(.unfold) .fold-hide { display: none; }
+.plus-more { margin: 8px auto 0; display: block; }
