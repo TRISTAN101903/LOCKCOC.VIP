@@ -255,3 +255,10 @@ h2::after { content: ""; display: block; height: 3px; width: 54px; margin-top: 1
 .tour-in { width: min(84vw, 330px); aspect-ratio: 828 / 1900; border-radius: 28px; overflow: hidden; background: #0b0906; box-shadow: 0 30px 60px rgba(0,0,0,.5), 0 0 0 1px rgba(226,176,74,.25); }
 .tour-in video { width: 100%; height: 100%; display: block; object-fit: cover; }
 .tour-btn { padding: 6px 14px; border-radius: 999px; background: rgba(14,12,8,.7); color: #fff; font: inherit; font-size: 13px; border: 1px solid rgba(255,255,255,.2); cursor: pointer; }
+
+.rv { opacity: 0; transform: translateY(46px) scale(.9); transition: opacity .5s ease, transform .75s cubic-bezier(.34, 1.56, .64, 1); will-change: transform, opacity; }
+.rv.rv-in { opacity: 1; transform: none; }
+.tour-in { aspect-ratio: 828 / 1720; }
+.tour-tabs { display: inline-flex; gap: 6px; padding: 4px; border-radius: 999px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); margin-top: 14px; }
+.tour-tab { padding: 8px 18px; border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: 14px; font-weight: 600; border: 0; cursor: pointer; }
+.tour-tab.on { background: var(--gold, #e2b04a); color: #1a1408; }
