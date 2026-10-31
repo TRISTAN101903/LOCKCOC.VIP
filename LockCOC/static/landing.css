@@ -266,3 +266,13 @@ h2::after { content: ""; display: block; height: 3px; width: 54px; margin-top: 1
 .tour-in.wide { width: min(92vw, 780px); border-radius: 22px; }
 .tour-in { aspect-ratio: 16 / 9; }
 .tour-in:not(.wide) { width: min(84vw, 330px); }
+
+/* video keynote 16:9, mep phai mo hoa vao trang */
+.phone { width: min(92vw, 440px); }
+.phone-in { aspect-ratio: 16 / 9; }
+.phone-in video { object-fit: cover;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 15%, #000 85%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 22%, #000 78%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent 0, #000 15%, #000 85%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 22%, #000 78%, transparent 100%);
+  mask-composite: intersect; }
+.phone-col::before { inset: 10% -8% 10%; }
