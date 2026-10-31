@@ -201,3 +201,10 @@ html.lite .page { animation-duration: .16s; }
 .lib-tile.picked { outline: 3px solid #ffc828; outline-offset: -3px; }
 .lib-tile.picked::after { content: "✓"; position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; background: #ffc828; color: #111; font-weight: 800; display: grid; place-items: center; font-size: 13px; }
 .lib-view-actions .hidden { display: none; }
+
+.cam-more { display: flex; gap: 6px; padding: 0 12px 6px; width: min(calc(100% - 20px), calc(60vh + 8px)); flex: none; }
+.cam-more.hidden { display: none; }
+.cam-more .mode-pill { display: inline-block; }
+.cam-more .mode-pill.hidden { display: none; }
+.cam-modes { padding-bottom: 4px; }
+.cam-modes .more-btn { margin-left: auto; }

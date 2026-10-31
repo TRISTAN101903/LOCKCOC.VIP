@@ -242,3 +242,9 @@ h2::after { content: ""; display: block; height: 3px; width: 54px; margin-top: 1
 
 .nw { font-style: normal; font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; margin-left: 6px; padding: 2px 7px; border-radius: 999px; background: var(--gold); color: #1a1205; vertical-align: middle; }
 .grid article.feat-new { background: linear-gradient(180deg, rgba(226,176,74,.07), transparent 60%), var(--bg2); }
+
+.grid.fold article.more { display: none; }
+.grid.fold.open article.more { display: block; animation: foldIn .25s ease both; }
+@keyframes foldIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.hotb { font-style: normal; font-size: 10px; font-weight: 800; letter-spacing: .06em; margin-left: 6px; padding: 2px 7px; border-radius: 999px; background: linear-gradient(135deg, #ff7a3d, #ff3d6e); color: #fff; vertical-align: middle; }
+.fold-btn { display: block; margin: 16px auto 0; }
