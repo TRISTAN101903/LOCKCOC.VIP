@@ -262,3 +262,7 @@ h2::after { content: ""; display: block; height: 3px; width: 54px; margin-top: 1
 .tour-tabs { display: inline-flex; gap: 6px; padding: 4px; border-radius: 999px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); margin-top: 14px; }
 .tour-tab { padding: 8px 18px; border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: 14px; font-weight: 600; border: 0; cursor: pointer; }
 .tour-tab.on { background: var(--gold, #e2b04a); color: #1a1408; }
+
+.tour-in.wide { width: min(92vw, 780px); border-radius: 22px; }
+.tour-in { aspect-ratio: 16 / 9; }
+.tour-in:not(.wide) { width: min(84vw, 330px); }
