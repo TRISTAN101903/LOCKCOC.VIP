@@ -211,3 +211,23 @@ html.lite .page { animation-duration: .16s; }
 
 .plus-list:not(.unfold) .fold-hide { display: none; }
 .plus-more { margin: 8px auto 0; display: block; }
+
+/* Filter Locket */
+.fx-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none; touch-action: none; border-radius: inherit; }
+.fx-strip { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 6; display: flex; align-items: center; gap: 8px; pointer-events: none; }
+.fx-strip > * { pointer-events: auto; }
+.fx-open, .fx-mini, .fx-x { flex: none; width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.28); background: rgba(20,17,12,.62); color: #fff; display: grid; place-items: center; padding: 0; backdrop-filter: blur(6px); }
+.fx-open .i { width: 22px; height: 22px; }
+.fx-mini canvas { width: 38px; height: 38px; }
+.fx-mini.on { border-color: #ffc828; box-shadow: 0 0 0 2px rgba(255,200,40,.35); }
+.fx-x { margin-left: auto; font-size: 16px; }
+.fx-hint { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); z-index: 6; background: rgba(20,17,12,.72); color: #fff; font-size: 12.5px; padding: 6px 12px; border-radius: 99px; white-space: nowrap; }
+.fx-hint.hidden { display: none; }
+.fx-sheet { max-height: 74vh; overflow-y: auto; padding-bottom: 20px; }
+.fx-title { margin: 0 0 4px; font-size: 1.15rem; text-align: center; }
+.fx-cat { margin: 14px 4px 6px; font-weight: 700; font-size: .95rem; }
+.fx-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.fx-it { display: grid; justify-items: center; gap: 4px; background: transparent; border: 0; color: inherit; font: inherit; padding: 4px 0; border-radius: 14px; }
+.fx-it canvas { width: 64px; height: 64px; }
+.fx-it span { font-size: .72rem; text-align: center; line-height: 1.15; }
+.fx-it.on { background: rgba(255,200,40,.16); outline: 1.5px solid #ffc828; }

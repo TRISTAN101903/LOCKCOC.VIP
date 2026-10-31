@@ -3,7 +3,7 @@
 (function () {
   var grid = document.querySelector("#tinh-nang .grid");
   if (!grid) return;
-  var HOT = /^(Chat kiểu mới|Chụp Đêm|Photobooth|Wrapped)/;
+  var HOT = /^(Filter Locket|Chat kiểu mới|Chụp Đêm|Photobooth|Wrapped)/;
   var arts = Array.prototype.slice.call(grid.children), extra = [];
   arts.forEach(function (a) {
     var h = a.querySelector("h3"), t = h ? h.textContent.trim() : "";
