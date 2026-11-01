@@ -1,10 +1,10 @@
 name: Build APK
 on:
   workflow_dispatch:
-    inputs:
-      url:
-        description: "Dia chi Render, vd https://ten.onrender.com"
-        required: true
+  push:
+    paths:
+      - 'LockCOC/android/**'
+      - '.github/workflows/build-apk.yml'
 permissions:
   contents: write
 jobs:
@@ -15,18 +15,29 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
-      - name: Build APK
-        working-directory: LockCOC
-        env:
-          APP_URL: ${{ inputs.url }}
-        run: bash build_apk.sh "$APP_URL"
-      - name: Dua APK vao web va push
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+      - name: Build APK da ky
+        run: gradle -p LockCOC/android --no-daemon assembleRelease -PAPP_URL=https://lockcoc-vip.onrender.com -PVERSION_CODE=${{ github.run_number }} -PVERSION_NAME=1.${{ github.run_number }}
+      - name: Kiem tra chu ky
         run: |
+          APK=$(ls LockCOC/android/app/build/outputs/apk/release/*.apk | head -1)
+          "$ANDROID_HOME"/build-tools/*/apksigner verify --verbose "$APK" | head -8
           mkdir -p LockCOC/static/downloads
-          mv LockCOC/LockCOC.apk LockCOC/static/downloads/LockCOC.apk
-          git config user.name "github-actions"
-          git config user.email "actions@users.noreply.github.com"
-          git add -f LockCOC/static/downloads/LockCOC.apk
-          git commit -m "cap nhat LockCOC.apk"
-          git push
+          cp "$APK" LockCOC/static/downloads/LockCOC.apk
+          ls -la LockCOC/static/downloads/LockCOC.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LockCOC-apk
+          path: LockCOC/static/downloads/LockCOC.apk
+      - name: Dua APK len trang
+        run: |
+          git config user.name "lockcoc-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add LockCOC/static/downloads/LockCOC.apk
+          git commit -m "APK ${{ github.run_number }} (tu dong)" || echo "khong co thay doi"
+          git pull --rebase origin ${{ github.ref_name }} || true
+          git push origin HEAD:${{ github.ref_name }}

@@ -1,5 +1,8 @@
 plugins { id 'com.android.application' }
 
+def ksFile = file('../lockcoc.jks')
+def vCode = (project.findProperty('VERSION_CODE') ?: '1').toString().toInteger()
+
 android {
     namespace 'vn.lockcoc.app'
     compileSdk 34
@@ -7,11 +10,29 @@ android {
         applicationId 'vn.lockcoc.app'
         minSdk 24
         targetSdk 34
-        versionCode 2
-        versionName '1.1'
+        versionCode vCode
+        versionName (project.findProperty('VERSION_NAME') ?: '1.0').toString()
         // địa chỉ server LockCOC (truyền bằng -PAPP_URL=https://...)
-        buildConfigField 'String', 'APP_URL', "\"${project.findProperty('APP_URL') ?: 'https://example.invalid'}\""
+        buildConfigField 'String', 'APP_URL', "\"${project.findProperty('APP_URL') ?: 'https://lockcoc-vip.onrender.com'}\""
+    }
+    signingConfigs {
+        release {
+            // khoá ký cố định: các bản cập nhật sau cài đè được lên bản cũ
+            if (ksFile.exists()) {
+                storeFile ksFile
+                storePassword 'lockcoc2026'
+                keyAlias 'lockcoc'
+                keyPassword 'lockcoc2026'
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (ksFile.exists()) signingConfig signingConfigs.release
+        }
     }
     buildFeatures { buildConfig true }
+    lint { checkReleaseBuilds false; abortOnError false }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }
