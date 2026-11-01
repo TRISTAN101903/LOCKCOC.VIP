@@ -2101,6 +2101,8 @@ def moments_delete_many():
 def ios_profile():
     import plistlib
     host = request.host_url.rstrip("/")
+    if not re.match(r"^http://(localhost|127\.|192\.168\.|10\.)", host):
+        host = "https://" + host.split("://", 1)[-1]
     url = host + "/app"
     icon = (Path(app.static_folder) / "icons" / "apple-touch-icon.png").read_bytes()
     sid = str(uuid.uuid5(uuid.NAMESPACE_URL, host))

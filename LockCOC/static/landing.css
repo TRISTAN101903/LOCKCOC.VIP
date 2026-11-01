@@ -298,3 +298,5 @@ h2::after { content: ""; display: block; height: 3px; width: 54px; margin-top: 1
 .phone-col { min-width: 0; }
 #vid-btn, .vid-btn { display: none !important; }
 @media (min-width: 900px) { .phone { width: min(46vw, 700px) !important; } }
+
+.ios-note { margin: 10px 0 0; font-size: .85rem; opacity: .8; line-height: 1.4; }
