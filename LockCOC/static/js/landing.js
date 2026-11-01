@@ -14,11 +14,11 @@
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) play(); else vid.pause(); }); }, { threshold: 0.35 }).observe(vid);
     } else play();
-    vb.addEventListener("click", function () {
+    if (vb) vb.addEventListener("click", function () {
       userPaused = !vid.paused; if (userPaused) vid.pause(); else play();
       vb.textContent = userPaused ? "Phát" : "Tạm dừng"; vb.setAttribute("aria-label", vb.textContent);
     });
-    vid.addEventListener("error", function () { vb.hidden = true; }, true);
+    vid.addEventListener("error", function () { if (vb) vb.hidden = true; }, true);
   }
 
   // ---- số liệu thật từ máy chủ ----
