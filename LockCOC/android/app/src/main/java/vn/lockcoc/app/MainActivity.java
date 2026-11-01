@@ -1,6 +1,10 @@
 package vn.lockcoc.app;
 
 import android.Manifest;
+import android.app.DownloadManager;
+import android.os.Environment;
+import android.webkit.CookieManager;
+import android.webkit.JavascriptInterface;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -69,7 +73,29 @@ public class MainActivity extends Activity {
                 return true;
             }
         });
+        web.addJavascriptInterface(new Bridge(), "LockCOCNative");
         web.loadUrl(BuildConfig.APP_URL);
+    }
+
+
+    /** Cầu nối cho trang web: lưu ảnh/video vào thư viện máy (Ảnh, Phim → LockCOC). */
+    private class Bridge {
+        @JavascriptInterface
+        public void save(String url, String name, String mime) {
+            try {
+                Uri u = Uri.parse(url);
+                String h = Uri.parse(BuildConfig.APP_URL).getHost();
+                if (h == null || !h.equals(u.getHost())) return;
+                DownloadManager.Request r = new DownloadManager.Request(u);
+                String ck = CookieManager.getInstance().getCookie(url);
+                if (ck != null) r.addRequestHeader("Cookie", ck);
+                r.setMimeType(mime);
+                r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
+                String dir = mime != null && mime.startsWith("video") ? Environment.DIRECTORY_MOVIES : Environment.DIRECTORY_PICTURES;
+                r.setDestinationInExternalPublicDir(dir, "LockCOC/" + name.replaceAll("[^A-Za-z0-9._-]", "_"));
+                ((DownloadManager) getSystemService(DOWNLOAD_SERVICE)).enqueue(r);
+            } catch (Exception e) { /* bo qua */ }
+        }
     }
 
     private boolean hasNative() {
