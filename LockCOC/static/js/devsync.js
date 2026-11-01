@@ -107,9 +107,14 @@
     }
     var sh = bottomSheet.apply(null, kids); sh.sheet.classList.add("ds-sheet");
   }
-  var fab = el("button", { class: "ds-fab", type: "button", "aria-label": "Đồng bộ với thư viện máy" });
-  fab.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v14M3.5 14.5 7 18l3.5-3.5"/><path d="M17 20V6M13.5 9.5 17 6l3.5 3.5"/></svg>';
-  fab.addEventListener("click", openSheet); document.body.appendChild(fab);
+  /* nút nằm trong trang Cá nhân (hồ sơ), cạnh Đổi tên / Đổi ảnh đại diện */
+  function mount() {
+    var host = document.querySelector("#page-me .me-actions");
+    if (!host || host.querySelector(".ds-open")) return !!host;
+    var b = el("button", { class: "btn small ds-open", type: "button" }, el("span", { class: "btn-label" }, "Đồng bộ thư viện máy"));
+    b.addEventListener("click", openSheet); host.appendChild(b); return true;
+  }
+  if (!mount()) { var tries = 0, iv = setInterval(function () { if (mount() || ++tries > 40) clearInterval(iv); }, 500); }
   /* app Android: tự lưu phần mới sau khi đồng bộ xong */
   if (native && localStorage.getItem(KA) === "1") setTimeout(function () { ui = {}; saveToDevice("mine", true); }, 9000);
   window.lcDevSync = { open: openSheet, save: saveToDevice };
