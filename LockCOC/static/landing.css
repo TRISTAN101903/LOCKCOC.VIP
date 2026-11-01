@@ -291,3 +291,10 @@ h2::after { content: ""; display: block; height: 3px; width: 54px; margin-top: 1
 #ios-btn { position: relative; }
 .nw.upd { margin-left: 10px; font-style: normal; font-size: .72rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; background: #ff4660; color: #fff; padding: 4px 9px; border-radius: 99px; animation: updpulse 1.6s ease-in-out infinite; white-space: nowrap; }
 @keyframes updpulse { 0%,100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,70,96,.55); } 50% { transform: scale(1.07); box-shadow: 0 0 0 7px rgba(255,70,96,0); } }
+
+/* patch44: video gioi thieu to hon, bo nut tam dung */
+.phone { width: min(96vw, 680px) !important; }
+.phone-in { border-radius: 18px; }
+.phone-col { min-width: 0; }
+#vid-btn, .vid-btn { display: none !important; }
+@media (min-width: 900px) { .phone { width: min(46vw, 700px) !important; } }
