@@ -1,5 +1,5 @@
 "use strict";
-/* brandframe.js - khung ảnh thương hiệu "LockCOC VIP": viền vàng, logo mặt dây và tên app ở chân ảnh */
+/* brandframe.js - khung ảnh thương hiệu "LockCOC VIP": viền vàng và logo mặt dây ở chân ảnh (không có chữ) */
 (function () {
   if (typeof FRAMES === "undefined" || typeof renderFramed !== "function") return;
   if (!FRAMES.some(function (f) { return f.id === "vip"; })) FRAMES.splice(1, 0, { id: "vip", n: "LockCOC VIP", e: "👑" });
@@ -26,12 +26,8 @@
     c.save(); rr(c, px, py, side, side, S * 0.035); c.clip();
     c.drawImage(bmp, (bmp.width - sq) / 2, (bmp.height - sq) / 2, sq, sq, px, py, side, side); c.restore();
     c.strokeStyle = goldGrad(c, px, py, px + side, py + side); c.lineWidth = S * 0.006; rr(c, px, py, side, side, S * 0.035); c.stroke();
-    var by = py + side + (S - py - side) / 2, ls = S * 0.115;
-    c.font = "700 " + Math.round(S * 0.05) + "px Georgia,'Times New Roman',serif"; var tw = c.measureText("LockCOC VIP").width, gap = S * 0.025, total = ls + gap + tw, x0 = (S - total) / 2;
-    logo(c, x0 + ls / 2, by, ls);
-    c.textAlign = "left"; c.textBaseline = "middle"; c.fillStyle = goldGrad(c, x0 + ls, by - S * 0.03, x0 + ls + tw, by + S * 0.03);
-    c.fillText("LockCOC VIP", x0 + ls + gap, by - S * 0.012);
-    c.font = "500 " + Math.round(S * 0.02) + "px 'Segoe UI',Arial,sans-serif"; c.fillStyle = "rgba(246,241,230,.6)"; c.fillText("TRISTAN.faketriss", x0 + ls + gap + S * 0.002, by + S * 0.03);
+    var by = py + side + (S - py - side) / 2, ls = S * 0.12;
+    logo(c, S / 2, by, ls);
     return new Promise(function (res) { cv.toBlob(res, "image/jpeg", 0.92); });
   };
 })();
