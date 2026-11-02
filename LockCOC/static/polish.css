@@ -247,3 +247,6 @@ html.lite .page { animation-duration: .16s; }
 .ds-bar i { display: block; height: 100%; width: 0; background: #ffc828; transition: width .25s; }
 .ds-msg { font-size: .85rem; text-align: center; min-height: 1.2em; }
 .ds-box, .ds-row { display: grid; gap: 8px; }
+
+.fp-pill { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 96px); transform: translate(-50%, 20px); z-index: 90; background: rgba(20,17,12,.9); color: #ffc828; border: 1px solid rgba(255,200,40,.4); padding: 9px 18px; border-radius: 99px; font-size: .9rem; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; }
+.fp-pill.on { opacity: 1; transform: translate(-50%, 0); }

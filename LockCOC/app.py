@@ -853,6 +853,52 @@ def mix_music(image: str, video: str | None, audio: str, start, tmpdir: str, car
     return dst
 
 
+# ---------- patch51: xu ly video nhanh (giu nguyen neu da la H.264/AAC, con lai ma hoa nhe) ----------
+def _probe_media(exe: str, src: str):
+    try:
+        p = subprocess.run([exe, "-hide_banner", "-i", src], capture_output=True, timeout=30)
+        t = p.stderr.decode("utf-8", "ignore")
+    except Exception:  # noqa: BLE001
+        return "", "", (0, 0)
+    v = re.search(r"Video: (\w+)", t)
+    a = re.search(r"Audio: (\w+)", t)
+    m = re.search(r"Video:.*?, (\d{2,5})x(\d{2,5})", t)
+    return (v.group(1) if v else ""), (a.group(1) if a else ""), ((int(m.group(1)), int(m.group(2))) if m else (0, 0))
+
+
+def to_mp4(src: str, tmpdir: str) -> str:
+    """Video: H.264/AAC thi chi dong goi lai (tuc thi), con lai ma hoa nhanh, canh dai toi da 960px, toi da 60 giay."""
+    exe = ffmpeg_exe()
+    if exe is None:
+        if src.lower().endswith(".webm"):
+            raise ApiError("Server thiếu ffmpeg để xử lý video (pip install imageio-ffmpeg).", 500)
+        return src
+    dst = str(Path(tmpdir) / f"{uuid.uuid4().hex}.mp4")
+    vc, ac, (w, h) = _probe_media(exe, src)
+    if vc == "h264" and ac in ("", "aac") and max(w, h) <= 1920:
+        try:
+            proc = subprocess.run([exe, "-y", "-i", src, "-t", str(MAX_VIDEO_SECONDS), "-c", "copy", "-movflags", "+faststart", dst],
+                                  capture_output=True, timeout=60)
+            if proc.returncode == 0 and Path(dst).exists() and Path(dst).stat().st_size > 1000:
+                return dst
+        except subprocess.TimeoutExpired:
+            pass
+    cmd = [
+        exe, "-y", "-i", src, "-t", str(MAX_VIDEO_SECONDS),
+        "-vf", "scale='min(960,iw)':'min(960,ih)':force_original_aspect_ratio=decrease:force_divisible_by=2",
+        "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28", "-pix_fmt", "yuv420p", "-r", "30", "-threads", "0",
+        "-c:a", "aac", "-b:a", "96k", "-movflags", "+faststart", dst,
+    ]
+    try:
+        proc = subprocess.run(cmd, capture_output=True, timeout=240)
+    except subprocess.TimeoutExpired:
+        raise ApiError("Xử lý video quá lâu, hãy thử clip ngắn hơn.", 504)
+    if proc.returncode != 0 or not Path(dst).exists():
+        app.logger.error("ffmpeg lỗi: %s", proc.stderr[-800:].decode("utf-8", "ignore"))
+        raise ApiError("Không xử lý được video này.", 400)
+    return dst
+
+
 def parse_post_meta(form) -> dict:
     """Kiểm tra dữ liệu form đăng bài, trả về dict thuần JSON (dùng được cho cả hẹn giờ)."""
     L = lib()
