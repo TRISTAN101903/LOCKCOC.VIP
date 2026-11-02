@@ -137,7 +137,7 @@ function openEditor(init) {
   const studioBtn = el("button", { class: "studio-btn glass", onclick: () => openStudio(ed, refresh) }, icon("star"), "LockCOC Advanced features");
 
   // khung widget
-  const frameRow = el("div", { class: "hrow" }, ...FRAMES.map((f) => el("button", { class: "chip" + (f.id === "none" ? " on" : ""), dataset: { f: f.id }, onclick: () => {
+  const frameRow = el("div", { class: "hrow frow" }, ...FRAMES.map((f) => el("button", { class: "chip" + (f.id === "none" ? " on" : ""), dataset: { f: f.id }, onclick: () => {
     if (isVideo) return toast("Khung chỉ áp dụng cho ảnh (video giữ nguyên).", "msg");
     ed.frame = f.id;
     $$("[data-f]", frameRow).forEach((b) => b.classList.toggle("on", b.dataset.f === f.id));

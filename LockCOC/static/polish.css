@@ -250,3 +250,10 @@ html.lite .page { animation-duration: .16s; }
 
 .fp-pill { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 96px); transform: translate(-50%, 20px); z-index: 90; background: rgba(20,17,12,.9); color: #ffc828; border: 1px solid rgba(255,200,40,.4); padding: 9px 18px; border-radius: 99px; font-size: .9rem; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; }
 .fp-pill.on { opacity: 1; transform: translate(-50%, 0); }
+
+/*frow*/
+.frow{flex-wrap:wrap;overflow:visible;gap:8px}
+.frow .chip{flex:0 0 auto}
+.frow .chip[data-f=vip]{order:-2;flex:1 1 100%;justify-content:center;font-weight:700;color:#1a1306;background:linear-gradient(135deg,#fbe3a0,#e2b04a 55%,#b9822a);border:0;box-shadow:0 0 18px rgba(226,176,74,.35)}
+.frow .chip[data-f=vip].on{outline:2px solid #fff;outline-offset:2px}
+.frow .chip[data-f=none]{order:-1}
