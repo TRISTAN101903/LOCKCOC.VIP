@@ -1892,6 +1892,51 @@ def save_media():
     return resp
 
 
+_AI_HITS: dict = {}
+
+
+@app.get("/api/ai-image/status")
+@api
+def ai_image_status():
+    return jr({"key": bool(os.environ.get("AI_IMAGE_KEY"))})
+
+
+@app.post("/api/ai-image")
+@api
+def ai_image():
+    """Tao anh bang API co ttra phi (OpenAI Images). Dat AI_IMAGE_KEY tren Render; AI_IMAGE_MODEL tuy chon (mac dinh gpt-image-1)."""
+    import base64
+    key = os.environ.get("AI_IMAGE_KEY", "").strip()
+    if not key:
+        raise ApiError("Chua cau hinh AI_IMAGE_KEY", 400)
+    prompt = need(body(), "prompt", 900)
+    ip = request.remote_addr or "?"
+    now = time.time()
+    hits = [t for t in _AI_HITS.get(ip, []) if now - t < 3600]
+    if len(hits) >= 10:
+        raise ApiError("Ban tao anh AI hoi nhieu, thu lai sau it phut.", 429)
+    hits.append(now)
+    _AI_HITS[ip] = hits
+    payload = json.dumps({"model": os.environ.get("AI_IMAGE_MODEL", "gpt-image-1"), "prompt": prompt, "size": "1024x1024", "n": 1}).encode()
+    req = urllib.request.Request("https://api.openai.com/v1/images/generations", data=payload,
+                                 headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=100) as r:
+            data = json.loads(r.read().decode("utf-8", "ignore"))
+    except Exception:  # noqa: BLE001
+        raise ApiError("Dich vu AI loi hoac het han muc, thu lai sau.", 502)
+    item = (data.get("data") or [{}])[0]
+    b64 = item.get("b64_json")
+    if not b64 and item.get("url"):
+        try:
+            b64 = base64.b64encode(urllib.request.urlopen(item["url"], timeout=30).read(8_000_000)).decode()
+        except Exception:  # noqa: BLE001
+            raise ApiError("Khong lay duoc anh tu dich vu AI.", 502)
+    if not b64:
+        raise ApiError("Dich vu AI khong tra ve anh.", 502)
+    return jr({"image_b64": b64, "mime": "image/png"})
+
+
 @app.get("/sw.js")
 def service_worker():
     resp = send_from_directory(app.static_folder, "sw.js", mimetype="application/javascript")

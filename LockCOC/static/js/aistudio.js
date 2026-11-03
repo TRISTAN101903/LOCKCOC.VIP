@@ -55,11 +55,29 @@
   function pickFiles(multi) { return new Promise(function (res) {
     var inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.multiple = !!multi; inp.style.display = "none"; document.body.appendChild(inp);
     inp.onchange = function () { var f = Array.prototype.slice.call(inp.files || []); inp.remove(); res(f); }; inp.click(); }); }
-  async function aiImage(prompt) {
+  var STYLES = {
+    gold: { n: "LockCOC Gold", p: "luxury dark editorial style, deep black background with warm gold metallic accents, cinematic soft lighting, elegant minimal composition" },
+    cine: { n: "Điện ảnh", p: "cinematic film still, teal and orange color grading, shallow depth of field, fine film grain, dramatic lighting" },
+    toon: { n: "Hoạt hình", p: "soft stylized illustration, pastel colors, clean shapes, friendly mood" },
+    none: { n: "Không", p: "" }
+  };
+  var TAIL = "square composition, high detail, no text, no watermark, no logo";
+  function fullPrompt(t, st) { return [t, (STYLES[st] || STYLES.none).p, TAIL].filter(Boolean).join(", "); }
+  function toJpeg(blob) { return bmp(blob).then(function (b) { var cv = document.createElement("canvas"); cv.width = b.width; cv.height = b.height; cv.getContext("2d").drawImage(b, 0, 0); return toBlob(cv, 0.93); }); }
+  function pollinations(prompt) {
     var seed = Math.floor(Math.random() * 1e6), url = "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) + "?width=1024&height=1024&nologo=true&seed=" + seed;
-    return await new Promise(function (res, rej) { var im = new Image(); im.crossOrigin = "anonymous"; var t = setTimeout(function () { rej(new Error("AI trả lời quá lâu, thử lại sau")); }, 70000);
+    return new Promise(function (res, rej) { var im = new Image(); im.crossOrigin = "anonymous"; var t = setTimeout(function () { rej(new Error("AI trả lời quá lâu, thử lại sau")); }, 70000);
       im.onload = function () { clearTimeout(t); try { var cv = document.createElement("canvas"); cv.width = im.naturalWidth; cv.height = im.naturalHeight; cv.getContext("2d").drawImage(im, 0, 0); cv.toBlob(function (b) { b ? res(b) : rej(new Error("Không đọc được ảnh AI")); }, "image/jpeg", 0.93); } catch (e) { rej(new Error("Không đọc được ảnh AI")); } };
       im.onerror = function () { clearTimeout(t); rej(new Error("Không tạo được ảnh AI, thử lại sau")); }; im.src = url; });
+  }
+  async function aiImage(text, st) {
+    var prompt = fullPrompt(text, st), info = null;
+    try { info = await api("/api/ai-image/status"); } catch (e) { info = null; }
+    if (info && info.key) {
+      var r = await api("/api/ai-image", { method: "POST", json: { prompt: prompt } });
+      if (r && r.image_b64) { var bin = atob(r.image_b64), u8 = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); return await toJpeg(new Blob([u8], { type: r.mime || "image/png" })); }
+    }
+    return await pollinations(prompt);
   }
 
   function openAI(ed) {
@@ -78,13 +96,15 @@
       var need = LAYOUTS[lay].n, files = await pickFiles(true); if (!files.length) { status.textContent = "Chưa chọn ảnh nào."; return; }
       var list = [orig].concat(files).slice(0, need); if (list.length < need) list = list.concat(files).slice(0, need); if (list.length < need) list = Array.from({ length: need }, function (_, i) { return list[i % list.length]; });
       apply(await collage(list, lay, bgc, 0.018), "Đã ghép " + need + " ảnh (ảnh hiện tại là ảnh đầu)"); }); };
+    var st = "gold", stBtns = Object.keys(STYLES).map(function (k) { var b = el("button", { class: "chip ai-chip" + (k === st ? " on" : "") }, STYLES[k].n); b.dataset.k = k;
+      b.onclick = function () { st = k; stBtns.forEach(function (x) { x.classList.toggle("on", x.dataset.k === k); }); }; return b; });
     var pr = el("input", { type: "text", class: "ai-in", placeholder: "Mô tả ảnh muốn tạo, vd: hoàng hôn trên biển, phong cách hoạt hình", maxlength: "200" });
     var gen = el("button", { class: "btn small primary block" }, el("span", { class: "btn-label" }, "✨ Tạo ảnh AI"));
-    gen.onclick = function () { run(gen, async function () { var t = pr.value.trim(); if (t.length < 3) throw new Error("Hãy mô tả ảnh muốn tạo"); apply(await aiImage(t), "Đã tạo ảnh AI, ảnh này thay ảnh hiện tại"); }); };
+    gen.onclick = function () { run(gen, async function () { var t = pr.value.trim(); if (t.length < 3) throw new Error("Hãy mô tả ảnh muốn tạo"); apply(await aiImage(t, st), "Đã tạo ảnh AI, ảnh này thay ảnh hiện tại"); }); };
     sh = bottomSheet(el("h3", { style: { margin: "0 0 4px" } }, "✨ LockCOC AI"), status,
       el("div", { class: "ai-sec" }, el("b", {}, "Làm nét & cân màu tự động"), el("div", { class: "hrow" }, ...enh, undo)),
       el("div", { class: "ai-sec" }, el("b", {}, "Ghép ảnh"), el("div", { class: "hrow" }, ...layBtns), el("div", { class: "hrow" }, el("small", {}, "Nền:"), ...bgBtns), mk),
-      el("div", { class: "ai-sec" }, el("b", {}, "Tạo ảnh bằng AI"), pr, gen, el("small", { class: "ai-note" }, "Mô tả của bạn được gửi tới dịch vụ tạo ảnh Pollinations. Có thể mất 10 đến 40 giây.")),
+      el("div", { class: "ai-sec" }, el("b", {}, "Tạo ảnh bằng AI"), el("div", { class: "hrow" }, el("small", {}, "Phong cách:"), ...stBtns), pr, gen, el("small", { class: "ai-note" }, "Mô tả của bạn được gửi tới dịch vụ tạo ảnh AI. Có thể mất 10 đến 40 giây.")),
       el("button", { class: "btn small block", onclick: function () { sh.close(); } }, el("span", { class: "btn-label" }, "Xong")));
   }
 
