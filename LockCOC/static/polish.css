@@ -260,3 +260,12 @@ html.lite .page { animation-duration: .16s; }
 
 /*svbtn*/
 .sv-btn{background:linear-gradient(135deg,#fbe3a0,#e2b04a 55%,#b9822a);color:#1a1306;font-weight:700;border:0}
+
+/*aistudio*/
+.ai-btn{margin-top:8px}
+.sheet-pick .ai-sec{display:flex;flex-direction:column;gap:8px;padding:10px 0;border-top:1px solid rgba(255,255,255,.08)}
+.sheet-pick .ai-sec .hrow{flex-wrap:wrap}
+.ai-chip.on{background:linear-gradient(135deg,#fbe3a0,#e2b04a);color:#1a1306;border-color:transparent}
+.ai-in{width:100%;box-sizing:border-box;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:inherit;font:inherit}
+.ai-st,.ai-note{opacity:.7}
+.sheet-pick{max-height:86vh;overflow-y:auto}
