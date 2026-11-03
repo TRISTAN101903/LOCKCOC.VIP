@@ -631,12 +631,55 @@ def login():
     )
     with ENTRIES_LOCK:
         ENTRIES[key] = Entry(key, client)
+    try:
+        _account_code(prof["uid"])
+    except Exception:  # noqa: BLE001
+        pass
 
     keys = [k for k in browser_keys() if account_row(k)]
     session.permanent = True
     session["keys"] = keys + [key]
     session["active"] = key
     return jr({"ok": True, "account": acct_json(account_row(key))})
+
+
+_AK_ALPHA = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
+_ak_ready = False
+
+
+def _account_code(uid) -> str | None:
+    """Ma tai khoan dang TRIS-XXXX-XXXX-XXXX, moi tai khoan (uid Locket) mot ma, chi cap sau khi dang nhap.
+    Co LOCKETCAC_SECRET: ma suy ra co dinh nen khong doi khi server bi xoa du lieu; khong co: ma ngau nhien luu trong DB."""
+    global _ak_ready
+    if not uid or not isinstance(uid, str):
+        return None
+    if not _ak_ready:
+        q("CREATE TABLE IF NOT EXISTS account_codes(uid TEXT PRIMARY KEY, code TEXT NOT NULL, created REAL)", commit=True)
+        _ak_ready = True
+    row = q("SELECT code FROM account_codes WHERE uid=?", (uid,), one=True)
+    if row:
+        return row["code"]
+    env = os.environ.get("LOCKETCAC_SECRET")
+    if env:
+        digest = hmac.new(env.encode(), ("lockcoc-code:" + uid).encode(), "sha256").digest()
+        chars = [_AK_ALPHA[b % len(_AK_ALPHA)] for b in digest[:12]]
+    else:
+        chars = [secrets.choice(_AK_ALPHA) for _ in range(12)]
+    code = "TRIS-" + "".join(chars[0:4]) + "-" + "".join(chars[4:8]) + "-" + "".join(chars[8:12])
+    q("INSERT OR IGNORE INTO account_codes(uid,code,created) VALUES(?,?,?)", (uid, code, time.time()), commit=True)
+    return q("SELECT code FROM account_codes WHERE uid=?", (uid,), one=True)["code"]
+
+
+@app.get("/api/account-key")
+@api
+def account_key():
+    e = get_entry()
+    row = account_row(e.key)
+    uid = (row["uid"] if row else None) or e.uid
+    code = _account_code(uid)
+    if not code:
+        raise ApiError("Chua co ma cho tai khoan nay", 404)
+    return jr({"code": code})
 
 
 @app.post("/api/switch")

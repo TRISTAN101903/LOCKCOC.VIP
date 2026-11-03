@@ -269,3 +269,9 @@ html.lite .page { animation-duration: .16s; }
 .ai-in{width:100%;box-sizing:border-box;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:inherit;font:inherit}
 .ai-st,.ai-note{opacity:.7}
 .sheet-pick{max-height:86vh;overflow-y:auto}
+
+/*akcard*/
+.ak-card{display:flex;flex-direction:column;align-items:center;gap:6px;margin:12px auto 4px;padding:12px 18px;border-radius:18px;max-width:340px}
+.ak-card.hidden{display:none}
+.ak-card small{opacity:.7}
+.ak-code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.15rem;letter-spacing:.08em;background:linear-gradient(135deg,#fbe3a0,#e2b04a 55%,#b9822a);-webkit-background-clip:text;background-clip:text;color:transparent}
