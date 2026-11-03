@@ -1845,6 +1845,53 @@ def sync_all_file(mid):
     return resp
 
 
+@app.get("/api/save-media")
+@api
+def save_media():
+    """Tai ve 1 anh/video cua khoanh khac (de nut Luu ve may): file da dang tren server nay hoac file tu Locket."""
+    u = (request.args.get("u") or "").strip()
+    kind = "video" if request.args.get("kind") == "video" else "image"
+    base = re.sub(r"[^A-Za-z0-9_-]", "", request.args.get("n") or "")[:40] or "moment"
+    mm = re.match(r"^/api/media/([0-9a-f]{32}\.[a-z]{3,4})$", u)
+    if mm:
+        name = mm.group(1)
+        owner = q("SELECT key FROM posts WHERE file=?", (name,), one=True)
+        if not owner or owner["key"] not in browser_keys():
+            raise ApiError("Không tìm thấy", 404)
+        return send_from_directory(MEDIA_DIR, name, as_attachment=True, download_name="LockCOC_%s%s" % (base, os.path.splitext(name)[1]))
+    pu = urllib.parse.urlparse(u)
+    host = pu.hostname or ""
+    if pu.scheme != "https" or not any(host == h or host.endswith("." + h) for h in _DL_HOSTS):
+        raise ApiError("Nguồn tải không hợp lệ", 400)
+    try:
+        up = urllib.request.urlopen(urllib.request.Request(u, headers={"User-Agent": "Mozilla/5.0"}), timeout=25)
+    except Exception:  # noqa: BLE001
+        raise ApiError("Không tải được file từ Locket", 502)
+    ctype = up.headers.get_content_type() or "application/octet-stream"
+    if not (ctype.startswith("image/") or ctype.startswith("video/") or ctype == "application/octet-stream"):
+        up.close()
+        raise ApiError("Loại file không hợp lệ", 400)
+    ext = ".mp4" if kind == "video" else (".webp" if "webp" in ctype else ".png" if "png" in ctype else ".jpg")
+
+    def gen():
+        total = 0
+        try:
+            while True:
+                b = up.read(65536)
+                if not b:
+                    break
+                total += len(b)
+                if total > 80_000_000:
+                    break
+                yield b
+        finally:
+            up.close()
+
+    resp = Response(gen(), mimetype=ctype)
+    resp.headers["Content-Disposition"] = 'attachment; filename="LockCOC_%s%s"' % (base, ext)
+    return resp
+
+
 @app.get("/sw.js")
 def service_worker():
     resp = send_from_directory(app.static_folder, "sw.js", mimetype="application/javascript")

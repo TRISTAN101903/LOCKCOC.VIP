@@ -257,3 +257,6 @@ html.lite .page { animation-duration: .16s; }
 .frow .chip[data-f=vip]{order:-2;flex:1 1 100%;justify-content:center;font-weight:700;color:#1a1306;background:linear-gradient(135deg,#fbe3a0,#e2b04a 55%,#b9822a);border:0;box-shadow:0 0 18px rgba(226,176,74,.35)}
 .frow .chip[data-f=vip].on{outline:2px solid #fff;outline-offset:2px}
 .frow .chip[data-f=none]{order:-1}
+
+/*svbtn*/
+.sv-btn{background:linear-gradient(135deg,#fbe3a0,#e2b04a 55%,#b9822a);color:#1a1306;font-weight:700;border:0}
