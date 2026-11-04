@@ -114,7 +114,7 @@ app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Strict",
     SESSION_COOKIE_SECURE=os.environ.get("LOCKETCAC_SECURE_COOKIES") == "1",
-    PERMANENT_SESSION_LIFETIME=timedelta(days=14),
+    PERMANENT_SESSION_LIFETIME=timedelta(days=7),
     SESSION_REFRESH_EACH_REQUEST=False,
     JSON_AS_ASCII=False,
 )
@@ -398,12 +398,35 @@ def save_profile(key: str, prof: dict) -> None:
     )
 
 
+IDLE_LOGOUT = 7 * 86400  # tai khoan 7 ngay khong dung thi bi dang xuat
+
+
+def _purge_idle() -> int:
+    """Dang xuat (xoa phien) cac tai khoan trong trinh duyet nay ma 7 ngay khong dung."""
+    cutoff = time.time() - IDLE_LOGOUT
+    n = 0
+    for k in browser_keys():
+        row = account_row(k)
+        if row and float(row["last_used"] or row["created"] or 0) < cutoff:
+            remove_account(k)
+            n += 1
+    return n
+
+
+def _touch_account(key: str) -> None:
+    row = account_row(key)
+    if row and time.time() - float(row["last_used"] or 0) > 600:
+        q("UPDATE accounts SET last_used=? WHERE key=?", (time.time(), key), commit=True)
+
+
 def get_entry() -> Entry:
     if lib() is None:
         raise ApiError("Server chưa cài thư viện locketlam (pip install -r requirements.txt).", 503)
+    _purge_idle()
     key = request.headers.get("X-LockCOC-Acct") or session.get("active")
     if key not in browser_keys() or not account_row(key) or not session_path(key).exists():
         raise ApiError("Chưa đăng nhập", 401)
+    _touch_account(key)
     with ENTRIES_LOCK:
         entry = ENTRIES.get(key)
         if entry is None:
@@ -546,6 +569,7 @@ def index():
 @app.get("/api/status")
 @api
 def status():
+    expired = _purge_idle()
     keys = browser_keys()
     rows = [account_row(k) for k in keys]
     accounts = [acct_json(r) for r in rows if r and session_path(r["key"]).exists()]
@@ -559,7 +583,9 @@ def status():
             session["active"] = new_active
     if accounts and not is_unlocked():
         return jr({"lib": lib() is not None, "locked": True, "accounts": [], "active": None})
-    return jr({"lib": lib() is not None, "locked": False, "accounts": accounts, "active": session.get("active")})
+    if session.get("active") in valid:
+        _touch_account(session["active"])
+    return jr({"lib": lib() is not None, "locked": False, "accounts": accounts, "active": session.get("active"), "expired": expired})
 
 
 @app.post("/api/unlock")

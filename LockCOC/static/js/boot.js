@@ -70,6 +70,7 @@ $("#form-login").addEventListener("submit", async (ev) => {
 async function boot() {
   let st;
   try { st = await api("/api/status"); } catch (e) { if (e.message === "App đang khoá.") return; showView("login"); return toast(e.message, "error"); }
+  if (st.expired) toast("Tài khoản đã đăng xuất vì 7 ngày không sử dụng. Hãy đăng nhập lại.", "msg");
   if (st.locked) return showLock();
   S.accounts = st.accounts; S.active = st.active;
   $("#lib-warning").classList.toggle("hidden", st.lib !== false);
