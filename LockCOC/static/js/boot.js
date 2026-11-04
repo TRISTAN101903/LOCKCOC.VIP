@@ -62,7 +62,8 @@ $("#form-login").addEventListener("submit", async (ev) => {
     await api("/api/login", { method: "POST", json: { email: fd.get("email"), password: fd.get("password") } });
     ev.target.reset();
     toast("Đăng nhập thành công", "ok");
-    await enterMain();
+    if (typeof lcIssueCode === "function") await lcIssueCode();
+    await boot();
   });
 });
 

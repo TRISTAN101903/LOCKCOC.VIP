@@ -447,19 +447,31 @@ def api(fn):
     return wrapper
 
 
+def _acct_keys() -> list:
+    return [k for k in browser_keys() if account_row(k) and session_path(k).exists()]
+
+
 def is_unlocked() -> bool:
-    if not PASSCODE:
+    """Moi tai khoan co ma khoa app rieng. Chua dang nhap tai khoan nao thi khong co gi de khoa."""
+    keys = _acct_keys()
+    if not keys:
         return True
-    last = session.get("touch")
-    if not last or time.time() - last > LOCK_IDLE or not session.get("unlocked_at"):
-        session.pop("unlocked_at", None)
+    k = request.headers.get("X-LockCOC-Acct") or session.get("active")
+    if k not in keys:
+        k = keys[0]
+    unl = session.get("unl")
+    unl = unl if isinstance(unl, dict) else {}
+    now = time.time()
+    last = unl.get(k)
+    if not isinstance(last, (int, float)) or now - last > LOCK_IDLE:
         return False
-    if time.time() - last > 60:
-        session["touch"] = time.time()
+    if now - last > 60:
+        unl[k] = now
+        session["unl"] = unl
     return True
 
 
-OPEN_API = {"/api/status", "/api/unlock"}
+OPEN_API = {"/api/status", "/api/unlock", "/api/login", "/api/lock-code/issue", "/api/lock-code/ack"}
 
 
 @app.before_request
@@ -534,8 +546,6 @@ def index():
 @app.get("/api/status")
 @api
 def status():
-    if not is_unlocked():
-        return jr({"lib": lib() is not None, "locked": True, "accounts": [], "active": None})
     keys = browser_keys()
     rows = [account_row(k) for k in keys]
     accounts = [acct_json(r) for r in rows if r and session_path(r["key"]).exists()]
@@ -547,33 +557,69 @@ def status():
         new_active = accounts[0]["key"] if accounts else None
         if session.get("active") != new_active:
             session["active"] = new_active
+    if accounts and not is_unlocked():
+        return jr({"lib": lib() is not None, "locked": True, "accounts": [], "active": None})
     return jr({"lib": lib() is not None, "locked": False, "accounts": accounts, "active": session.get("active")})
 
 
 @app.post("/api/unlock")
 @api
 def unlock():
-    if not PASSCODE:
-        return jr({"ok": True})
+    keys = _acct_keys()
+    if not keys:
+        raise ApiError("Hay dang nhap tai khoan truoc, sau do nhap ma khoa cua tai khoan do.", 400)
     ip = "u:" + (request.remote_addr or "?")
     if too_many_attempts(ip):
         raise ApiError("Nhập sai quá nhiều lần, thử lại sau vài phút.", 429)
-    code = need(body(), "code", 128)
+    code = re.sub(r"[^A-Z0-9]", "", need(body(), "code", 128).upper())
     record_attempt(ip)
-    if not hmac.compare_digest(code.encode(), PASSCODE.encode()):
-        raise ApiError("Mã khoá không đúng.", 403)
+    hit = None
+    for k in keys:
+        row = account_row(k)
+        c = _account_code(row["uid"]) if row and row["uid"] else None
+        if c and hmac.compare_digest(code.encode(), c.replace("-", "").encode()):
+            hit = k
+    if not hit:
+        raise ApiError("Mã khóa không đúng.", 403)
+    unl = session.get("unl")
+    unl = dict(unl) if isinstance(unl, dict) else {}
+    unl[hit] = time.time()
+    session["unl"] = unl
+    session["active"] = hit
     session.permanent = True
-    session["unlocked_at"] = time.time()
-    session["touch"] = time.time()
     return jr({"ok": True})
 
 
 @app.post("/api/lock")
 @api
 def lock_app():
-    session.pop("unlocked_at", None)
-    session.pop("touch", None)
+    session.pop("unl", None)
     return jr({"ok": True})
+
+
+@app.get("/api/lock-code/issue")
+@api
+def lock_code_issue():
+    """Sau khi dang nhap: cho 15 giay roi moi tra ma khoa app cua tai khoan (chi trong cua so cap ma)."""
+    iss = session.get("issue")
+    now = time.time()
+    if not isinstance(iss, dict) or now > float(iss.get("until", 0)):
+        raise ApiError("Het phien cap ma, hay dang nhap lai.", 404)
+    if now < float(iss.get("ready", 0)):
+        return jr({"wait": int(float(iss["ready"]) - now) + 1})
+    row = account_row(iss.get("key", ""))
+    code = _account_code(row["uid"]) if row and row["uid"] else None
+    if not code:
+        raise ApiError("Chua cap duoc ma, hay dang nhap lai.", 404)
+    return jr({"code": code, "wait": 0})
+
+
+@app.post("/api/lock-code/ack")
+@api
+def lock_code_ack():
+    session.pop("issue", None)
+    return jr({"ok": True})
+
 
 
 @app.post("/api/login")
@@ -640,6 +686,12 @@ def login():
     session.permanent = True
     session["keys"] = keys + [key]
     session["active"] = key
+    unl = session.get("unl")
+    if isinstance(unl, dict) and key in unl:
+        unl = dict(unl)
+        unl.pop(key, None)
+        session["unl"] = unl
+    session["issue"] = {"key": key, "ready": time.time() + 15, "until": time.time() + 1800}
     return jr({"ok": True, "account": acct_json(account_row(key))})
 
 

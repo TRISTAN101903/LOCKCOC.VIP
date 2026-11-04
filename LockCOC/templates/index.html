@@ -80,14 +80,15 @@
         <div class="brand big">
           <img src="/static/logo.svg" alt="" width="84" height="84">
           <div class="wordmark"><span>Lock</span><b>COC</b></div>
-          <p class="tagline">App đang được khoá. Nhập mã khoá để tiếp tục.</p>
+          <p class="tagline">Nhập mã khóa app của tài khoản bạn vừa đăng nhập.</p>
         </div>
         <form id="form-lock" class="panel glass" autocomplete="off">
-          <label class="field"><span>Mã khoá app</span>
-            <input type="password" name="code" autocomplete="off" autocapitalize="none" required>
+          <label class="field"><span>Mã khóa app (TRIS-XXXX-XXXX-XXXX)</span>
+            <input type="text" name="code" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="TRIS-" required>
           </label>
           <button class="btn primary block" type="submit"><svg class="i"><use href="#i-lock"/></svg><span class="btn-label">Mở khoá</span></button>
-          <p class="fine">Mã khoá do chủ máy chủ đặt, hãy hỏi người đã chia sẻ app cho bạn. Mã chỉ để chặn người lạ vào app, không phải mật khẩu Locket của bạn. Sau khi đăng nhập, mỗi tài khoản nhận mã riêng dạng TRIS-XXXX-XXXX-XXXX, xem trong Hồ sơ. Lần mở đầu có thể mất khoảng 30 giây để máy chủ thức dậy.</p>
+          <p class="fine">Mã khóa app là mã riêng của từng tài khoản, được cấp sau khi bạn đăng nhập Locket. Mã không phải mật khẩu Locket. Quên mã thì đăng nhập lại để được cấp lại. Lần mở đầu có thể mất khoảng 30 giây để máy chủ thức dậy.</p>
+          <button class="btn block" type="button" id="lock-other"><span class="btn-label">Đăng nhập tài khoản khác</span></button>
         </form>
         <p class="credit">Developed &amp; founded by <b>TRISTAN.faketriss</b></p>
       </div>
@@ -298,6 +299,7 @@
   <script src="/static/js/x32.js"></script>
 <div class="lc-credit">© 2026 LockCOC · Developed &amp; founded by TRISTAN.faketriss</div>
   <script src="/static/js/fastpost.js"></script>
+  <script src="/static/js/lockflow.js"></script>
   <script src="/static/js/accountkey.js"></script>
   <script src="/static/js/autosave.js"></script>
   <script src="/static/js/savebtn.js"></script>

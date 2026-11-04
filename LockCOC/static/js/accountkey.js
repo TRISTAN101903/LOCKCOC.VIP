@@ -14,7 +14,7 @@
     val = el("b", { class: "ak-code" }, "…");
     var btn = el("button", { class: "btn small", type: "button" }, el("span", { class: "btn-label" }, "Sao chép"));
     btn.addEventListener("click", function () { if (!code) return; copy(code).then(function () { toast("Đã sao chép mã tài khoản", "ok"); }, function () { toast("Không sao chép được", "error"); }); });
-    c = el("div", { class: "ak-card glass" }, el("small", {}, "Mã tài khoản LockCOC"), val, btn);
+    c = el("div", { class: "ak-card glass" }, el("small", {}, "Mã khóa app của bạn"), val, btn);
     var act = host.querySelector(".me-actions"); host.insertBefore(c, act || null); return c;
   }
   async function refresh() {

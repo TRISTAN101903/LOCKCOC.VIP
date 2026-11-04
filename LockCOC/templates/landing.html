@@ -116,7 +116,7 @@
         <article><svg class="ic xl"><use href="#i-clock"/></svg><h3>Hẹn giờ đăng</h3><p>Soạn trước, đặt giờ, app gửi giúp bạn đúng lúc.</p></article>
         <article><svg class="ic xl"><use href="#i-frame"/></svg><h3>Khung và hiệu ứng</h3><p>Khung widget, hiệu ứng nhẹ, widget thời tiết, pin, đồng hồ trong caption.</p></article>
         <article><svg class="ic xl"><use href="#i-users"/></svg><h3>Nhiều tài khoản</h3><p>Đăng nhập nhiều nick, mỗi nick có lịch sử riêng.</p></article>
-        <article><svg class="ic xl"><use href="#i-lock"/></svg><h3>Mã khóa và mã tài khoản</h3><p>Nhập mã khóa mới vào được app. Đăng nhập xong, mỗi tài khoản nhận một mã riêng dạng TRIS-XXXX-XXXX-XXXX, xem trong Hồ sơ.</p></article>
+        <article><svg class="ic xl"><use href="#i-lock"/></svg><h3>Mã khóa riêng</h3><p>Đăng nhập xong, mỗi tài khoản được cấp một mã khóa app riêng dạng TRIS-XXXX-XXXX-XXXX. Phải nhập đúng mã mới vào được app.</p></article>
         <article class="feat-new"><svg class="ic xl"><use href="#i-star"/></svg><h3>Chế độ mượt <em class="nw">Mới</em></h3><p>Tắt bớt hiệu ứng nặng, lưu giao diện trong máy để mở app nhanh hơn trên máy yếu và mạng chậm.</p></article>
       </div>
     </section>
@@ -132,7 +132,7 @@
           <ol class="steps">
             <li><b>Tải file</b> bằng nút phía trên.</li>
             <li><b>Mở file</b> vừa tải. Nếu Android hỏi, cho phép trình duyệt cài ứng dụng.</li>
-            <li><b>Mở LockCOC</b>, nhập mã khóa rồi đăng nhập tài khoản Locket. Đăng nhập xong, mã tài khoản TRIS- của bạn hiện trong Hồ sơ.</li>
+            <li><b>Mở LockCOC</b> và đăng nhập tài khoản Locket. App cấp cho bạn mã khóa riêng sau 15 giây, bạn sao chép mã rồi nhập để vào app.</li>
           </ol>
         </article>
         <article class="dl-card">
@@ -168,7 +168,7 @@
             <tr><th scope="row">Tự đăng lại khi mất mạng</th><td><svg class="ic no"><use href="#i-no"/></svg>Chưa thấy</td><td class="us"><svg class="ic ok"><use href="#i-ok"/></svg>Có</td></tr>
             <tr><th scope="row">Hẹn giờ đăng</th><td><svg class="ic no"><use href="#i-no"/></svg>Chưa thấy</td><td class="us"><svg class="ic ok"><use href="#i-ok"/></svg>Có</td></tr>
             <tr><th scope="row">Độ ổn định, hỗ trợ</th><td><svg class="ic ok"><use href="#i-ok"/></svg>Chính thức</td><td class="us"><svg class="ic no"><use href="#i-no"/></svg>Dự án độc lập, có thể gián đoạn</td></tr>
-            <tr><th scope="row">Nơi giữ dữ liệu</th><td>Máy chủ của Locket</td><td class="us">Máy chủ LockCOC, có mã khóa</td></tr>
+            <tr><th scope="row">Nơi giữ dữ liệu</th><td>Máy chủ của Locket</td><td class="us">Máy chủ LockCOC, có mã khóa riêng cho từng tài khoản</td></tr>
             <tr><th scope="row">Chi phí</th><td>Có gói trả phí cho tính năng thêm</td><td class="us">Miễn phí</td></tr>
           </tbody>
         </table>
@@ -179,9 +179,8 @@
     <section id="hoi-dap" class="block faq">
       <h2>Hỏi nhanh</h2>
       <details><summary>Đây có phải app chính thức của Locket?</summary><p>Không. LockCOC là dự án độc lập, không liên kết với Locket Camera. Nó dùng giao tiếp không chính thức nên Locket có thể thay đổi bất cứ lúc nào và làm một vài tính năng ngừng hoạt động.</p></details>
-      <details><summary>Mã khóa lấy ở đâu?</summary><p>Mã do người quản trị máy chủ đặt. Hãy hỏi người đã chia sẻ LockCOC cho bạn. Mã chỉ để chặn người lạ vào app, không phải mật khẩu Locket của bạn.</p></details>
-      <details><summary>Mã TRIS- là gì?</summary><p>Đó là mã tài khoản LockCOC. Mã chỉ được cấp sau khi bạn đăng nhập, mỗi tài khoản có một mã riêng và gắn với tài khoản đó, đăng nhập lại vẫn ra đúng mã cũ. Bạn xem và sao chép mã trong Hồ sơ. Mã này không phải mật khẩu Locket và không thay cho mã khóa dùng để mở app.</p></details>
-      <details><summary>Mật khẩu Locket của tôi được lưu ở đâu?</summary><p>Mật khẩu chỉ dùng lúc đăng nhập và không được ghi vào database. Phiên đăng nhập nằm trên máy chủ LockCOC và chỉ trình duyệt đã nhập đúng mã khóa mới dùng được.</p></details>
+      <details><summary>Mã khóa lấy ở đâu?</summary><p>Mã do app cấp cho bạn ngay sau khi đăng nhập Locket, dạng TRIS-XXXX-XXXX-XXXX. Mỗi tài khoản một mã riêng. App chờ 15 giây rồi hiện mã và bạn phải sao chép mã đó. Quên mã thì đăng nhập lại để được cấp lại. Mã không phải mật khẩu Locket.</p></details>
+      <details><summary>Mật khẩu Locket của tôi được lưu ở đâu?</summary><p>Mật khẩu chỉ dùng lúc đăng nhập và không được ghi vào database. Phiên đăng nhập nằm trên máy chủ LockCOC và chỉ trình duyệt đã nhập đúng mã khóa của tài khoản mới dùng được.</p></details>
       <details><summary>Mở app lần đầu hơi lâu?</summary><p>Máy chủ miễn phí sẽ ngủ khi lâu không ai dùng, lần mở đầu có thể mất khoảng 30 giây để thức dậy. Sau đó app chạy bình thường.</p></details>
       <details><summary>Số liệu trên trang lấy từ đâu?</summary><p>Từ database của máy chủ: chỉ đếm số tài khoản và số khoảnh khắc, không chứa tên, email hay nội dung của ai. Con số có thể về 0 khi máy chủ được cài lại.</p></details>
       <details><summary>Đọc ẩn danh là gì?</summary><p>Trong chat có nút hình mắt. Khi bật, app đánh dấu đã đọc ở phía bạn nhưng không gửi thông báo “đã xem” cho người kia. Tắt nút thì họ sẽ thấy.</p></details>
