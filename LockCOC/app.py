@@ -1191,6 +1191,8 @@ def post_moment():
             video = mix_music(image, video, music_file, request.form.get("music_start", "0"), tmp, card if video else None)
         elif video:
             video = to_mp4(video, tmp)
+        if video and request.form.get("vip_frame") == "1":
+            video = vip_video(video, tmp)
         if run_at:
             sid = uuid.uuid4().hex
             d = SCHED_DIR / sid
@@ -2056,6 +2058,69 @@ def ai_image():
     if not b64:
         raise ApiError("Dich vu AI khong tra ve anh.", 502)
     return jr({"image_b64": b64, "mime": "image/png"})
+
+
+# ---------- patch62: khung VIP cho video ----------
+def _vip_overlay_png(path, S=720):
+    '''Khung VIP (vien vang + logo, o giua trong suot) cho video vuong SxS.'''
+    from PIL import Image, ImageDraw, ImageOps
+    SS = 3
+    N = S * SS
+    k = N / 720.0
+    px, py, side = round(N * 0.09), round(N * 0.05), round(N * 0.82)
+    gold_g = ImageOps.colorize(Image.linear_gradient("L").resize((N, N)), black="#fbe3a0", white="#b9822a", mid="#e2b04a").convert("RGBA")
+    base = Image.new("RGBA", (N, N), (0, 0, 0, 0))
+    # nen toi bao quanh o video (bo goc o giua)
+    bgm = Image.new("L", (N, N), 0)
+    ImageDraw.Draw(bgm).rectangle((px, py, px + side, py + side), fill=255)
+    ImageDraw.Draw(bgm).rounded_rectangle((px, py, px + side, py + side), radius=round(N * 0.035), fill=0)
+    base.paste(Image.new("RGBA", (N, N), (15, 13, 9, 255)), (0, 0), bgm)
+    # dia logo toi
+    cx, cy = N / 2, py + side + (N - py - side) / 2
+    ls = N * 0.12
+    u = ls / 512.0
+    def P(x, y): return (cx + (x - 256) * u, cy + (y - 256) * u)
+    d = ImageDraw.Draw(base)
+    c0, c1 = P(256 - 152, 292 - 152), P(256 + 152, 292 + 152)
+    d.ellipse((c0[0], c0[1], c1[0], c1[1]), fill=(18, 16, 12, 255))
+    m = Image.new("L", (N, N), 0)
+    md = ImageDraw.Draw(m)
+    md.rounded_rectangle((N * 0.008, N * 0.008, N * 0.992, N * 0.992), radius=round(N * 0.066), outline=255, width=max(2, round(N * 0.012)))
+    md.rounded_rectangle((px, py, px + side, py + side), radius=round(N * 0.035), outline=255, width=max(2, round(N * 0.006)))
+    a, b = P(226, 62), P(286, 134)
+    md.rounded_rectangle((a[0], a[1], b[0], b[1]), radius=30 * u, outline=255, width=max(2, round(14 * u)))
+    md.ellipse((c0[0], c0[1], c1[0], c1[1]), outline=255, width=max(2, round(16 * u)))
+    r = 82 * u
+    ccx, ccy = P(256 + 3, 292)
+    md.arc((ccx - r, ccy - r, ccx + r, ccy + r), start=45, end=315, fill=255, width=max(2, round(40 * u)))
+    dx, dy = P(259, 292)
+    md.ellipse((dx - 17 * u, dy - 17 * u, dx + 17 * u, dy + 17 * u), fill=255)
+    base.paste(gold_g, (0, 0), m)
+    base.resize((S, S), Image.LANCZOS).save(path)
+
+
+def vip_video(video: str, tmpdir: str) -> str:
+    '''Dong khung thuong hieu LockCOC VIP len video (vuong 720, cat giua nhu khung anh), giu nguyen am thanh.'''
+    exe = ffmpeg_exe()
+    if exe is None:
+        return video
+    png = str(Path(tmpdir) / (uuid.uuid4().hex + "_vip.png"))
+    dst = str(Path(tmpdir) / (uuid.uuid4().hex + "_vip.mp4"))
+    try:
+        _vip_overlay_png(png)
+        fc = ("color=c=0x0f0d09:s=720x720:r=30[bg];"
+              "[0:v]scale=590:590:force_original_aspect_ratio=increase,crop=590:590,setsar=1,fps=30[v];"
+              "[bg][v]overlay=65:36:shortest=1[b];[b][1:v]overlay=0:0:shortest=1,format=yuv420p[o]")
+        cmd = [exe, "-y", "-i", video, "-loop", "1", "-framerate", "30", "-i", png, "-filter_complex", fc,
+               "-map", "[o]", "-map", "0:a?", "-t", str(MAX_VIDEO_SECONDS),
+               "-c:v", "libx264", "-preset", "ultrafast", "-crf", "27", "-c:a", "copy", "-movflags", "+faststart", dst]
+        proc = subprocess.run(cmd, capture_output=True, timeout=200)
+        if proc.returncode == 0 and Path(dst).exists() and Path(dst).stat().st_size > 1000:
+            return dst
+        app.logger.error("ffmpeg khung VIP loi: %s", proc.stderr[-600:].decode("utf-8", "ignore"))
+    except Exception:  # noqa: BLE001
+        app.logger.exception("khung VIP video loi")
+    return video
 
 
 @app.get("/sw.js")

@@ -53,6 +53,7 @@ public class MainActivity extends Activity {
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
+        CookieManager.getInstance().setAcceptCookie(true);
         s.setMediaPlaybackRequiresUserGesture(false);
         s.setAllowFileAccess(false);
         s.setAllowContentAccess(true);
@@ -164,7 +165,7 @@ public class MainActivity extends Activity {
         }
     }
     @Override
-    protected void onPause() { super.onPause(); if (web != null) web.onPause(); }
+    protected void onPause() { super.onPause(); CookieManager.getInstance().flush(); if (web != null) web.onPause(); }
     @Override
     protected void onResume() { super.onResume(); if (web != null) web.onResume(); }
     @Override
