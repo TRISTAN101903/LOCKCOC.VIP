@@ -289,3 +289,16 @@ html.lite .page { animation-duration: .16s; }
 
 /*vvbtn*/
 .vv-btn{margin-top:8px}
+
+/*perf2*/
+/* nen anh sang tinh: bo animation + filter blur tren man hinh lon (rat ton GPU) */
+.ambient{animation:none!important;filter:none!important;will-change:auto!important}
+/* bai dang: khong 30 animation cung luc, bo bong do mo rong, chi ve phan dang thay */
+.post{animation:none!important;content-visibility:auto;contain-intrinsic-size:auto 460px}
+.gtile{content-visibility:auto;contain-intrinsic-size:auto 130px}
+.post-media{box-shadow:inset 0 1px 0 rgba(255,255,255,.18)!important;contain:layout paint}
+.post-media img,.post-media video{will-change:auto}
+.skeleton{animation:none!important}
+.page{overscroll-behavior:contain;-webkit-tap-highlight-color:transparent}
+html.lite *{scroll-behavior:auto!important}
+@media (prefers-reduced-motion:no-preference){.page{animation-duration:.14s!important}}
