@@ -410,3 +410,8 @@ html.lite .nb-page{perspective:none}
 .ak-code{background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;color:#e2b04a!important}
 .nb-stick{filter:none!important;color:#b9482f;font-size:1.25rem!important}
 .nb-dice .i{width:20px;height:20px}
+
+/*filterfix*/
+/* hang bo loc: khong de snap cat mat chip dau tien (Goc) */
+.filter-strip{scroll-snap-type:none!important;scroll-padding-inline:14px;box-sizing:border-box;padding:10px 14px 4px;overscroll-behavior-x:contain}
+.filter-strip::after{content:"";flex:0 0 6px}

@@ -104,6 +104,7 @@ FILTERS.forEach((f) => {
 $("#btn-filters").addEventListener("click", (e) => {
   const strip = $("#filter-strip");
   strip.classList.toggle("hidden");
+  strip.scrollLeft = 0;
   e.currentTarget.classList.toggle("on", !strip.classList.contains("hidden"));
 });
 
