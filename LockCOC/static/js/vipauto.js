@@ -17,7 +17,7 @@
       if (sb) { var _os = openStudio; openStudio = function (e) { cap = e; }; try { sb.click(); } finally { openStudio = _os; } }
       if (isVid) {
         if (sb && !sb.parentNode.querySelector(".vv-btn")) {
-          var lab = function () { return "👑 Khung VIP cho video: " + (window.lcVipVideo ? "Bật" : "Tắt"); };
+          var lab = function () { return "Khung VIP cho video: " + (window.lcVipVideo ? "Bật" : "Tắt"); };
           var b = el("button", { class: "studio-btn glass vv-btn", type: "button" }, lab());
           b.addEventListener("click", function () { window.lcVipVideo = !window.lcVipVideo; b.textContent = lab(); });
           sb.parentNode.insertBefore(b, sb.nextSibling);

@@ -533,6 +533,50 @@ def security_headers(resp):
     return resp
 
 
+_lc_ver_cache: dict[str, str] = {}
+
+
+def _lc_asset_v(rel: str) -> str:
+    v = _lc_ver_cache.get(rel)
+    if v is None:
+        try:
+            v = format(int((Path(app.static_folder) / rel).stat().st_mtime), "x")
+        except OSError:
+            v = "0"
+        _lc_ver_cache[rel] = v
+    return v
+
+
+_LC_ASSET_RE = re.compile(r'((?:src|href)=")/static/([^"?#]+\.(?:js|css))(")')
+_LC_GZ_TYPES = ("text/html", "text/css", "application/javascript", "text/javascript", "application/json", "image/svg+xml", "application/manifest+json")
+
+
+@app.after_request
+def lc_speed(resp):
+    try:
+        ct = (resp.mimetype or "")
+        if resp.status_code == 200 and ct == "text/html" and not resp.direct_passthrough:
+            body = resp.get_data(as_text=True)
+            body = _LC_ASSET_RE.sub(lambda m: m.group(1) + "/static/" + m.group(2) + "?v=" + _lc_asset_v(m.group(2)) + m.group(3), body)
+            resp.set_data(body)
+        if request.path.startswith("/static/") and resp.status_code == 200 and request.args.get("v") and request.path.endswith((".js", ".css")):
+            resp.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        if (resp.status_code == 200 and ct in _LC_GZ_TYPES and "gzip" in request.headers.get("Accept-Encoding", "")
+                and not resp.headers.get("Content-Encoding") and not request.path.startswith("/api/media/")):
+            if resp.direct_passthrough:
+                resp.direct_passthrough = False
+            data = resp.get_data()
+            if len(data) > 600:
+                import gzip
+                resp.set_data(gzip.compress(data, 6))
+                resp.headers["Content-Encoding"] = "gzip"
+                resp.headers.add("Vary", "Accept-Encoding")
+                resp.headers.pop("ETag", None)
+    except Exception:
+        pass
+    return resp
+
+
 _attempts: dict[str, list[float]] = {}
 _attempts_lock = threading.Lock()
 

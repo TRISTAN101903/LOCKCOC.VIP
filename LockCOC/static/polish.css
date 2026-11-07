@@ -305,34 +305,11 @@ html.lite *{scroll-behavior:auto!important}
 
 /*plusnb*/
 .plus-btn{display:none!important}
-/* ---- trang Plus ---- */
-.pl-body{gap:10px}
-.pl-hero{position:relative;display:grid;grid-template-columns:46% 1fr;align-items:center;gap:8px;width:100%;padding:18px 16px 18px 6px;border-radius:30px;text-align:left;color:inherit;overflow:hidden;background:radial-gradient(120% 120% at 0% 0%,rgba(251,227,160,.22),transparent 60%),linear-gradient(145deg,#2a2013,#15110b);border:1px solid rgba(226,176,74,.35)}
-.pl-pics{position:relative;height:170px}
-.pl-pics .pp{position:absolute;width:58%;aspect-ratio:1/1.2;border-radius:6px;background:#f6efe2 linear-gradient(135deg,#d9c8a4,#b79c6a) center/cover;border:6px solid #fffaf0;border-bottom-width:20px;box-shadow:0 6px 14px rgba(0,0,0,.45)}
-.pl-pics .a{left:2%;top:18px;transform:rotate(-9deg)}
-.pl-pics .b{left:26%;top:2px;transform:rotate(5deg)}
-.pl-pics .c{left:14%;top:46px;transform:rotate(-2deg)}
-.pl-ht{display:grid;gap:5px}
-.pl-ht small{letter-spacing:.14em;color:#e2b04a;font-weight:700;font-size:.68rem}
-.pl-ht strong{font-size:1.45rem;line-height:1.1}
-.pl-ht span{opacity:.75;font-size:.85rem}
-.pl-go{font-style:normal;color:#fbe3a0;font-weight:700;margin-top:4px}
-.pl-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.pl-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:14px 14px 16px;border-radius:22px;text-align:left;color:inherit;min-height:122px;border:1px solid rgba(255,255,255,.09);background:linear-gradient(160deg,var(--a,#2b2417),var(--b,#171310))}
-.pl-card strong{font-size:.98rem;line-height:1.15}
-.pl-card small{opacity:.7;font-size:.78rem;line-height:1.25}
-.pl-art{font-size:1.7rem;line-height:1;margin-bottom:6px;display:inline-grid;place-items:center;width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.08)}
-.pl-tag{position:absolute;top:12px;right:12px;font-style:normal;font-size:.68rem;font-weight:700;padding:3px 8px;border-radius:99px;background:rgba(226,176,74,.18);color:#fbe3a0;border:1px solid rgba(226,176,74,.4)}
-.c-cal{--a:#2a2410;--b:#16130a}.c-day{--a:#251c2c;--b:#15111a}.c-wrap{--a:#1f2a2a;--b:#111717}.c-film{--a:#2b1f1a;--b:#171010}.c-grid{--a:#1f2433;--b:#11141c}.c-lib{--a:#2a2118;--b:#151210}
-.c-booth{--a:#2c1f25;--b:#171015}.c-film2{--a:#2a2616;--b:#15130b}.c-ai{--a:#1d2630;--b:#10161c}.c-vip{--a:#332612;--b:#1a130a}
-.c-chat{--a:#1d2a22;--b:#101712}.c-sync{--a:#1d2330;--b:#10131a}.c-bak{--a:#2a2218;--b:#15110c}.c-me{--a:#2a2328;--b:#151115}
-.pl-daily{margin:0}
 /* ---- Sổ lưu niệm ---- */
 .overlay.notebook{background:#efe3cc!important;color:#2b2113;display:flex;flex-direction:column;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 .overlay.notebook::before{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(rgba(120,90,40,.16) 1px,transparent 1.5px);background-size:22px 22px;opacity:.7}
 .overlay.notebook .ov-head{position:relative;z-index:2;color:#2b2113}
-.overlay.notebook .ov-head h2{font-family:"Segoe Print","Bradley Hand","Noteworthy","Comic Sans MS",cursive;font-weight:700}
+.overlay.notebook .ov-head h2{font-family:"Bradley Hand","Segoe Print","Noteworthy",cursive;font-weight:700}
 .overlay.notebook .icon-btn{background:rgba(43,33,19,.08);color:#2b2113;border-color:rgba(43,33,19,.18)}
 .nb-tabs{position:relative;z-index:2;display:flex;gap:8px;padding:0 14px 8px;overflow-x:auto}
 .nb-tabs .chip{background:rgba(43,33,19,.07);color:#2b2113;border-color:rgba(43,33,19,.18);white-space:nowrap}
@@ -350,13 +327,13 @@ html.lite *{scroll-behavior:auto!important}
 .nb-img{display:block;margin:7px 7px 0;aspect-ratio:1;background:#d8ccb3;overflow:hidden;position:relative}
 .nb-img img{width:100%;height:100%;object-fit:cover;display:block}
 .nb-play{position:absolute;right:6px;bottom:6px;font-size:.7rem;background:rgba(0,0,0,.55);color:#fff;border-radius:99px;padding:2px 7px}
-.nb-cap{display:grid;padding:6px 8px 9px;gap:1px;font-family:"Segoe Print","Bradley Hand","Noteworthy","Comic Sans MS",cursive}
+.nb-cap{display:grid;padding:6px 8px 9px;gap:1px;font-family:"Bradley Hand","Segoe Print","Noteworthy",cursive}
 .nb-cap b{font-size:.74rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nb-cap small{font-size:.6rem;opacity:.6}
 .nb-tape{position:absolute;top:-11px;left:50%;width:46%;height:20px;margin-left:-23%;background:rgba(240,200,90,.55);transform:rotate(var(--tr));box-shadow:0 1px 3px rgba(0,0,0,.15);clip-path:polygon(0 8%,4% 0,8% 10%,12% 0,100% 0,96% 12%,100% 24%,96% 36%,100% 48%,96% 60%,100% 72%,96% 84%,100% 100%,0 100%,4% 90%,0 80%,4% 70%,0 60%,4% 50%,0 40%,4% 30%,0 20%)}
 .nb-stick{position:absolute;right:-8px;bottom:22px;font-size:1.5rem;transform:rotate(var(--sr));filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
 .nb-curl{position:absolute;right:14px;bottom:8px;width:34px;height:34px;border-radius:0 0 22px 0;background:linear-gradient(135deg,transparent 50%,rgba(120,90,40,.28) 50%,#e9dcc0 62%);pointer-events:none}
-.nb-foot{position:relative;z-index:2;text-align:center;padding:4px 0 calc(10px + env(safe-area-inset-bottom));font-family:"Segoe Print","Bradley Hand","Noteworthy","Comic Sans MS",cursive;font-size:.85rem;opacity:.75}
+.nb-foot{position:relative;z-index:2;text-align:center;padding:4px 0 calc(10px + env(safe-area-inset-bottom));font-family:"Bradley Hand","Segoe Print","Noteworthy",cursive;font-size:.85rem;opacity:.75}
 .nb-empty{flex:0 0 100%;display:grid;place-content:center;gap:8px;text-align:center;padding:24px;color:#2b2113}
 html.lite .nb-page{perspective:none}
 /* ---- Lịch kỷ niệm ---- */
@@ -375,3 +352,38 @@ html.lite .nb-page{perspective:none}
 .cal-day{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:56vh;overflow-y:auto}
 .plus-back{margin-left:auto}
 
+
+/*plus2*/
+.pl-body{gap:22px;padding-bottom:24px}
+.pl-hero{display:grid;grid-template-columns:42% 1fr;align-items:center;gap:6px;width:100%;padding:16px 16px 16px 4px;border-radius:14px;text-align:left;color:inherit;background:#1c1914;border:1px solid rgba(255,255,255,.07)}
+.pl-pics{position:relative;height:150px}
+.pl-pics .pp{position:absolute;width:60%;aspect-ratio:1/1.2;background:#3a3326 center/cover;border:5px solid #f3ead8;border-bottom-width:16px;box-shadow:0 3px 8px rgba(0,0,0,.4)}
+.pl-pics .a{left:4%;top:16px;transform:rotate(-8deg)}
+.pl-pics .b{left:30%;top:4px;transform:rotate(4deg)}
+.pl-pics .c{left:16%;top:34px;transform:rotate(-2deg)}
+.pl-ht{display:grid;gap:6px}
+.pl-ht strong{font-size:1.3rem;font-weight:650}
+.pl-ht span{opacity:.7;font-size:.86rem;line-height:1.35}
+.pl-ht em{font-style:normal;font-size:.86rem;color:#d9b25a}
+.pl-group h2{margin:0 0 8px 4px;font-size:.74rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.55}
+.pl-list{border-radius:14px;background:rgba(255,255,255,.045);overflow:hidden}
+.pl-row{display:flex;align-items:center;gap:13px;width:100%;padding:13px 14px;text-align:left;color:inherit;background:none;border:0;border-radius:0}
+.pl-row+.pl-row{border-top:1px solid rgba(255,255,255,.07)}
+.pl-row:active{background:rgba(255,255,255,.06)}
+.pl-ic{flex:none;width:24px;height:24px;color:#d9b25a;display:grid;place-items:center}
+.pl-ic .i,.pl-ic svg{width:22px;height:22px}
+.pl-tx{flex:1;min-width:0;display:grid;gap:2px}
+.pl-tx strong{font-size:.96rem;font-weight:550}
+.pl-tx small{font-size:.78rem;opacity:.6;line-height:1.3}
+.pl-tag{font-style:normal;font-size:.8rem;color:#d9b25a}
+.pl-chev{transform:rotate(-90deg);flex:none;width:16px;height:16px;opacity:.35}
+.pl-daily{display:grid;gap:5px;padding:14px;border-radius:14px;background:rgba(255,255,255,.045)}
+.pl-daily strong{font-size:1rem;font-weight:550}
+.pl-daily small{opacity:.6;font-size:.8rem}
+.pl-btn{justify-self:start;margin-top:6px;padding:9px 14px;border-radius:8px;border:1px solid rgba(217,178,90,.5);background:none;color:#d9b25a;font-size:.86rem}
+.pl-btn.on{background:#d9b25a;color:#1a1306}
+.pl-btn:disabled{opacity:.5}
+.sv-btn{background:#d9b25a!important;color:#1a1306;font-weight:600;border:0}
+.ak-code{background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;color:#e2b04a!important}
+.nb-stick{filter:none!important;color:#b9482f;font-size:1.25rem!important}
+.nb-dice .i{width:20px;height:20px}

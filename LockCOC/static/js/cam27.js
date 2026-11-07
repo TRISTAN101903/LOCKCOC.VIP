@@ -61,7 +61,7 @@
     try { ok = !!(t && t.getCapabilities && t.getCapabilities().torch); } catch (e) { /* bỏ qua */ }
     torchBtn.classList.toggle("hidden", !ok);
   }
-  setInterval(torchCheck, 1000);
+  setInterval(function () { if (!document.hidden && cam.stream !== lastStream) torchCheck(); }, 1500);
   torchBtn.addEventListener("click", function () {
     var t = track(); if (!t) return;
     t.applyConstraints({ advanced: [{ torch: !torchOn }] }).then(function () { torchOn = !torchOn; torchBtn.classList.toggle("on", torchOn); })

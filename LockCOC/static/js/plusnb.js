@@ -3,7 +3,7 @@
 (function () {
   if (typeof goPage !== "function" || typeof el !== "function" || typeof openOverlay !== "function") return;
   var page = document.getElementById("page-plus"); if (!page) return;
-  var STICK = ["⭐", "💛", "📌", "🌼", "✨", "🎀", "🍀", "🌙", "🍓", "☁️"];
+  var STICK = ["★\uFE0E", "♥\uFE0E", "✿\uFE0E", "✦\uFE0E", "❋\uFE0E", "✚\uFE0E", "☾\uFE0E"];
   var TPL = [
     [[5, 4, 54, -4], [47, 12, 48, 5], [6, 47, 46, 3], [49, 55, 44, -6]],
     [[30, 3, 56, 3], [4, 33, 46, -5], [50, 38, 46, 6], [24, 66, 42, -2]],
@@ -54,7 +54,7 @@
     var row = el("div", { class: "nb-tabs" });
     var tbtn = tabs.map(function (t) { var b = el("button", { class: "chip" + (t[0] === tab ? " on" : ""), type: "button" }, t[1]); b.addEventListener("click", function () { tab = t[0]; tbtn.forEach(function (x, i) { x.classList.toggle("on", tabs[i][0] === tab); }); build(); }); return b; });
     row.append.apply(row, tbtn);
-    var dice = el("button", { class: "icon-btn nb-dice", type: "button", "aria-label": "Xáo trộn" }, "🎲");
+    var dice = el("button", { class: "icon-btn nb-dice", type: "button", "aria-label": "Xáo trộn" }, icon("refresh"));
     var head = el("div", { class: "ov-head" }, el("button", { class: "icon-btn", type: "button", "aria-label": "Đóng", onclick: function () { closeOverlay(ov); } }, icon("close")), el("h2", {}, "Sổ lưu niệm"), dice);
     ov.append(head, row, pager, el("div", { class: "nb-foot" }, ind));
     var items = [], raf = 0;
@@ -127,10 +127,13 @@
   }
 
   /* ---------- trang Plus ---------- */
-  function fcard(cls, art, title, sub, tag, fn) {
-    var b = el("button", { class: "pl-card " + cls, type: "button" }, el("span", { class: "pl-art" }, art), el("strong", {}, title), el("small", {}, sub), tag ? el("em", { class: "pl-tag" }, tag) : null);
+  function row(ic, title, sub, tag, fn) {
+    var b = el("button", { class: "pl-row", type: "button" }, el("span", { class: "pl-ic" }, icon(ic)),
+      el("span", { class: "pl-tx" }, el("strong", {}, title), el("small", {}, sub)),
+      tag ? el("em", { class: "pl-tag" }, tag) : null, icon("chev", "i pl-chev"));
     b.addEventListener("click", fn); return b;
   }
+  function group(name, rows) { return el("section", { class: "pl-group" }, el("h2", {}, name), el("div", { class: "pl-list" }, ...rows)); }
   function go(href) { return function () { location.href = href; }; }
   function pickAI() {
     var inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.style.display = "none"; document.body.appendChild(inp);
@@ -145,48 +148,48 @@
   function render() {
     var D = window.lcDaily, P = window.lcPerf, B = window.lcBooth;
     var heroPics = el("div", { class: "pl-pics" }, el("i", { class: "pp a" }), el("i", { class: "pp b" }), el("i", { class: "pp c" }));
-    var hero = el("button", { class: "pl-hero", type: "button" }, heroPics, el("div", { class: "pl-ht" }, el("small", {}, "MỚI · KỶ NIỆM"), el("strong", {}, "Sổ lưu niệm"), el("span", {}, "Ảnh của bạn và bạn bè được dán vào sổ, lật trang để xem lại."), el("em", { class: "pl-go" }, "Mở sổ ›")));
+    var hero = el("button", { class: "pl-hero", type: "button" }, heroPics, el("div", { class: "pl-ht" }, el("strong", {}, "Sổ lưu niệm"), el("span", {}, "Ảnh của bạn và bạn bè dán thành từng trang. Vuốt để lật."), el("em", {}, "Mở sổ")));
     hero.addEventListener("click", openNotebook);
     var badge = document.getElementById("chat-badge"), un = badge && !badge.classList.contains("hidden") ? badge.textContent : "";
-    var daily = el("div", { class: "daily-card plus-daily pl-daily" });
-    function drawDaily() { if (!D) return; daily.replaceChildren(el("small", {}, "Thử thách hôm nay"), el("strong", { class: "adv-ch" }, D.text), el("small", {}, D.streak() ? D.streak() + " ngày liên tiếp" : "Chưa bắt đầu chuỗi"),
-      el("button", { class: "chip" + (D.on() || D.done() ? " on" : ""), type: "button", disabled: D.done(), onclick: function () { D.toggle(); drawDaily(); } }, D.done() ? "Đã làm hôm nay" : (D.on() ? "Đang gắn vào bài đăng kế tiếp" : "Tham gia (gắn vào bài đăng kế tiếp)"))); }
+    var memRow = row("clock", "Ngày này năm xưa", "Ảnh cùng ngày ở các năm trước", "", go("/memories#day"));
+    var daily = el("div", { class: "pl-daily" });
+    function drawDaily() {
+      if (!D) return;
+      daily.replaceChildren(el("small", {}, "Thử thách hôm nay"), el("strong", {}, D.text), el("small", {}, D.streak() ? D.streak() + " ngày liên tiếp" : "Chưa có chuỗi"),
+        el("button", { class: "pl-btn" + (D.on() || D.done() ? " on" : ""), type: "button", disabled: D.done(), onclick: function () { D.toggle(); drawDaily(); } }, D.done() ? "Đã làm hôm nay" : (D.on() ? "Đang gắn vào bài kế tiếp" : "Gắn vào bài đăng kế tiếp")));
+    }
     drawDaily();
-    var fx = el("button", { class: "chip" + (P && P.pretty() ? " on" : ""), type: "button" }, P && P.pretty() ? "Hiệu ứng đẹp: Bật" : "Chế độ mượt: Bật");
-    fx.addEventListener("click", function () { if (!P) return; P.set(!P.pretty()); fx.classList.toggle("on", P.pretty()); fx.textContent = P.pretty() ? "Hiệu ứng đẹp: Bật" : "Chế độ mượt: Bật"; });
-    var snd = el("button", { class: "chip" + (B && B.sndOn() ? " on" : ""), type: "button" }, B && B.sndOn() ? "Tiếng chụp: Bật" : "Tiếng chụp: Tắt");
-    snd.addEventListener("click", function () { if (!B) return; B.sndSet(!B.sndOn()); snd.classList.toggle("on", B.sndOn()); snd.textContent = B.sndOn() ? "Tiếng chụp: Bật" : "Tiếng chụp: Tắt"; });
-    var memCard = fcard("c-day", "🕰️", "Ngày này năm xưa", "Kỷ niệm cùng ngày các năm trước", "", go("/memories#day"));
+    function toggleRow(label, hint, get, set) {
+      var v = el("em", { class: "pl-tag" }, get() ? "Bật" : "Tắt"), r = el("button", { class: "pl-row", type: "button" }, el("span", { class: "pl-tx" }, el("strong", {}, label), el("small", {}, hint)), v);
+      r.addEventListener("click", function () { if (!set) return; set(!get()); v.textContent = get() ? "Bật" : "Tắt"; }); return r;
+    }
     page.replaceChildren(
-      el("header", { class: "page-head" }, el("h1", {}, "Plus ", icon("star", "i s"))),
+      el("header", { class: "page-head" }, el("h1", {}, "Plus")),
       el("div", { class: "plus-body pl-body" },
-        el("p", { class: "fine plus-lead" }, "Mọi chức năng của LockCOC ở một chỗ."),
         hero,
-        el("div", { class: "sec" }, icon("sparkle"), "Kỷ niệm"),
-        el("div", { class: "pl-grid" },
-          fcard("c-cal", "🗓️", "Lịch kỷ niệm", "Mỗi ngày một ảnh, chạm để xem lại", "Mới", openCalendar), memCard,
-          fcard("c-wrap", "🎁", "Wrapped", "Tổng kết tháng, năm để khoe", "", go("/memories#wrap")),
-          fcard("c-film", "🎞️", "Phim kỷ niệm", "Tự ghép ảnh thành clip có nhạc", "", go("/memories#film")),
-          fcard("c-grid", "🧩", "Lưới ảnh", "Ghép nhiều ảnh thành một tấm vuông", "", go("/memories#collage")),
-          fcard("c-lib", "🖼️", "Thư viện ảnh", "Đồng bộ và xem toàn bộ ảnh Locket", "", go("/library"))),
-        el("div", { class: "sec" }, icon("camera"), "Sáng tạo"),
-        el("div", { class: "pl-grid" },
-          fcard("c-booth", "📸", "Photobooth", "Polaroid, dải 4 tấm, Duo 35mm", "3 chế độ", boothSheet),
-          fcard("c-film2", "🎬", "Bộ lọc phim", "Màu điện ảnh, Kodak, Fuji, VHS…", "19 look", function () { goPage("camera"); toast("Chọn bộ lọc ở màn Soạn khoảnh khắc", "ok"); }),
-          fcard("c-ai", "✨", "LockCOC AI", "Làm nét, ghép ảnh, tạo ảnh bằng AI", "Mới", pickAI),
-          fcard("c-vip", "👑", "Khung VIP và widget", "Khung thương hiệu cho ảnh và video", "VIP", function () { goPage("camera"); toast("Chọn khung ở màn Soạn khoảnh khắc", "ok"); })),
-        el("div", { class: "sec" }, icon("chat"), "Kết nối và công cụ"),
-        el("div", { class: "pl-grid" },
-          fcard("c-chat", "💬", "Tin nhắn", "Trò chuyện với bạn bè", un ? un + " chưa đọc" : "", function () { goPage("chat"); }),
-          fcard("c-sync", "🔄", "Đồng bộ thư viện máy", "Hai chiều với Ảnh trong điện thoại", "", function () { var b = document.querySelector(".ds-open"); if (b) b.click(); else toast("Mở Hồ sơ để đồng bộ thư viện", "msg"); }),
-          fcard("c-bak", "📦", "Sao lưu về máy", "Tải ảnh, video thành file ZIP", "", go("/memories#backup")),
-          fcard("c-me", "👤", "Hồ sơ và mã khóa", "Mã khóa app, tự lưu, tự áp khung", "", function () { goPage("me"); })),
-        el("div", { class: "sec" }, icon("flame"), "Thử thách"), daily,
-        el("div", { class: "sec" }, icon("clock"), "Tuỳ chọn"), el("div", { class: "hrow" }, fx, snd),
-        el("p", { class: "fine" }, "Chế độ mượt tắt bớt hiệu ứng nặng để app chạy trơn hơn trên máy yếu hoặc mạng chậm.")));
+        group("Kỷ niệm", [
+          row("calendar", "Lịch kỷ niệm", "Mỗi ngày một ảnh", "", openCalendar), memRow,
+          row("star", "Wrapped", "Tổng kết tháng và năm", "", go("/memories#wrap")),
+          row("video", "Phim kỷ niệm", "Ghép ảnh thành clip có nhạc", "", go("/memories#film")),
+          row("layers", "Lưới ảnh", "Nhiều ảnh trong một khung vuông", "", go("/memories#collage")),
+          row("image", "Thư viện", "Toàn bộ ảnh Locket đã đồng bộ", "", go("/library"))]),
+        group("Chụp và chỉnh", [
+          row("camera", "Photobooth", "Polaroid, dải 4 tấm, Duo 35mm", "", boothSheet),
+          row("palette", "Bộ lọc phim", "19 màu: Kodak, Fuji, VHS…", "", function () { goPage("camera"); toast("Chọn bộ lọc ở màn soạn", "ok"); }),
+          row("sparkle", "Làm nét, ghép ảnh, tạo ảnh", "Công cụ AI của LockCOC", "", pickAI),
+          row("crown", "Khung VIP và widget", "Khung thương hiệu cho ảnh, video", "", function () { goPage("camera"); toast("Chọn khung ở màn soạn", "ok"); })]),
+        group("Tài khoản", [
+          row("chat", "Tin nhắn", "Trò chuyện với bạn bè", un ? un + " mới" : "", function () { goPage("chat"); }),
+          row("refresh", "Đồng bộ thư viện máy", "Hai chiều với Ảnh trong điện thoại", "", function () { var b = document.querySelector(".ds-open"); if (b) b.click(); else toast("Mở Hồ sơ để đồng bộ", "msg"); }),
+          row("cloud", "Sao lưu về máy", "Tải ảnh, video thành file ZIP", "", go("/memories#backup")),
+          row("user", "Hồ sơ và mã khóa", "Mã khóa app, tự lưu, tự áp khung", "", function () { goPage("me"); })]),
+        D ? el("section", { class: "pl-group" }, el("h2", {}, "Thử thách"), daily) : null,
+        group("Hiệu năng", [
+          toggleRow("Hiệu ứng đẹp", "Tắt để app chạy trơn hơn trên máy yếu", function () { return P && P.pretty(); }, P && function (x) { P.set(x); }),
+          toggleRow("Tiếng chụp", "Âm thanh khi bấm chụp", function () { return B && B.sndOn(); }, B && function (x) { B.sndSet(x); })])));
     var pp = heroPics.children;
     loadAll().then(function (all) { for (var i = 0; i < 3 && i < all.length; i++) pp[i].style.backgroundImage = "url(\"" + safeUrl(all[i].image).replace(/"/g, "") + "\")"; }).catch(function () { /* bỏ qua */ });
-    if (D && D.otd) D.otd().then(function (n) { if (n) { var t = memCard.querySelector(".pl-tag"); if (!t) { t = el("em", { class: "pl-tag" }); memCard.append(t); } t.textContent = n + " ảnh"; } }).catch(function () { /* bỏ qua */ });
+    if (D && D.otd) D.otd().then(function (n) { if (n) { var t = memRow.querySelector(".pl-tag"); if (!t) { t = el("em", { class: "pl-tag" }); memRow.insertBefore(t, memRow.lastChild); } t.textContent = n + " ảnh"; } }).catch(function () { /* bỏ qua */ });
   }
 
   var _gp = goPage;

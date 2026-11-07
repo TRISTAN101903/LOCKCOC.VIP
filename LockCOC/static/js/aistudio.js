@@ -128,9 +128,9 @@
     var st = "gold", stBtns = Object.keys(STYLES).map(function (k) { var b = el("button", { class: "chip ai-chip" + (k === st ? " on" : "") }, STYLES[k].n); b.dataset.k = k;
       b.onclick = function () { st = k; stBtns.forEach(function (x) { x.classList.toggle("on", x.dataset.k === k); }); }; return b; });
     var pr = el("input", { type: "text", class: "ai-in", placeholder: "Mô tả ảnh muốn tạo, vd: hoàng hôn trên biển, phong cách hoạt hình", maxlength: "200" });
-    var gen = el("button", { class: "btn small primary block" }, el("span", { class: "btn-label" }, "✨ Tạo ảnh AI"));
+    var gen = el("button", { class: "btn small primary block" }, el("span", { class: "btn-label" }, "Tạo ảnh AI"));
     gen.onclick = function () { run(gen, async function () { var t = pr.value.trim(); if (t.length < 3) throw new Error("Hãy mô tả ảnh muốn tạo"); apply(await aiImage(t, st), "Đã tạo ảnh AI, ảnh này thay ảnh hiện tại", true); }); };
-    sh = bottomSheet(el("h3", { style: { margin: "0 0 4px" } }, "✨ LockCOC AI"), status,
+    sh = bottomSheet(el("h3", { style: { margin: "0 0 4px" } }, "LockCOC AI"), status,
       el("div", { class: "ai-sec" }, el("b", {}, "Làm nét & cân màu tự động"), el("div", { class: "hrow" }, ...enh, undo)),
       el("div", { class: "ai-sec" }, el("b", {}, "Ghép ảnh"), el("div", { class: "hrow" }, ...layBtns), el("div", { class: "hrow" }, el("small", {}, "Nền:"), ...bgBtns), mk),
       el("div", { class: "ai-sec" }, el("b", {}, "Tạo ảnh bằng AI"), el("div", { class: "hrow" }, el("small", {}, "Phong cách:"), ...stBtns), pr, gen, el("small", { class: "ai-note" }, "Mô tả của bạn được gửi tới dịch vụ tạo ảnh AI. Có thể mất 10 đến 40 giây.")),
