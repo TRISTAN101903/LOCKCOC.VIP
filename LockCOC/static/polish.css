@@ -302,3 +302,76 @@ html.lite .page { animation-duration: .16s; }
 .page{overscroll-behavior:contain;-webkit-tap-highlight-color:transparent}
 html.lite *{scroll-behavior:auto!important}
 @media (prefers-reduced-motion:no-preference){.page{animation-duration:.14s!important}}
+
+/*plusnb*/
+.plus-btn{display:none!important}
+/* ---- trang Plus ---- */
+.pl-body{gap:10px}
+.pl-hero{position:relative;display:grid;grid-template-columns:46% 1fr;align-items:center;gap:8px;width:100%;padding:18px 16px 18px 6px;border-radius:30px;text-align:left;color:inherit;overflow:hidden;background:radial-gradient(120% 120% at 0% 0%,rgba(251,227,160,.22),transparent 60%),linear-gradient(145deg,#2a2013,#15110b);border:1px solid rgba(226,176,74,.35)}
+.pl-pics{position:relative;height:170px}
+.pl-pics .pp{position:absolute;width:58%;aspect-ratio:1/1.2;border-radius:6px;background:#f6efe2 linear-gradient(135deg,#d9c8a4,#b79c6a) center/cover;border:6px solid #fffaf0;border-bottom-width:20px;box-shadow:0 6px 14px rgba(0,0,0,.45)}
+.pl-pics .a{left:2%;top:18px;transform:rotate(-9deg)}
+.pl-pics .b{left:26%;top:2px;transform:rotate(5deg)}
+.pl-pics .c{left:14%;top:46px;transform:rotate(-2deg)}
+.pl-ht{display:grid;gap:5px}
+.pl-ht small{letter-spacing:.14em;color:#e2b04a;font-weight:700;font-size:.68rem}
+.pl-ht strong{font-size:1.45rem;line-height:1.1}
+.pl-ht span{opacity:.75;font-size:.85rem}
+.pl-go{font-style:normal;color:#fbe3a0;font-weight:700;margin-top:4px}
+.pl-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.pl-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:14px 14px 16px;border-radius:22px;text-align:left;color:inherit;min-height:122px;border:1px solid rgba(255,255,255,.09);background:linear-gradient(160deg,var(--a,#2b2417),var(--b,#171310))}
+.pl-card strong{font-size:.98rem;line-height:1.15}
+.pl-card small{opacity:.7;font-size:.78rem;line-height:1.25}
+.pl-art{font-size:1.7rem;line-height:1;margin-bottom:6px;display:inline-grid;place-items:center;width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.08)}
+.pl-tag{position:absolute;top:12px;right:12px;font-style:normal;font-size:.68rem;font-weight:700;padding:3px 8px;border-radius:99px;background:rgba(226,176,74,.18);color:#fbe3a0;border:1px solid rgba(226,176,74,.4)}
+.c-cal{--a:#2a2410;--b:#16130a}.c-day{--a:#251c2c;--b:#15111a}.c-wrap{--a:#1f2a2a;--b:#111717}.c-film{--a:#2b1f1a;--b:#171010}.c-grid{--a:#1f2433;--b:#11141c}.c-lib{--a:#2a2118;--b:#151210}
+.c-booth{--a:#2c1f25;--b:#171015}.c-film2{--a:#2a2616;--b:#15130b}.c-ai{--a:#1d2630;--b:#10161c}.c-vip{--a:#332612;--b:#1a130a}
+.c-chat{--a:#1d2a22;--b:#101712}.c-sync{--a:#1d2330;--b:#10131a}.c-bak{--a:#2a2218;--b:#15110c}.c-me{--a:#2a2328;--b:#151115}
+.pl-daily{margin:0}
+/* ---- Sổ lưu niệm ---- */
+.overlay.notebook{background:#efe3cc!important;color:#2b2113;display:flex;flex-direction:column;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.overlay.notebook::before{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(rgba(120,90,40,.16) 1px,transparent 1.5px);background-size:22px 22px;opacity:.7}
+.overlay.notebook .ov-head{position:relative;z-index:2;color:#2b2113}
+.overlay.notebook .ov-head h2{font-family:"Segoe Print","Bradley Hand","Noteworthy","Comic Sans MS",cursive;font-weight:700}
+.overlay.notebook .icon-btn{background:rgba(43,33,19,.08);color:#2b2113;border-color:rgba(43,33,19,.18)}
+.nb-tabs{position:relative;z-index:2;display:flex;gap:8px;padding:0 14px 8px;overflow-x:auto}
+.nb-tabs .chip{background:rgba(43,33,19,.07);color:#2b2113;border-color:rgba(43,33,19,.18);white-space:nowrap}
+.nb-tabs .chip.on{background:#2b2113;color:#fbe3a0}
+.nb-dice.spin{animation:nbdice .6s ease}
+@keyframes nbdice{0%{transform:rotate(0) scale(1)}50%{transform:rotate(200deg) scale(1.25)}100%{transform:rotate(360deg) scale(1)}}
+.nb-pager{position:relative;z-index:1;flex:1;min-height:0;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+.nb-pager::-webkit-scrollbar{display:none}
+.nb-page{flex:0 0 100%;scroll-snap-align:center;scroll-snap-stop:always;position:relative;perspective:1100px;--p:0}
+.nb-sheet{position:absolute;inset:6px 14px 8px;border-radius:10px 22px 22px 10px;background:linear-gradient(90deg,rgba(0,0,0,.08),transparent 6%),#f8f1e1;box-shadow:0 10px 26px rgba(70,48,15,.25),inset 0 0 0 1px rgba(120,90,40,.12);transform:rotateY(calc(var(--p) * -24deg));transform-origin:50% 50%;opacity:calc(1 - var(--p) * var(--p) * .55);background-image:linear-gradient(rgba(120,90,40,.1) 1px,transparent 1px);background-size:100% 30px}
+.nb-ph{position:absolute;opacity:0}
+.nb-page.on .nb-ph{animation:nbstick .55s cubic-bezier(.2,1.5,.4,1) both;animation-delay:calc(var(--i) * 90ms)}
+@keyframes nbstick{0%{opacity:0;transform:translateY(-26px) scale(1.3) rotate(calc(var(--r) * 1deg + 8deg))}100%{opacity:1;transform:none}}
+.nb-card{display:block;width:100%;padding:0;background:#fffdf7;border:0;color:#2b2113;text-align:left;box-shadow:0 4px 12px rgba(70,48,15,.35);border-radius:3px;position:relative;transform:translate3d(calc(var(--p) * var(--d) * -46px),0,0) rotate(calc(var(--r) * 1deg + var(--p) * var(--d) * 6deg))}
+.nb-img{display:block;margin:7px 7px 0;aspect-ratio:1;background:#d8ccb3;overflow:hidden;position:relative}
+.nb-img img{width:100%;height:100%;object-fit:cover;display:block}
+.nb-play{position:absolute;right:6px;bottom:6px;font-size:.7rem;background:rgba(0,0,0,.55);color:#fff;border-radius:99px;padding:2px 7px}
+.nb-cap{display:grid;padding:6px 8px 9px;gap:1px;font-family:"Segoe Print","Bradley Hand","Noteworthy","Comic Sans MS",cursive}
+.nb-cap b{font-size:.74rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nb-cap small{font-size:.6rem;opacity:.6}
+.nb-tape{position:absolute;top:-11px;left:50%;width:46%;height:20px;margin-left:-23%;background:rgba(240,200,90,.55);transform:rotate(var(--tr));box-shadow:0 1px 3px rgba(0,0,0,.15);clip-path:polygon(0 8%,4% 0,8% 10%,12% 0,100% 0,96% 12%,100% 24%,96% 36%,100% 48%,96% 60%,100% 72%,96% 84%,100% 100%,0 100%,4% 90%,0 80%,4% 70%,0 60%,4% 50%,0 40%,4% 30%,0 20%)}
+.nb-stick{position:absolute;right:-8px;bottom:22px;font-size:1.5rem;transform:rotate(var(--sr));filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
+.nb-curl{position:absolute;right:14px;bottom:8px;width:34px;height:34px;border-radius:0 0 22px 0;background:linear-gradient(135deg,transparent 50%,rgba(120,90,40,.28) 50%,#e9dcc0 62%);pointer-events:none}
+.nb-foot{position:relative;z-index:2;text-align:center;padding:4px 0 calc(10px + env(safe-area-inset-bottom));font-family:"Segoe Print","Bradley Hand","Noteworthy","Comic Sans MS",cursive;font-size:.85rem;opacity:.75}
+.nb-empty{flex:0 0 100%;display:grid;place-content:center;gap:8px;text-align:center;padding:24px;color:#2b2113}
+html.lite .nb-page{perspective:none}
+/* ---- Lịch kỷ niệm ---- */
+.overlay.nbcal{overflow-y:auto}
+.cal-bar{display:flex;align-items:center;justify-content:space-between;padding:4px 14px 10px}
+.cal-bar>div{text-align:center;display:grid}
+.cal-title{font-size:1.05rem}.cal-sub{opacity:.65}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:0 12px 24px}
+.cal-dow{text-align:center;font-size:.7rem;opacity:.55;padding:4px 0}
+.cal-cell{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);padding:0;color:inherit}
+.cal-cell.off{background:none;border:0}
+.cal-cell img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cal-cell em{position:absolute;left:5px;top:3px;font-style:normal;font-size:.72rem;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.8);z-index:1}
+.cal-cell u{position:absolute;right:4px;bottom:3px;text-decoration:none;font-size:.62rem;background:rgba(0,0,0,.6);color:#fff;border-radius:99px;padding:1px 6px;z-index:1}
+.cal-cell.has{border-color:rgba(226,176,74,.6)}
+.cal-day{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:56vh;overflow-y:auto}
+.plus-back{margin-left:auto}
+
