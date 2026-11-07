@@ -20,7 +20,7 @@
   async function refresh() {
     var c = card(); if (!c) return;
     var vm = document.getElementById("view-main"); if (vm && vm.classList.contains("hidden")) return;
-    try { var d = await api("/api/account-key"); code = d.code || ""; val.textContent = code || "—"; c.classList.toggle("hidden", !code); }
+    try { var d = await api("/api/account-key"); code = d.code || ""; val.textContent = code || "—"; c.classList.toggle("hidden", !code); var sm = c.querySelector("small"); if (sm) sm.textContent = "Mã khóa app của bạn" + (d.exp ? " · còn " + Math.max(1, Math.ceil((d.exp * 1000 - Date.now()) / 86400000)) + " ngày" : ""); }
     catch (e) { code = ""; c.classList.add("hidden"); }
   }
   var _api = api;

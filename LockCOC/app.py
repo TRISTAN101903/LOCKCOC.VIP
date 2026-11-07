@@ -650,6 +650,10 @@ def unlock():
         if c and hmac.compare_digest(code.encode(), c.replace("-", "").encode()):
             hit = k
     if not hit:
+        for k in keys:
+            r2 = account_row(k)
+            if r2 and r2["uid"] and _code_meta(r2["uid"]) and not _account_code(r2["uid"]):
+                raise ApiError("Mã khóa đã hết hạn 7 ngày. Hãy đăng nhập lại tài khoản để nhận mã mới.", 403)
         raise ApiError("Mã khóa không đúng.", 403)
     unl = session.get("unl")
     unl = dict(unl) if isinstance(unl, dict) else {}
@@ -681,13 +685,19 @@ def lock_code_issue():
     code = _account_code(row["uid"]) if row and row["uid"] else None
     if not code:
         raise ApiError("Chua cap duoc ma, hay dang nhap lai.", 404)
-    return jr({"code": code, "wait": 0})
+    meta = _code_meta(row["uid"])
+    return jr({"code": code, "wait": 0, "exp": int(float(meta["created"] or time.time()) + CODE_TTL) if meta else None})
 
 
 @app.post("/api/lock-code/ack")
 @api
 def lock_code_ack():
-    session.pop("issue", None)
+    iss = session.pop("issue", None)
+    if isinstance(iss, dict):
+        row = account_row(iss.get("key", ""))
+        if row and row["uid"]:
+            _ak_init()
+            q("UPDATE account_codes SET acked=? WHERE uid=?", (time.time(), row["uid"]), commit=True)
     return jr({"ok": True})
 
 
@@ -747,8 +757,12 @@ def login():
     )
     with ENTRIES_LOCK:
         ENTRIES[key] = Entry(key, client)
+    need_issue = True
     try:
-        _account_code(prof["uid"])
+        meta = _code_meta(prof["uid"])
+        fresh = bool(meta and meta["acked"] and time.time() - float(meta["created"] or 0) <= CODE_TTL)
+        _account_code(prof["uid"], rotate=True)
+        need_issue = not fresh
     except Exception:  # noqa: BLE001
         pass
 
@@ -761,35 +775,60 @@ def login():
         unl = dict(unl)
         unl.pop(key, None)
         session["unl"] = unl
-    session["issue"] = {"key": key, "ready": time.time() + 15, "until": time.time() + 1800}
-    return jr({"ok": True, "account": acct_json(account_row(key))})
+    if need_issue:
+        session["issue"] = {"key": key, "ready": time.time() + 15, "until": time.time() + 1800}
+    else:
+        session.pop("issue", None)
+    return jr({"ok": True, "account": acct_json(account_row(key)), "issue": need_issue})
 
 
 _AK_ALPHA = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
 _ak_ready = False
 
 
-def _account_code(uid) -> str | None:
-    """Ma tai khoan dang TRIS-XXXX-XXXX-XXXX, moi tai khoan (uid Locket) mot ma, chi cap sau khi dang nhap.
-    Co LOCKETCAC_SECRET: ma suy ra co dinh nen khong doi khi server bi xoa du lieu; khong co: ma ngau nhien luu trong DB."""
+CODE_TTL = 7 * 86400  # ma khoa app co hieu luc 7 ngay
+
+
+def _ak_init() -> None:
     global _ak_ready
+    if _ak_ready:
+        return
+    q("CREATE TABLE IF NOT EXISTS account_codes(uid TEXT PRIMARY KEY, code TEXT NOT NULL, created REAL)", commit=True)
+    for col, typ in (("rot", "INTEGER DEFAULT 0"), ("acked", "REAL")):
+        try:
+            q("ALTER TABLE account_codes ADD COLUMN " + col + " " + typ, commit=True)
+        except Exception:  # noqa: BLE001
+            pass
+    _ak_ready = True
+
+
+def _account_code(uid, rotate: bool = False) -> str | None:
+    """Ma TRIS-XXXX-XXXX-XXXX, moi tai khoan mot ma, hieu luc 7 ngay.
+    Het han: tra None, chi doi ma moi khi rotate=True (luc dang nhap)."""
     if not uid or not isinstance(uid, str):
         return None
-    if not _ak_ready:
-        q("CREATE TABLE IF NOT EXISTS account_codes(uid TEXT PRIMARY KEY, code TEXT NOT NULL, created REAL)", commit=True)
-        _ak_ready = True
-    row = q("SELECT code FROM account_codes WHERE uid=?", (uid,), one=True)
-    if row:
+    _ak_init()
+    row = q("SELECT code,created,rot FROM account_codes WHERE uid=?", (uid,), one=True)
+    now = time.time()
+    if row and now - float(row["created"] or 0) <= CODE_TTL:
         return row["code"]
+    if row and not rotate:
+        return None
+    rot = int(row["rot"] or 0) + 1 if row else 0
     env = os.environ.get("LOCKETCAC_SECRET")
     if env:
-        digest = hmac.new(env.encode(), ("lockcoc-code:" + uid).encode(), "sha256").digest()
+        digest = hmac.new(env.encode(), ("lockcoc-code:" + uid + (":" + str(rot) if rot else "")).encode(), "sha256").digest()
         chars = [_AK_ALPHA[b % len(_AK_ALPHA)] for b in digest[:12]]
     else:
         chars = [secrets.choice(_AK_ALPHA) for _ in range(12)]
     code = "TRIS-" + "".join(chars[0:4]) + "-" + "".join(chars[4:8]) + "-" + "".join(chars[8:12])
-    q("INSERT OR IGNORE INTO account_codes(uid,code,created) VALUES(?,?,?)", (uid, code, time.time()), commit=True)
-    return q("SELECT code FROM account_codes WHERE uid=?", (uid,), one=True)["code"]
+    q("INSERT OR REPLACE INTO account_codes(uid,code,created,rot,acked) VALUES(?,?,?,?,NULL)", (uid, code, now, rot), commit=True)
+    return code
+
+
+def _code_meta(uid):
+    _ak_init()
+    return q("SELECT created,acked FROM account_codes WHERE uid=?", (uid,), one=True)
 
 
 @app.get("/api/account-key")
@@ -800,8 +839,9 @@ def account_key():
     uid = (row["uid"] if row else None) or e.uid
     code = _account_code(uid)
     if not code:
-        raise ApiError("Chua co ma cho tai khoan nay", 404)
-    return jr({"code": code})
+        return jr({"code": "", "expired": True})
+    meta = _code_meta(uid)
+    return jr({"code": code, "exp": int(float(meta["created"] or time.time()) + CODE_TTL) if meta else None})
 
 
 @app.post("/api/switch")
