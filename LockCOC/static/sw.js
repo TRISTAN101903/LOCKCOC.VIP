@@ -1,5 +1,5 @@
 /* sw.js - mở app nhanh: file tĩnh hiện ngay từ bộ nhớ, tải bản mới ngầm (stale-while-revalidate) */
-const C = "lc-static-v1";
+const C = "lc-static-v2";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (e) => e.waitUntil(
   caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== C).map((k) => caches.delete(k)))).then(() => self.clients.claim())));
@@ -11,8 +11,8 @@ self.addEventListener("fetch", (e) => {
     const net = fetch(r).then((res) => {
       if (res && res.ok) {
         const same = hit && hit.headers.get("etag") && hit.headers.get("etag") === res.headers.get("etag");
-        c.put(r, res.clone());
-        if (hit && !same) self.clients.matchAll().then((cs) => cs.forEach((x) => x.postMessage({ t: "upd" })));
+        const saved = c.put(r, res.clone());
+        if (hit && !same) saved.then(() => self.clients.matchAll()).then((cs) => cs.forEach((x) => x.postMessage({ t: "upd" })));
       }
       return res;
     }).catch(() => hit);

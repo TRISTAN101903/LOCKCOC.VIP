@@ -11,11 +11,18 @@
     window.addEventListener("load", function () {
       navigator.serviceWorker.register("/sw.js").catch(function () { /* bỏ qua */ });
     });
+    var upTimer = 0;
+    function applyUpdate() {
+      var busy = document.querySelector(".overlay:not(.hidden), .sheet-pick");
+      if (busy) { upTimer = setTimeout(applyUpdate, 4000); return; }
+      location.reload();
+    }
     navigator.serviceWorker.addEventListener("message", function (e) {
-      if (!e.data || e.data.t !== "upd" || document.querySelector(".upd-pill")) return;
-      var b = document.createElement("button"); b.type = "button"; b.className = "upd-pill"; b.textContent = "Có bản cập nhật mới · chạm để tải lại";
-      b.addEventListener("click", function () { location.reload(); });
-      document.body.appendChild(b);
+      if (!e.data || e.data.t !== "upd" || upTimer) return;
+      var last = 0; try { last = +sessionStorage.getItem("lc_upd") || 0; } catch (x) { /* bỏ qua */ }
+      if (Date.now() - last < 60000) return;
+      try { sessionStorage.setItem("lc_upd", String(Date.now())); } catch (x) { /* bỏ qua */ }
+      upTimer = setTimeout(applyUpdate, 700);
     });
   }
 })();
