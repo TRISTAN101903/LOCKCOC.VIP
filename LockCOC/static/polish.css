@@ -415,3 +415,13 @@ html.lite .nb-page{perspective:none}
 /* hang bo loc: khong de snap cat mat chip dau tien (Goc) */
 .filter-strip{scroll-snap-type:none!important;scroll-padding-inline:14px;box-sizing:border-box;padding:10px 14px 4px;overscroll-behavior-x:contain}
 .filter-strip::after{content:"";flex:0 0 6px}
+
+/*camfit2*/
+#page-camera > *{flex-shrink:0}
+#page-camera[style*="--vfw"] .viewfinder,#page-camera[style*="--vfw"] .zoom-bar{width:var(--vfw)}
+#page-camera[style*="--vfw"]{justify-content:flex-start}
+#page-camera[style*="--vfw"] .viewfinder{margin-top:6px}
+.vf-grid{position:absolute;inset:0;z-index:4;pointer-events:none;opacity:0;transition:opacity .2s;background:linear-gradient(to right,transparent calc(33.33% - .5px),rgba(255,255,255,.3) calc(33.33% - .5px),rgba(255,255,255,.3) calc(33.33% + .5px),transparent calc(33.33% + .5px),transparent calc(66.66% - .5px),rgba(255,255,255,.3) calc(66.66% - .5px),rgba(255,255,255,.3) calc(66.66% + .5px),transparent calc(66.66% + .5px)),linear-gradient(to bottom,transparent calc(33.33% - .5px),rgba(255,255,255,.3) calc(33.33% - .5px),rgba(255,255,255,.3) calc(33.33% + .5px),transparent calc(33.33% + .5px),transparent calc(66.66% - .5px),rgba(255,255,255,.3) calc(66.66% - .5px),rgba(255,255,255,.3) calc(66.66% + .5px),transparent calc(66.66% + .5px))}
+.vf-grid.on{opacity:1}
+.grid-chip{flex:none;padding-inline:12px}
+.grid-chip.on{background:#d9b25a;color:#1a1306;border-color:transparent}
